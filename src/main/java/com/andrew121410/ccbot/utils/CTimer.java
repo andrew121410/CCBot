@@ -9,25 +9,35 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class CCPresence {
+public class CTimer {
 
     private CCBot ccBot;
 
     private int number;
 
-    public CCPresence(CCBot ccBot) {
+    private ScheduledExecutorService saveService;
+    private ScheduledExecutorService presenceService;
+
+    public CTimer(CCBot ccBot) {
         this.ccBot = ccBot;
-        setup();
+        setupSaveManager();
+        setupRichPressure();
     }
 
-    public void setup() {
+    private void setupSaveManager() {
+        Runnable runnable = () -> ccBot.getConfigManager().saveAll();
+        this.saveService = Executors.newSingleThreadScheduledExecutor();
+        this.saveService.scheduleAtFixedRate(runnable, 0, 30, TimeUnit.SECONDS);
+    }
+
+    public void setupRichPressure() {
         //The Default Rate is 13
         //But the recommended rate is 15
         //But i'm just gonna do 20 seconds just to be safe.
         Runnable runnable = () -> ccBot.getJda().getPresence().setPresence(onlineStatus(), Activity.of(statusType(), Objects.requireNonNull(statusMessage())));
 //        Runnable runnable = () -> this.main.getJda().getPresence().setPresence(OnlineStatus.ONLINE, Activity.of(Activity.ActivityType.DEFAULT, "CCBot | //help"));
-        ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
-        service.scheduleAtFixedRate(runnable, 0, 20, TimeUnit.SECONDS);
+        this.presenceService = Executors.newSingleThreadScheduledExecutor();
+        this.presenceService.scheduleAtFixedRate(runnable, 0, 20, TimeUnit.SECONDS);
     }
 
 
@@ -82,5 +92,13 @@ public class CCPresence {
             default:
                 return Activity.ActivityType.DEFAULT;
         }
+    }
+
+    public ScheduledExecutorService getSaveService() {
+        return saveService;
+    }
+
+    public ScheduledExecutorService getPresenceService() {
+        return presenceService;
     }
 }

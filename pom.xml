@@ -39,6 +39,12 @@
                                     <mainClass>com.andrew121410.ccbot.CCBot</mainClass>
                                 </transformer>
                             </transformers>
+<!--                            <relocations>-->
+<!--                                <relocation>-->
+<!--                                    <pattern>com.fasterxml.jackson</pattern>-->
+<!--                                    <shadedPattern>com.andrew121410.ccbot.jackson</shadedPattern>-->
+<!--                                </relocation>-->
+<!--                            </relocations>-->
                         </configuration>
                     </execution>
                 </executions>
@@ -82,16 +88,23 @@
         </dependency>
 
         <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>2.10.1</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-yaml</artifactId>
-            <version>2.9.8</version>
+            <version>2.10.1</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
-            <version>2.9.8</version>
+            <version>2.10.1</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>

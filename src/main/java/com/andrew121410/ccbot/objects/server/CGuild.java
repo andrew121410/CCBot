@@ -1,40 +1,47 @@
 package com.andrew121410.ccbot.objects.server;
 
 import com.andrew121410.ccbot.CCBot;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.*;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.BiConsumer;
 
-@Getter
-@Setter
 @ToString
 @EqualsAndHashCode
 @NoArgsConstructor
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class CGuild {
 
-    private CCBot ccBot = CCBot.getInstance();
+    private final CCBot ccBot = CCBot.getInstance();
+    private String guildId;
+    private Map<String, CReaction> cReactionMap;
+    private CGuildSettings cGuildSettings;
 
-    public CGuild(Guild guild) {
-        this.guildId = guild.getId();
-        this.cGuildSettings = new CGuildSettings();
+    private CGuild(String guildId, Map<String, CReaction> cReactionMap, CGuildSettings cGuildSettings) {
+        this.guildId = guildId;
+        this.cReactionMap = cReactionMap;
+        this.cGuildSettings = cGuildSettings;
     }
 
-    private Map<String, BiConsumer<String, MessageReactionAddEvent>> reactionsMap = new HashMap<>();
+    public CGuild(Guild guild) {
+        this(guild.getId(), new HashMap<>(), new CGuildSettings(guild.getId()));
+    }
 
-    @JsonProperty("Guild-ID")
-    private String guildId = null;
+    public CGuild(CGuildSettings cGuildSettings) {
+        this(cGuildSettings.getGuildId(), new HashMap<>(), cGuildSettings);
+    }
 
-    @JsonProperty("Guild-Settings")
-    private CGuildSettings cGuildSettings = null;
+    public String getGuildId() {
+        return guildId;
+    }
 
-    public Guild getGuild() {
-        return this.ccBot.getJda().getGuildById(guildId);
+    public Map<String, CReaction> getCReactionMap() {
+        return cReactionMap;
+    }
+
+    public CGuildSettings getCGuildSettings() {
+        return cGuildSettings;
     }
 }

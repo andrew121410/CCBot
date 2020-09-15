@@ -2,6 +2,7 @@ package com.andrew121410.ccbot.config;
 
 import com.andrew121410.ccbot.CCBot;
 import com.andrew121410.ccbot.objects.server.CGuild;
+import com.andrew121410.ccbot.objects.server.CGuildSettings;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import net.dv8tion.jda.api.entities.Guild;
@@ -34,8 +35,8 @@ public class GuildConfigManager {
         File guildsFolder = getGuildFolder();
         List<File> ymlFiles = Arrays.stream(guildsFolder.listFiles()).filter(file -> file.getName().endsWith(".yml")).collect(Collectors.toList());
         for (File ymlFile : ymlFiles) {
-            CGuild cGuild = objectMapper.readValue(ymlFile, CGuild.class);
-            this.guildMap.putIfAbsent(cGuild.getGuildId(), cGuild);
+            CGuildSettings cGuildSettings = objectMapper.readValue(ymlFile, CGuildSettings.class);
+            this.guildMap.putIfAbsent(cGuildSettings.getGuildId(), new CGuild(cGuildSettings));
         }
     }
 
@@ -48,7 +49,7 @@ public class GuildConfigManager {
             String k = entry.getKey();
             CGuild v = entry.getValue();
             File file = new File(guildsFolder, k + ".yml");
-            objectMapper.writeValue(file, v);
+            objectMapper.writeValue(file, v.getCGuildSettings());
         }
         Instant finish = Instant.now();
         long timeElapsed = Duration.between(start, finish).toMillis();

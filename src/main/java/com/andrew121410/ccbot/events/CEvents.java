@@ -3,9 +3,11 @@ package com.andrew121410.ccbot.events;
 import com.andrew121410.ccbot.CCBot;
 import com.andrew121410.ccbot.config.GuildConfigManager;
 import com.andrew121410.ccbot.objects.server.CGuild;
+import com.andrew121410.ccbot.objects.server.CReaction;
 import com.andrew121410.ccbot.utils.CUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.channel.text.update.TextChannelUpdateNSFWEvent;
@@ -18,6 +20,7 @@ import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleAddEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleRemoveEvent;
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.SubscribeEvent;
 
 import java.awt.*;
@@ -25,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class CEvents {
@@ -215,6 +219,46 @@ public class CEvents {
                 .setThumbnail(event.getUser().getAvatarUrl());
 
         textChannel.sendMessage(embedBuilder.build()).queue();
+    }
+
+    @SubscribeEvent
+    public void onReaction(MessageReactionAddEvent event) {
+        if (event.getUser() == null) return;
+        if (event.getMember() == null) return;
+
+        if (event.getMember().getUser().isBot()) {
+            return; //No bots
+        }
+
+        CGuild cGuild = this.guildConfigManager.getOrElseAdd(event.getGuild());
+        String textChannelIdPlusMessageId = event.getTextChannel().getId() + event.getMessageId();
+        CReaction cReaction = cGuild.getCReactionMap().get(textChannelIdPlusMessageId);
+        if (cReaction != null) {
+            List<Permission> permissions = cReaction.getPermissions();
+            if (permissions != null) {
+                if (!event.getMember().hasPermission(permissions)) {
+                    event.getReaction().removeReaction(event.getUser()).queue();
+                    event.getTextChannel().sendMessage("You don't have permission to react. " + event.getUser().getAsMention()).queue(a -> a.delete().queueAfter(10, TimeUnit.SECONDS));
+                    return;
+                }
+            }
+
+            cReaction.getBiConsumer().accept(cReaction, event);
+            EmbedBuilder embedBuilder = cReaction.getBiFunction().apply(cReaction, event);
+
+            if (embedBuilder == null) {
+                event.getTextChannel().deleteMessageById(event.getMessageId()).queue();
+                return;
+            }
+
+            event.getTextChannel().editMessageById(event.getMessageId(), embedBuilder.build()).queue(a -> {
+                a.clearReactions().queue();
+                for (String emoji : cReaction.getEmojis()) {
+                    a.addReaction(emoji).queue();
+                }
+            });
+        }
+
     }
 
     //Extra not needed but oh well.

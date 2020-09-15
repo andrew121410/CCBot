@@ -4,10 +4,14 @@ import com.andrew121410.ccbot.CCBot;
 import com.andrew121410.ccbot.commands.manager.CommandManager;
 import com.andrew121410.ccbot.commands.manager.ICommand;
 import com.andrew121410.ccbot.objects.server.CGuild;
+import com.andrew121410.ccbot.objects.server.CReaction;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+
+import java.awt.*;
+import java.util.Arrays;
+import java.util.Collections;
 
 public class ConfigCMD implements ICommand {
 
@@ -26,47 +30,32 @@ public class ConfigCMD implements ICommand {
         CGuild cGuild = this.ccBot.getConfigManager().getGuildConfigManager().getOrElseAdd(event.getGuild());
 
         if (args.length == 0) {
-            EmbedBuilder embedBuilder = makeEmbed(cGuild, null, event.getTextChannel());
+            EmbedBuilder embedBuilder = makeEmbed(cGuild);
 
-            event.getTextChannel().sendMessage(embedBuilder.build()).queue(a -> {
-                a.addReaction("\\uD83D\\uDC4B").queue();
-                a.addReaction("\\uD83D\\uDCF0").queue();
-
-                cGuild.getReactionsMap().put(a.getId(), (c, d) -> {
-                    switch (d.getReactionEmote().getEmoji()) {
-                        case "\\uD83D\\uDC4B":
-                            cGuild.getCGuildSettings().setWelcomeMessages(!cGuild.getCGuildSettings().getWelcomeMessages());
-                            makeEmbed(cGuild, c, d.getTextChannel());
-                            break;
-                        case "\\uD83D\\uDCF0":
-                            cGuild.getCGuildSettings().setLogs(!cGuild.getCGuildSettings().getLogs());
-                            makeEmbed(cGuild, c, d.getTextChannel());
-                            break;
-                    }
-                });
-            });
-            return true;
+            event.getTextChannel().sendMessage(embedBuilder.build()).queue(a -> cGuild.getCReactionMap().putIfAbsent(a.getTextChannel().getId() + a.getId(), new CReaction(a, Collections.singletonList(Permission.MANAGE_SERVER), Arrays.asList("\uD83D\uDC4B", "\uD83D\uDCF0"), (onCReaction, onEvent) -> {
+                switch (onEvent.getReactionEmote().getEmoji()) {
+                    case "\uD83D\uDC4B":
+                        cGuild.getCGuildSettings().setWelcomeMessages(!cGuild.getCGuildSettings().getWelcomeMessages());
+                        break;
+                    case "\uD83D\uDCF0":
+                        cGuild.getCGuildSettings().setLogs(!cGuild.getCGuildSettings().getLogs());
+                        break;
+                    default:
+                        break;
+                }
+            }, ((cReaction, event1) -> makeEmbed(cGuild)), true)));
         }
         return false;
     }
 
-    private EmbedBuilder makeEmbed(CGuild cGuild, String edit, TextChannel textChannel) {
-        String configSec = "WelcomeMessages: \\uD83D\\uDC4B " + cGuild.getCGuildSettings().getWelcomeMessages()
-                + "\r\n" + "Logs: \\uD83D\\uDCF0 " + cGuild.getCGuildSettings().getLogs();
-
-        EmbedBuilder embedBuilder = new EmbedBuilder()
+    private EmbedBuilder makeEmbed(CGuild cGuild) {
+        String configSec = "WelcomeMessages: \uD83D\uDC4B " + cGuild.getCGuildSettings().getWelcomeMessages()
+                + "\r\n" + "Logs: \uD83D\uDCF0 " + cGuild.getCGuildSettings().getLogs();
+        return new EmbedBuilder()
                 .setAuthor("CCBot")
                 .setTitle("Guild configuration!")
                 .setDescription("Allows you to edit the configuration of the guild.")
-                .addField("Settings:", configSec, false);
-
-        if (edit != null) {
-            textChannel.editMessageById(edit, embedBuilder.build()).queue(a -> {
-                a.clearReactions().queue();
-                a.addReaction("\\uD83D\\uDC4B").queue();
-                a.addReaction("\\uD83D\\uDCF0").queue();
-            });
-        }
-        return embedBuilder;
+                .addField("Settings:", configSec, false)
+                .setColor(new Color(48, 2, 11));
     }
 }

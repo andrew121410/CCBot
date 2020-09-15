@@ -4,27 +4,32 @@ import com.andrew121410.ccbot.commands.*;
 import com.andrew121410.ccbot.commands.manager.CommandManager;
 import com.andrew121410.ccbot.config.ConfigManager;
 import com.andrew121410.ccbot.events.CEvents;
-import com.andrew121410.ccbot.utils.CCPresence;
+import com.andrew121410.ccbot.objects.server.CGuild;
+import com.andrew121410.ccbot.utils.CTimer;
 import com.andrew121410.ccbot.utils.SetListMap;
 import lombok.SneakyThrows;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.hooks.AnnotatedEventManager;
 
-import java.util.Scanner;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.Map;
 
 public class CCBot {
 
-    public static final String VERSION = "1.0";
+    public static final String VERSION = "1.1";
 
     private static CCBot instance;
-    private Scanner scanner;
 
     private JDA jda;
 
     private SetListMap setListMap;
     private ConfigManager configManager;
     private CommandManager commandManager;
+    private CTimer cTimer;
 
     public static void main(String[] args) {
         new CCBot(args);
@@ -34,7 +39,7 @@ public class CCBot {
         instance = this;
         this.setListMap = new SetListMap();
         this.configManager = new ConfigManager(this);
-        this.configManager.loadConfig(); //Loads default config
+        this.configManager.loadAll(); //Loads default config
         setupJDA();
         setupScanner();
     }
@@ -55,7 +60,7 @@ public class CCBot {
                 .build()
                 .awaitReady();
 
-        new CCPresence(this);
+        this.cTimer = new CTimer(this);
         setupCommands();
     }
 
@@ -68,32 +73,41 @@ public class CCBot {
     }
 
     private void setupScanner() {
-        this.scanner = new Scanner(System.in);
-        while (scanner.hasNextLine()) {
-            String s = scanner.nextLine();
-            switch (s.toLowerCase()) {
-                case "stop":
-                case "end":
-                case "exit":
-                    exit();
-                    break;
-                default:
-                    System.out.println("Sorry don't understand: " + s);
+        try (InputStream in = System.in) {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                switch (line.toLowerCase()) {
+                    case "stop":
+                    case "end":
+                    case "exit":
+                        exit();
+                        break;
+                    default:
+                        System.out.println("Sorry don't understand: " + line);
+                }
             }
+        } catch (IOException x) {
+            x.printStackTrace();
         }
     }
 
     public void exit() {
+        //Reactions
+        for (Map.Entry<String, CGuild> entry : this.setListMap.getGuildMap().entrySet()) {
+            entry.getValue().getCReactionMap().entrySet().stream().filter((a -> a.getValue().isDeleteOnShutdown())).forEach(b -> b.getValue().getMessage().delete().queue());
+        }
+
+        this.cTimer.getSaveService().shutdown();
+        this.cTimer.getPresenceService().shutdown();
         this.configManager.saveAll();
+        System.out.println("Exited Successfully!");
+        this.jda.shutdown();
         System.exit(0);
     }
 
     public static CCBot getInstance() {
         return instance;
-    }
-
-    public Scanner getScanner() {
-        return scanner;
     }
 
     public JDA getJda() {
@@ -110,5 +124,9 @@ public class CCBot {
 
     public CommandManager getCommandManager() {
         return commandManager;
+    }
+
+    public CTimer getCTimer() {
+        return cTimer;
     }
 }
