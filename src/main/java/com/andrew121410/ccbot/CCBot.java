@@ -70,6 +70,7 @@ public class CCBot {
         new KickCMD(this);
         new BanCMD(this);
         new ConfigCMD(this);
+        new SuperAdminCMD(this);
     }
 
     private void setupScanner() {

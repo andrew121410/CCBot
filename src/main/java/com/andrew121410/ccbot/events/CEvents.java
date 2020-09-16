@@ -90,6 +90,8 @@ public class CEvents {
 
         TextChannel textChannel2 = cUtils.findTextChannel(event.getGuild().getTextChannels(), cUtils.getLogsStringArray());
 
+        if (textChannel2 == null) return; //Could not find log channel.
+
         EmbedBuilder embedBuilder1 = new EmbedBuilder()
                 .setAuthor("Member Joined:", event.getUser().getAvatarUrl(), event.getUser().getAvatarUrl())
                 .setDescription(event.getUser().getAsMention() + " " + event.getUser().getAsTag())
@@ -161,8 +163,7 @@ public class CEvents {
         List<Role> roleList = event.getRoles();
         String roleString = roleList.stream().map(Role::getName).collect(Collectors.joining(", "));
 
-        List<String> channelList = new ArrayList<>(Arrays.asList(cUtils.getLogsStringArray()));
-        TextChannel textChannel = cUtils.findTextChannel(event.getGuild().getTextChannels(), channelList);
+        TextChannel textChannel = cUtils.findTextChannel(event.getGuild().getTextChannels(), Arrays.asList(cUtils.getLogsStringArray()));
 
         if (textChannel == null) return;
 
@@ -223,16 +224,15 @@ public class CEvents {
 
     @SubscribeEvent
     public void onReaction(MessageReactionAddEvent event) {
-        if (event.getUser() == null) return;
-        if (event.getMember() == null) return;
+        if (event.getUser() == null || event.getMember() == null) return;
 
         if (event.getMember().getUser().isBot()) {
             return; //No bots
         }
-
         CGuild cGuild = this.guildConfigManager.getOrElseAdd(event.getGuild());
         String textChannelIdPlusMessageId = event.getTextChannel().getId() + event.getMessageId();
         CReaction cReaction = cGuild.getCReactionMap().get(textChannelIdPlusMessageId);
+
         if (cReaction != null) {
             List<Permission> permissions = cReaction.getPermissions();
             if (permissions != null) {
@@ -242,7 +242,6 @@ public class CEvents {
                     return;
                 }
             }
-
             cReaction.getBiConsumer().accept(cReaction, event);
             EmbedBuilder embedBuilder = cReaction.getBiFunction().apply(cReaction, event);
 
@@ -251,22 +250,16 @@ public class CEvents {
                 return;
             }
 
-            event.getTextChannel().editMessageById(event.getMessageId(), embedBuilder.build()).queue(a -> {
-                a.clearReactions().queue();
-                for (String emoji : cReaction.getEmojis()) {
-                    a.addReaction(emoji).queue();
-                }
-            });
+            event.getTextChannel().editMessageById(event.getMessageId(), embedBuilder.build()).queue(a -> event.getReaction().removeReaction(event.getUser()).queue());
         }
 
     }
 
     //Extra not needed but oh well.
-
     @SubscribeEvent
     public void onPrivateMessages(PrivateMessageReceivedEvent event) {
         if (event.getAuthor().isBot()) return;
-        event.getChannel().sendMessage("Why are you private messaging me? you weirdo....").queue();
+        event.getChannel().sendMessage("Why are you private messaging me? you weirdo....").queue(a -> a.delete().queueAfter(10, TimeUnit.SECONDS));
         event.getChannel().close().queue();
     }
 

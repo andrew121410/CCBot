@@ -24,6 +24,6 @@ public class CUtils {
     }
 
     public String[] getLogsStringArray() {
-        return new String[]{"logs", "log", "bot-logs", "bots-log", "bots-logs", "ccbot-logs"};
+        return new String[]{"logs", "log", "bot-logs", "bots-log", "bots-logs", "ccbot-logs", "discord-log", "discord-logs"};
     }
 }
