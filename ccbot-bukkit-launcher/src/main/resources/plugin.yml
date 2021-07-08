@@ -1,0 +1,5 @@
+name: CCBot
+main: com.andrew121410.ccbot.CCBotBukkit
+authors: [Andrew121410]
+description: a cCBot bukkit launcher
+version: 1.17
