@@ -12,8 +12,10 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.awt.*;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class PurgeCMD implements ICommand {
 
@@ -30,12 +32,14 @@ public class PurgeCMD implements ICommand {
             return true;
         }
 
+        String prefix = this.ccBotCore.getConfigManager().getMainConfig().getPrefix();
+
         if (args.length == 0) {
             EmbedBuilder embedBuilder = new EmbedBuilder()
                     .setAuthor("CCBot Purge Usage!")
                     .setColor(Color.RED)
-                    .addField("Usage:", this.ccBotCore.getConfigManager().getMainConfig().getPrefix() + "purge <Number>", false);
-            event.getTextChannel().sendMessage(embedBuilder.build()).queue(a -> a.delete().queueAfter(10, TimeUnit.SECONDS));
+                    .addField("Usage:", prefix + "purge <Number>" + "\r\n " + prefix + "purge words badword", false);
+            event.getTextChannel().sendMessageEmbeds(embedBuilder.build()).queue(a -> a.delete().queueAfter(10, TimeUnit.SECONDS));
             return true;
         } else if (args.length == 1) {
             Integer integer = Utils.asIntegerOrElse(args[0], null);
@@ -53,6 +57,12 @@ public class PurgeCMD implements ICommand {
             }
             purge(event.getTextChannel(), integer);
             event.getTextChannel().sendMessage("**Successfully purged " + integer + " messages!**").queue();
+            return true;
+        } else if (args.length >= 2 && args[0].contains("word")) {
+            String[] wordArray = Arrays.copyOfRange(args, 1, args.length);
+            purgeWords(event.getTextChannel(), Arrays.asList(wordArray));
+            event.getTextChannel().sendMessage("**We are now deleting messages with the word/s " + Arrays.toString(wordArray) + " in them!**").queue();
+            return true;
         }
         return false;
     }
@@ -67,5 +77,17 @@ public class PurgeCMD implements ICommand {
         } catch (IllegalArgumentException ex) {
             textChannel.sendMessage(ex.getMessage()).queue();
         }
+    }
+
+    private void purgeWords(TextChannel textChannel, List<String> strings) {
+        AtomicInteger atomicInteger = new AtomicInteger(0);
+        textChannel.getIterableHistory().forEachAsync(message -> {
+            for (String string : strings)
+                if (message.getContentRaw().contains(string)) {
+                    atomicInteger.getAndIncrement();
+                    message.delete().queue();
+                }
+            return true;
+        }).thenRunAsync(() -> textChannel.sendMessage("Completed! The count was: " + atomicInteger.get()).queue());
     }
 }
