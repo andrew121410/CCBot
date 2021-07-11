@@ -7,8 +7,12 @@ import java.io.InputStreamReader;
 
 public class CCBot extends CCBotCore {
 
+    public static void main(String[] args) {
+        new CCBot(args);
+    }
+
     public CCBot(String[] args) {
-        super("/config/");
+        super("config/");
         setupScanner();
     }
 

@@ -1,6 +1,7 @@
 package com.andrew121410.ccbot.objects;
 
 import com.andrew121410.ccbot.CCBotCore;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -15,20 +16,24 @@ import java.util.Map;
 @ToString
 @EqualsAndHashCode
 @NoArgsConstructor
-@JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class CGuild {
 
+    @JsonIgnore
     private final CCBotCore ccBotCore = CCBotCore.getInstance();
 
     @JsonProperty("Guild-ID")
     private String guildId;
 
-    private Map<String, CReaction> cReactionMap = new HashMap<>();
+    @JsonIgnore
+    private Map<String, CReaction> reactions = new HashMap<>();
+
     @JsonProperty("Tags")
     private Map<String, String> tags = new HashMap<>();
+
     @JsonProperty("Settings")
-    private CGuildSettings cGuildSettings = new CGuildSettings();
+    private CGuildSettings settings = new CGuildSettings();
 
     public CGuild(Guild guild) {
         this.guildId = guild.getId();
@@ -39,11 +44,11 @@ public class CGuild {
     }
 
     public Map<String, CReaction> getReactions() {
-        return cReactionMap;
+        return reactions;
     }
 
     public CGuildSettings getSettings() {
-        return cGuildSettings;
+        return settings;
     }
 
     public Map<String, String> getTags() {
