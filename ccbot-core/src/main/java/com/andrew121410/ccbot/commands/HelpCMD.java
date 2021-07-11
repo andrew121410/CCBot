@@ -26,12 +26,14 @@ public class HelpCMD implements ICommand {
     private void helpStyle(TextChannel textChannel) {
         String prefix = this.ccBotCore.getConfigManager().getMainConfig().getPrefix();
 
-        String basicHelp = prefix + "help";
+        String basicHelp = prefix + "help"
+                + "\r\n" + " " + prefix + "tag";
 
         String adminHelp = prefix + "ban"
                 + "\r\n" + " " + prefix + "kick"
                 + "\r\n" + " " + prefix + "purge"
-                + "\r\n" + " " + prefix + "config";
+                + "\r\n" + " " + prefix + "config"
+                + "\r\n" + " " + prefix + "tags";
 
 //        String addonhelp = API.PREFIX + "ticket"
 //                + "\r\n" + " " + API.PREFIX + "suggest";

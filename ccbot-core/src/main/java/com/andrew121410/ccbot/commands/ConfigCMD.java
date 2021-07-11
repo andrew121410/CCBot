@@ -32,13 +32,13 @@ public class ConfigCMD implements ICommand {
         if (args.length == 0) {
             EmbedBuilder embedBuilder = makeEmbed(cGuild);
 
-            event.getTextChannel().sendMessage(embedBuilder.build()).queue(a -> cGuild.getCReactionMap().putIfAbsent(a.getTextChannel().getId() + a.getId(), new CReaction(a, Collections.singletonList(Permission.MANAGE_SERVER), Arrays.asList("\uD83D\uDC4B", "\uD83D\uDCF0"), (onCReaction, onEvent) -> {
+            event.getTextChannel().sendMessage(embedBuilder.build()).queue(a -> cGuild.getReactions().putIfAbsent(a.getTextChannel().getId() + a.getId(), new CReaction(a, Collections.singletonList(Permission.MANAGE_SERVER), Arrays.asList("\uD83D\uDC4B", "\uD83D\uDCF0"), (onCReaction, onEvent) -> {
                 switch (onEvent.getReactionEmote().getEmoji()) {
                     case "\uD83D\uDC4B":
-                        cGuild.getCGuildSettings().setWelcomeMessages(!cGuild.getCGuildSettings().getWelcomeMessages());
+                        cGuild.getSettings().setWelcomeMessages(!cGuild.getSettings().getWelcomeMessages());
                         break;
                     case "\uD83D\uDCF0":
-                        cGuild.getCGuildSettings().setLogs(!cGuild.getCGuildSettings().getLogs());
+                        cGuild.getSettings().setLogs(!cGuild.getSettings().getLogs());
                         break;
                     default:
                         break;
@@ -49,8 +49,8 @@ public class ConfigCMD implements ICommand {
     }
 
     private EmbedBuilder makeEmbed(CGuild cGuild) {
-        String configSec = "WelcomeMessages: \uD83D\uDC4B " + cGuild.getCGuildSettings().getWelcomeMessages()
-                + "\r\n" + "Logs: \uD83D\uDCF0 " + cGuild.getCGuildSettings().getLogs();
+        String configSec = "WelcomeMessages: \uD83D\uDC4B " + cGuild.getSettings().getWelcomeMessages()
+                + "\r\n" + "Logs: \uD83D\uDCF0 " + cGuild.getSettings().getLogs();
         return new EmbedBuilder()
                 .setAuthor("CCBot")
                 .setTitle("Guild configuration!")

@@ -1,6 +1,9 @@
 package com.andrew121410.ccbot.objects;
 
 import com.andrew121410.ccbot.CCBotCore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -12,36 +15,38 @@ import java.util.Map;
 @ToString
 @EqualsAndHashCode
 @NoArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class CGuild {
 
     private final CCBotCore ccBotCore = CCBotCore.getInstance();
-    private String guildId;
-    private Map<String, CReaction> cReactionMap;
-    private CGuildSettings cGuildSettings;
 
-    private CGuild(String guildId, Map<String, CReaction> cReactionMap, CGuildSettings cGuildSettings) {
-        this.guildId = guildId;
-        this.cReactionMap = cReactionMap;
-        this.cGuildSettings = cGuildSettings;
-    }
+    @JsonProperty("Guild-ID")
+    private String guildId;
+
+    private Map<String, CReaction> cReactionMap = new HashMap<>();
+    @JsonProperty("Tags")
+    private Map<String, String> tags = new HashMap<>();
+    @JsonProperty("Settings")
+    private CGuildSettings cGuildSettings = new CGuildSettings();
 
     public CGuild(Guild guild) {
-        this(guild.getId(), new HashMap<>(), new CGuildSettings(guild.getId()));
-    }
-
-    public CGuild(CGuildSettings cGuildSettings) {
-        this(cGuildSettings.getGuildId(), new HashMap<>(), cGuildSettings);
+        this.guildId = guild.getId();
     }
 
     public String getGuildId() {
         return guildId;
     }
 
-    public Map<String, CReaction> getCReactionMap() {
+    public Map<String, CReaction> getReactions() {
         return cReactionMap;
     }
 
-    public CGuildSettings getCGuildSettings() {
+    public CGuildSettings getSettings() {
         return cGuildSettings;
+    }
+
+    public Map<String, String> getTags() {
+        return tags;
     }
 }

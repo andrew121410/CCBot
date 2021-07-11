@@ -8,8 +8,10 @@ import com.andrew121410.ccbot.utils.CUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.channel.text.update.TextChannelUpdateNSFWEvent;
 import net.dv8tion.jda.api.events.guild.GuildBanEvent;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
@@ -49,6 +51,13 @@ public class CEvents {
     }
 
     @SubscribeEvent
+    public void onReady(ReadyEvent event) {
+        for (Guild guild : event.getJDA().getGuilds()) {
+            this.guildConfigManager.add(guild);
+        }
+    }
+
+    @SubscribeEvent
     public void onGuildJoin(GuildJoinEvent event) {
         System.out.println("New Guild Join: " + event.getGuild().getName());
         this.guildConfigManager.add(event.getGuild());
@@ -63,7 +72,7 @@ public class CEvents {
     @SubscribeEvent
     public void onGuildMemberJoin(GuildMemberJoinEvent event) {
         CGuild cGuild = this.guildConfigManager.getOrElseAdd(event.getGuild());
-        if (!cGuild.getCGuildSettings().getWelcomeMessages()) {
+        if (!cGuild.getSettings().getWelcomeMessages()) {
             return;
         }
         if (event.getGuild().getSystemChannel() == null) return;
@@ -104,7 +113,7 @@ public class CEvents {
     @SubscribeEvent
     public void onGuildMemberLeave(GuildMemberRemoveEvent event) {
         CGuild cGuild = this.guildConfigManager.getOrElseAdd(event.getGuild());
-        if (!cGuild.getCGuildSettings().getLogs()) {
+        if (!cGuild.getSettings().getLogs()) {
             return;
         }
         List<String> channelList = new ArrayList<>();
@@ -127,7 +136,7 @@ public class CEvents {
     @SubscribeEvent
     public void onRoleAddEvent(GuildMemberRoleAddEvent event) {
         CGuild cGuild = this.guildConfigManager.getOrElseAdd(event.getGuild());
-        if (!cGuild.getCGuildSettings().getLogs()) {
+        if (!cGuild.getSettings().getLogs()) {
             return;
         }
         List<Role> roleList = event.getRoles();
@@ -157,7 +166,7 @@ public class CEvents {
     @SubscribeEvent
     public void onRoleRemoveEvent(GuildMemberRoleRemoveEvent event) {
         CGuild cGuild = this.guildConfigManager.getOrElseAdd(event.getGuild());
-        if (!cGuild.getCGuildSettings().getLogs()) {
+        if (!cGuild.getSettings().getLogs()) {
             return;
         }
         List<Role> roleList = event.getRoles();
@@ -185,7 +194,7 @@ public class CEvents {
     @SubscribeEvent
     public void onGuildBan(GuildBanEvent event) {
         CGuild cGuild = this.guildConfigManager.getOrElseAdd(event.getGuild());
-        if (!cGuild.getCGuildSettings().getLogs()) {
+        if (!cGuild.getSettings().getLogs()) {
             return;
         }
         List<String> channelList = new ArrayList<>(Arrays.asList(cUtils.getLogsStringArray()));
@@ -205,7 +214,7 @@ public class CEvents {
     @SubscribeEvent
     public void onGuildUnban(GuildUnbanEvent event) {
         CGuild cGuild = this.guildConfigManager.getOrElseAdd(event.getGuild());
-        if (!cGuild.getCGuildSettings().getLogs()) {
+        if (!cGuild.getSettings().getLogs()) {
             return;
         }
         List<String> channelList = new ArrayList<>(Arrays.asList(cUtils.getLogsStringArray()));
@@ -231,7 +240,7 @@ public class CEvents {
         }
         CGuild cGuild = this.guildConfigManager.getOrElseAdd(event.getGuild());
         String textChannelIdPlusMessageId = event.getTextChannel().getId() + event.getMessageId();
-        CReaction cReaction = cGuild.getCReactionMap().get(textChannelIdPlusMessageId);
+        CReaction cReaction = cGuild.getReactions().get(textChannelIdPlusMessageId);
 
         if (cReaction != null) {
             List<Permission> permissions = cReaction.getPermissions();

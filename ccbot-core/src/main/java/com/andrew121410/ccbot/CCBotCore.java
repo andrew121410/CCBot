@@ -2,6 +2,8 @@ package com.andrew121410.ccbot;
 
 import com.andrew121410.ccbot.commands.*;
 import com.andrew121410.ccbot.commands.manager.CommandManager;
+import com.andrew121410.ccbot.commands.tags.TagCMD;
+import com.andrew121410.ccbot.commands.tags.TagsCMD;
 import com.andrew121410.ccbot.config.ConfigManager;
 import com.andrew121410.ccbot.events.CEvents;
 import com.andrew121410.ccbot.objects.CGuild;
@@ -12,15 +14,11 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.hooks.AnnotatedEventManager;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.Map;
 
 public class CCBotCore {
 
-    public static final String VERSION = "2.0";
+    public static final String VERSION = "2.1";
 
     private static CCBotCore instance;
 
@@ -66,12 +64,14 @@ public class CCBotCore {
         new BanCMD(this);
         new ConfigCMD(this);
         new SuperAdminCMD(this);
+        new TagCMD(this);
+        new TagsCMD(this);
     }
 
     public void exit() {
         //Reactions
         for (Map.Entry<String, CGuild> entry : this.setListMap.getGuildMap().entrySet()) {
-            entry.getValue().getCReactionMap().entrySet().stream().filter((a -> a.getValue().isDeleteOnShutdown())).forEach(b -> b.getValue().getMessage().delete().queue());
+            entry.getValue().getReactions().entrySet().stream().filter((a -> a.getValue().isDeleteOnShutdown())).forEach(b -> b.getValue().getMessage().delete().queue());
         }
 
         this.cTimer.getSaveService().shutdown();
