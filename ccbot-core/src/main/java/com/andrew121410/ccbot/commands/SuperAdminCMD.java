@@ -4,8 +4,10 @@ import com.andrew121410.ccbot.CCBotCore;
 import com.andrew121410.ccbot.commands.manager.ICommand;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Invite;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 public class SuperAdminCMD implements ICommand {
@@ -45,8 +47,22 @@ public class SuperAdminCMD implements ICommand {
                         .addField("1.", this.ccBotCore.getConfigManager().getMainConfig().getPrefix() + "superadmin guilds list", false);
                 event.getTextChannel().sendMessage(embedBuilder.build()).queue(a -> a.delete().queueAfter(10, TimeUnit.SECONDS));
             }
-        }
+        } else if (args.length == 2 && args[0].equalsIgnoreCase("invite")) {
+            String guildId = args[1];
 
+            Guild guild = this.ccBotCore.getJda().getGuildById(guildId);
+            if (guild == null) {
+                event.getTextChannel().sendMessage("The bot isn't in that guild **FAILED**").queue(message -> message.delete().queueAfter(5, TimeUnit.SECONDS));
+                return true;
+            }
+            guild.retrieveInvites().queue(list -> {
+                if (list == null || list.isEmpty()) return;
+                Random rand = new Random();
+                Invite randomInvite = list.get(rand.nextInt(list.size()));
+                event.getTextChannel().sendMessage(randomInvite.getUrl()).queue();
+            });
+            return true;
+        }
         return false;
     }
 }
