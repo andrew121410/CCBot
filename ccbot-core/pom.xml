@@ -21,7 +21,7 @@
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>4.3.0_296</version>
+            <version>4.3.0_298</version>
             <scope>compile</scope>
         </dependency>
 
@@ -29,6 +29,13 @@
             <groupId>com.github.andrew121410</groupId>
             <artifactId>CCUtilsJava</artifactId>
             <version>9861d37be8</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.reflections</groupId>
+            <artifactId>reflections</artifactId>
+            <version>0.9.12</version>
             <scope>compile</scope>
         </dependency>
 

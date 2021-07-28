@@ -1,8 +1,9 @@
 package com.andrew121410.ccbot.commands;
 
 import com.andrew121410.ccbot.CCBotCore;
+import com.andrew121410.ccbot.commands.manager.ACommand;
+import com.andrew121410.ccbot.commands.manager.AbstractCommand;
 import com.andrew121410.ccbot.commands.manager.CommandManager;
-import com.andrew121410.ccbot.commands.manager.ICommand;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
@@ -11,13 +12,14 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import java.awt.*;
 import java.util.concurrent.TimeUnit;
 
-public class KickCMD implements ICommand {
+@ACommand(command = "kick", description = "Kicks a player from the guild")
+public class KickCMD extends AbstractCommand {
 
     private CCBotCore ccBotCore;
 
     public KickCMD(CCBotCore ccBotCore) {
+        super(ccBotCore);
         this.ccBotCore = ccBotCore;
-        this.ccBotCore.getCommandManager().register(this, "kick");
     }
 
     @Override

@@ -1,7 +1,8 @@
 package com.andrew121410.ccbot.commands;
 
 import com.andrew121410.ccbot.CCBotCore;
-import com.andrew121410.ccbot.commands.manager.ICommand;
+import com.andrew121410.ccbot.commands.manager.ACommand;
+import com.andrew121410.ccbot.commands.manager.AbstractCommand;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Invite;
@@ -10,13 +11,14 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
-public class SuperAdminCMD implements ICommand {
+@ACommand(command = "superadmin", description = "null")
+public class SuperAdminCMD extends AbstractCommand {
 
     private CCBotCore ccBotCore;
 
     public SuperAdminCMD(CCBotCore ccBotCore) {
+        super(ccBotCore);
         this.ccBotCore = ccBotCore;
-        this.ccBotCore.getCommandManager().register(this, "superadmin");
     }
 
     @Override

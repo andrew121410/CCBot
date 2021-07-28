@@ -3,7 +3,8 @@ package com.andrew121410.ccbot.events;
 import com.andrew121410.ccbot.CCBotCore;
 import com.andrew121410.ccbot.config.GuildConfigManager;
 import com.andrew121410.ccbot.objects.CGuild;
-import com.andrew121410.ccbot.objects.CReaction;
+import com.andrew121410.ccbot.objects.button.CButton;
+import com.andrew121410.ccbot.objects.button.CButtonManager;
 import com.andrew121410.ccbot.utils.CUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
@@ -21,15 +22,13 @@ import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleAddEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleRemoveEvent;
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
-import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.SubscribeEvent;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -228,40 +227,41 @@ public class CEvents {
                 .setColor(Color.MAGENTA)
                 .setThumbnail(event.getUser().getAvatarUrl());
 
-        textChannel.sendMessage(embedBuilder.build()).queue();
+        textChannel.sendMessageEmbeds(embedBuilder.build()).queue();
     }
 
     @SubscribeEvent
-    public void onReaction(MessageReactionAddEvent event) {
-        if (event.getUser() == null || event.getMember() == null) return;
+    public void onButtonClickEvent(ButtonClickEvent event) {
+        if (event.getMessage() == null) return;
+        if (event.getMember() == null) return;
+        if (event.getMember().getUser().isBot()) return; //No bots
 
-        if (event.getMember().getUser().isBot()) {
-            return; //No bots
+        if (event.getGuild() == null) {
+            throw new NullPointerException("Guild was null for some reason");
         }
-        CGuild cGuild = this.guildConfigManager.getOrElseAdd(event.getGuild());
-        String textChannelIdPlusMessageId = event.getTextChannel().getId() + event.getMessageId();
-        CReaction cReaction = cGuild.getReactions().get(textChannelIdPlusMessageId);
 
-        if (cReaction != null) {
-            List<Permission> permissions = cReaction.getPermissions();
-            if (permissions != null) {
-                if (!event.getMember().hasPermission(permissions)) {
-                    event.getReaction().removeReaction(event.getUser()).queue();
-                    event.getTextChannel().sendMessage("You don't have permission to react. " + event.getUser().getAsMention()).queue(a -> a.delete().queueAfter(10, TimeUnit.SECONDS));
+        CGuild cGuild = this.guildConfigManager.getOrElseAdd(event.getGuild());
+        String theGoldenKey = event.getTextChannel().getId() + event.getMessageId();
+        CButtonManager cButtonManager = cGuild.getButtonManager().get(theGoldenKey);
+        if (cButtonManager == null) {
+            event.getMessage().delete().queue();
+            return;
+        }
+
+        Optional<CButton> cButton = cButtonManager.getCButtons().stream().filter(cButton1 -> Objects.equals(cButton1.getComponent().getId(), event.getComponentId())).findFirst();
+
+        if (cButton.isPresent()) {
+            //Check if the member has the right permissions to use this button
+            for (Permission permission : cButton.get().getPermissions()) {
+                if (!event.getMember().hasPermission(permission)) {
+                    event.reply("You don't have the right permissions to do this.").queue();
                     return;
                 }
             }
-            cReaction.getBiConsumer().accept(cReaction, event);
-            EmbedBuilder embedBuilder = cReaction.getBiFunction().apply(cReaction, event);
-
-            if (embedBuilder == null) {
-                event.getTextChannel().deleteMessageById(event.getMessageId()).queue();
-                return;
-            }
-
-            event.getTextChannel().editMessageById(event.getMessageId(), embedBuilder.build()).queue(a -> event.getReaction().removeReaction(event.getUser()).queue());
+            cButtonManager.getOnButtonClick().accept(cButtonManager, event);
+        } else {
+            throw new NullPointerException("Button is not present. THIS SHOULD NOT HAPPEN");
         }
-
     }
 
     //Extra not needed but oh well.

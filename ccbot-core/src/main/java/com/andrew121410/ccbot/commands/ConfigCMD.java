@@ -1,25 +1,29 @@
 package com.andrew121410.ccbot.commands;
 
 import com.andrew121410.ccbot.CCBotCore;
+import com.andrew121410.ccbot.commands.manager.ACommand;
+import com.andrew121410.ccbot.commands.manager.AbstractCommand;
 import com.andrew121410.ccbot.commands.manager.CommandManager;
-import com.andrew121410.ccbot.commands.manager.ICommand;
 import com.andrew121410.ccbot.objects.CGuild;
-import com.andrew121410.ccbot.objects.CReaction;
+import com.andrew121410.ccbot.objects.button.CButton;
+import com.andrew121410.ccbot.objects.button.CButtonManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.components.Button;
 
 import java.awt.*;
 import java.util.Arrays;
 import java.util.Collections;
 
-public class ConfigCMD implements ICommand {
+@ACommand(command = "config", description = "Allows you to edit the configuration for the bot!")
+public class ConfigCMD extends AbstractCommand {
 
     private CCBotCore ccBotCore;
 
     public ConfigCMD(CCBotCore ccBotCore) {
+        super(ccBotCore);
         this.ccBotCore = ccBotCore;
-        this.ccBotCore.getCommandManager().register(this, "config");
     }
 
     @Override
@@ -32,20 +36,23 @@ public class ConfigCMD implements ICommand {
         if (args.length == 0) {
             EmbedBuilder embedBuilder = makeEmbed(cGuild);
 
-            event.getTextChannel().sendMessage(embedBuilder.build()).queue(a -> cGuild.getReactions().putIfAbsent(a.getTextChannel().getId() + a.getId(), new CReaction(a, Collections.singletonList(Permission.MANAGE_SERVER), Arrays.asList("\uD83D\uDC4B", "\uD83D\uDCF0"), (onCReaction, onEvent) -> {
-                switch (onEvent.getReactionEmote().getEmoji()) {
-                    case "\uD83D\uDC4B":
-                        cGuild.getSettings().setWelcomeMessages(!cGuild.getSettings().getWelcomeMessages());
-                        break;
-                    case "\uD83D\uDCF0":
-                        cGuild.getSettings().setLogs(!cGuild.getSettings().getLogs());
-                        break;
-                    default:
-                        break;
-                }
-            }, ((cReaction, event1) -> makeEmbed(cGuild)), true)));
+            event.getTextChannel().sendMessageEmbeds(embedBuilder.build()).queue(message ->
+                    cGuild.createButtonManager(
+                            message.getTextChannel().getId() + message.getId(), //Key
+                            new CButtonManager(message, Arrays.asList(
+                                    new CButton(Collections.singletonList(Permission.MANAGE_SERVER), Button.primary("welcome", "WelcomeMessages")),
+                                    new CButton(Collections.singletonList(Permission.MANAGE_SERVER), Button.primary("log", "Logs"))),
+                                    (cButtonManager, buttonClickEvent) -> {
+                                        switch (buttonClickEvent.getComponentId()) {
+                                            case "welcome" -> cGuild.getSettings().setWelcomeMessages(!cGuild.getSettings().getWelcomeMessages());
+                                            case "log" -> cGuild.getSettings().setLogs(!cGuild.getSettings().getLogs());
+                                        }
+                                        if (buttonClickEvent.getMessage() != null)
+//                                            https://github.com/DV8FromTheWorld/JDA/wiki/Interactions#buttons
+                                            buttonClickEvent.deferEdit().setEmbeds(makeEmbed(cGuild).build()).queue();
+                                    }, true)));
         }
-        return false;
+        return true;
     }
 
     private EmbedBuilder makeEmbed(CGuild cGuild) {

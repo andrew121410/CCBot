@@ -1,8 +1,9 @@
 package com.andrew121410.ccbot.commands.tags;
 
 import com.andrew121410.ccbot.CCBotCore;
+import com.andrew121410.ccbot.commands.manager.ACommand;
+import com.andrew121410.ccbot.commands.manager.AbstractCommand;
 import com.andrew121410.ccbot.commands.manager.CommandManager;
-import com.andrew121410.ccbot.commands.manager.ICommand;
 import com.andrew121410.ccbot.objects.CGuild;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -11,13 +12,14 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import java.awt.*;
 import java.util.Arrays;
 
-public class TagsCMD implements ICommand {
+@ACommand(command = "tags", description = "Show's all the tags on the guild")
+public class TagsCMD extends AbstractCommand {
 
     private CCBotCore ccBotCore;
 
     public TagsCMD(CCBotCore ccBotCore) {
+        super(ccBotCore);
         this.ccBotCore = ccBotCore;
-        this.ccBotCore.getCommandManager().register(this, "tags");
     }
 
     @Override

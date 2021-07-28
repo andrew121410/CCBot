@@ -1,8 +1,9 @@
 package com.andrew121410.ccbot.commands;
 
 import com.andrew121410.ccbot.CCBotCore;
+import com.andrew121410.ccbot.commands.manager.ACommand;
+import com.andrew121410.ccbot.commands.manager.AbstractCommand;
 import com.andrew121410.ccbot.commands.manager.CommandManager;
-import com.andrew121410.ccbot.commands.manager.ICommand;
 import com.andrew121410.ccutils.utils.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -17,13 +18,14 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class PurgeCMD implements ICommand {
+@ACommand(command = "purge", description = "Purges messages")
+public class PurgeCMD extends AbstractCommand {
 
     private CCBotCore ccBotCore;
 
     public PurgeCMD(CCBotCore ccBotCore) {
+        super(ccBotCore);
         this.ccBotCore = ccBotCore;
-        this.ccBotCore.getCommandManager().register(this, "purge");
     }
 
     @Override

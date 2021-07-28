@@ -1,6 +1,7 @@
 package com.andrew121410.ccbot.objects;
 
 import com.andrew121410.ccbot.CCBotCore;
+import com.andrew121410.ccbot.objects.button.CButtonManager;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -27,13 +28,18 @@ public class CGuild {
     private String guildId;
 
     @JsonIgnore
-    private Map<String, CReaction> reactions = new HashMap<>();
+    private Map<String, CButtonManager> buttonManager = new HashMap<>();
 
     @JsonProperty("Tags")
     private Map<String, String> tags = new HashMap<>();
 
     @JsonProperty("Settings")
     private CGuildSettings settings = new CGuildSettings();
+
+    @JsonIgnore
+    public CButtonManager createButtonManager(String key, CButtonManager cButtonManager) {
+        return this.buttonManager.putIfAbsent(key, cButtonManager);
+    }
 
     public CGuild(Guild guild) {
         this.guildId = guild.getId();
@@ -43,8 +49,8 @@ public class CGuild {
         return guildId;
     }
 
-    public Map<String, CReaction> getReactions() {
-        return reactions;
+    public Map<String, CButtonManager> getButtonManager() {
+        return buttonManager;
     }
 
     public CGuildSettings getSettings() {

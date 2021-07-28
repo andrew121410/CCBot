@@ -1,20 +1,22 @@
 package com.andrew121410.ccbot.commands;
 
 import com.andrew121410.ccbot.CCBotCore;
-import com.andrew121410.ccbot.commands.manager.ICommand;
+import com.andrew121410.ccbot.commands.manager.ACommand;
+import com.andrew121410.ccbot.commands.manager.AbstractCommand;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.awt.*;
 
-public class HelpCMD implements ICommand {
+@ACommand(command = "help", description = "shows all the commands for the bot")
+public class HelpCMD extends AbstractCommand {
 
     private CCBotCore ccBotCore;
 
     public HelpCMD(CCBotCore ccBotCore) {
+        super(ccBotCore);
         this.ccBotCore = ccBotCore;
-        this.ccBotCore.getCommandManager().register(this, "help");
     }
 
     @Override
