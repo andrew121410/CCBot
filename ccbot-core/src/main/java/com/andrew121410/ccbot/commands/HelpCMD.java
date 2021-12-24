@@ -49,6 +49,6 @@ public class HelpCMD extends AbstractCommand {
 //                .addField("Addon Commands!", addonhelp, false)
                 .setFooter("CCBot | Version: " + CCBotCore.VERSION + " | Developed by Andrew121410#2035");
 
-        textChannel.sendMessage(embedBuilder.build()).queue();
+        textChannel.sendMessageEmbeds(embedBuilder.build()).queue();
     }
 }

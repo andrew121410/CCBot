@@ -21,6 +21,7 @@ public class ConfigCMD extends AbstractCommand {
 
     private CCBotCore ccBotCore;
 
+    //    https://github.com/DV8FromTheWorld/JDA/wiki/Interactions#buttons
     public ConfigCMD(CCBotCore ccBotCore) {
         super(ccBotCore);
         this.ccBotCore = ccBotCore;
@@ -38,17 +39,16 @@ public class ConfigCMD extends AbstractCommand {
 
             event.getTextChannel().sendMessageEmbeds(embedBuilder.build()).queue(message ->
                     cGuild.createButtonManager(
-                            message.getTextChannel().getId() + message.getId(), //Key
+                            message.getTextChannel().getId() + message.getId(),
                             new CButtonManager(message, Arrays.asList(
-                                    new CButton(Collections.singletonList(Permission.MANAGE_SERVER), Button.primary("welcome", "WelcomeMessages")),
-                                    new CButton(Collections.singletonList(Permission.MANAGE_SERVER), Button.primary("log", "Logs"))),
+                                    new CButton(Collections.singletonList(Permission.MANAGE_SERVER), Button.primary("welcome", "WelcomeMessages - \uD83D\uDC4B")),
+                                    new CButton(Collections.singletonList(Permission.MANAGE_SERVER), Button.primary("log", "Logs - \uD83D\uDCF0"))),
                                     (cButtonManager, buttonClickEvent) -> {
                                         switch (buttonClickEvent.getComponentId()) {
                                             case "welcome" -> cGuild.getSettings().setWelcomeMessages(!cGuild.getSettings().getWelcomeMessages());
                                             case "log" -> cGuild.getSettings().setLogs(!cGuild.getSettings().getLogs());
                                         }
                                         if (buttonClickEvent.getMessage() != null)
-//                                            https://github.com/DV8FromTheWorld/JDA/wiki/Interactions#buttons
                                             buttonClickEvent.deferEdit().setEmbeds(makeEmbed(cGuild).build()).queue();
                                     }, true)));
         }

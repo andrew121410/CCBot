@@ -35,7 +35,7 @@ public class BanCMD extends AbstractCommand {
                     .setColor(Color.RED)
                     .addField("1.", this.ccBotCore.getConfigManager().getMainConfig().getPrefix() + "ban <Member>", false)
                     .addField("2.", this.ccBotCore.getConfigManager().getMainConfig().getPrefix() + "ban <Member> <MessageDeletionDays>", false);
-            event.getTextChannel().sendMessage(embedBuilder.build()).queue(a -> a.delete().queueAfter(10, TimeUnit.SECONDS));
+            event.getTextChannel().sendMessageEmbeds(embedBuilder.build()).queue(a -> a.delete().queueAfter(10, TimeUnit.SECONDS));
         } else {
             boolean memberMaybe = event.getMessage().getMentionedMembers().isEmpty();
             Integer integer = Utils.asIntegerOrElse(args[1], 0);

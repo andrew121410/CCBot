@@ -33,7 +33,7 @@ public class KickCMD extends AbstractCommand {
                     .setAuthor("CCBot Kick Usage!")
                     .setColor(Color.RED)
                     .addField("Usage:", this.ccBotCore.getConfigManager().getMainConfig().getPrefix() + "kick <Member>", false);
-            event.getTextChannel().sendMessage(embedBuilder.build()).queue(a -> a.delete().queueAfter(10, TimeUnit.SECONDS));
+            event.getTextChannel().sendMessageEmbeds(embedBuilder.build()).queue(a -> a.delete().queueAfter(10, TimeUnit.SECONDS));
             return true;
         } else if (args.length == 1) {
             boolean memberMaybe = event.getMessage().getMentionedMembers().isEmpty();

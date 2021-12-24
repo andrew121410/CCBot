@@ -40,14 +40,14 @@ public class SuperAdminCMD extends AbstractCommand {
                         .setDescription("Show's all of the guilds that the bot is in.")
                         .addField("Guilds:", stringBuilder.toString(), false)
                         .addField("More Guild information:", "Total Guilds: " + this.ccBotCore.getJda().getGuilds().size(), false);
-                event.getTextChannel().sendMessage(embedBuilder.build()).queue();
+                event.getTextChannel().sendMessageEmbeds(embedBuilder.build()).queue();
             }
 
             if (args.length == 1) {
                 EmbedBuilder embedBuilder = new EmbedBuilder()
                         .setAuthor("CCBot SuperAdmin Guilds Usage!")
                         .addField("1.", this.ccBotCore.getConfigManager().getMainConfig().getPrefix() + "superadmin guilds list", false);
-                event.getTextChannel().sendMessage(embedBuilder.build()).queue(a -> a.delete().queueAfter(10, TimeUnit.SECONDS));
+                event.getTextChannel().sendMessageEmbeds(embedBuilder.build()).queue(a -> a.delete().queueAfter(10, TimeUnit.SECONDS));
             }
         } else if (args.length == 2 && args[0].equalsIgnoreCase("invite")) {
             String guildId = args[1];

@@ -66,32 +66,19 @@ public class CTimer {
     }
 
     private OnlineStatus onlineStatus() {
-        switch (number) {
-            case 0:
-            case 1:
-                return OnlineStatus.ONLINE;
-            case 2:
-                return OnlineStatus.IDLE;
-            case 3:
-            case 4:
-                return OnlineStatus.DO_NOT_DISTURB;
-            default:
-                return OnlineStatus.ONLINE;
-        }
+        return switch (number) {
+            case 0, 1 -> OnlineStatus.ONLINE;
+            case 2 -> OnlineStatus.IDLE;
+            case 3, 4 -> OnlineStatus.DO_NOT_DISTURB;
+            default -> OnlineStatus.ONLINE;
+        };
     }
 
     private Activity.ActivityType statusType() {
-        switch (number) {
-            case 0:
-            case 1:
-            case 2:
-            case 4:
-                return Activity.ActivityType.DEFAULT;
-            case 3:
-                return Activity.ActivityType.WATCHING;
-            default:
-                return Activity.ActivityType.DEFAULT;
-        }
+        return switch (number) {
+            case 3 -> Activity.ActivityType.WATCHING;
+            default -> Activity.ActivityType.PLAYING;
+        };
     }
 
     public ScheduledExecutorService getSaveService() {

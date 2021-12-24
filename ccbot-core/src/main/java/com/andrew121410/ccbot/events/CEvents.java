@@ -9,11 +9,9 @@ import com.andrew121410.ccbot.utils.CUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.ReadyEvent;
-import net.dv8tion.jda.api.events.channel.text.update.TextChannelUpdateNSFWEvent;
+import net.dv8tion.jda.api.events.channel.update.ChannelUpdateNSFWEvent;
 import net.dv8tion.jda.api.events.guild.GuildBanEvent;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
@@ -23,7 +21,7 @@ import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleAddEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleRemoveEvent;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
-import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.SubscribeEvent;
 
 import java.awt.*;
@@ -81,32 +79,20 @@ public class CEvents {
         TextChannel textChannel = cUtils.findTextChannel(event.getGuild().getTextChannels(), "rules", "chat-rules", "rules-and-info");
 
         if (textChannel != null) {
-            embedBuilder = new EmbedBuilder()
-                    .setAuthor("Welcome!", event.getUser().getAvatarUrl(), event.getUser().getAvatarUrl())
-                    .setTitle("Welcome! to the " + event.getGuild().getName())
-                    .setDescription(event.getUser().getAsMention() + " Please check the " + textChannel.getAsMention() + ", and have fun!")
-                    .setColor(Color.GREEN);
+            embedBuilder = new EmbedBuilder().setAuthor("Welcome!", event.getUser().getAvatarUrl(), event.getUser().getAvatarUrl()).setTitle("Welcome! to the " + event.getGuild().getName()).setDescription(event.getUser().getAsMention() + " Please check the " + textChannel.getAsMention() + ", and have fun!").setColor(Color.GREEN);
         } else {
-            embedBuilder = new EmbedBuilder()
-                    .setAuthor("Welcome!", event.getUser().getAvatarUrl(), event.getUser().getAvatarUrl())
-                    .setTitle("Welcome! to the " + event.getGuild().getName())
-                    .setDescription(event.getUser().getAsMention() + " Please check the rules, and have fun!")
-                    .setColor(Color.GREEN);
+            embedBuilder = new EmbedBuilder().setAuthor("Welcome!", event.getUser().getAvatarUrl(), event.getUser().getAvatarUrl()).setTitle("Welcome! to the " + event.getGuild().getName()).setDescription(event.getUser().getAsMention() + " Please check the rules, and have fun!").setColor(Color.GREEN);
         }
 
-        event.getGuild().getSystemChannel().sendMessage(embedBuilder.build()).queue();
+        event.getGuild().getSystemChannel().sendMessageEmbeds(embedBuilder.build()).queue();
 
         TextChannel textChannel2 = cUtils.findTextChannel(event.getGuild().getTextChannels(), cUtils.getLogsStringArray());
 
         if (textChannel2 == null) return; //Could not find log channel.
 
-        EmbedBuilder embedBuilder1 = new EmbedBuilder()
-                .setAuthor("Member Joined:", event.getUser().getAvatarUrl(), event.getUser().getAvatarUrl())
-                .setDescription(event.getUser().getAsMention() + " " + event.getUser().getAsTag())
-                .setColor(Color.GREEN)
-                .setThumbnail(event.getUser().getAvatarUrl());
+        EmbedBuilder embedBuilder1 = new EmbedBuilder().setAuthor("Member Joined:", event.getUser().getAvatarUrl(), event.getUser().getAvatarUrl()).setDescription(event.getUser().getAsMention() + " " + event.getUser().getAsTag()).setColor(Color.GREEN).setThumbnail(event.getUser().getAvatarUrl());
 
-        textChannel2.sendMessage(embedBuilder1.build()).queue();
+        textChannel2.sendMessageEmbeds(embedBuilder1.build()).queue();
     }
 
     @SubscribeEvent
@@ -123,13 +109,9 @@ public class CEvents {
 
         if (textChannel == null) return;
 
-        EmbedBuilder embedBuilder = new EmbedBuilder()
-                .setAuthor("Member Left:", event.getUser().getAvatarUrl(), event.getUser().getAvatarUrl())
-                .setDescription(event.getUser().getAsTag() + " Has left the server \uD83D\uDE22")
-                .setColor(Color.YELLOW)
-                .setThumbnail(event.getUser().getAvatarUrl());
+        EmbedBuilder embedBuilder = new EmbedBuilder().setAuthor("Member Left:", event.getUser().getAvatarUrl(), event.getUser().getAvatarUrl()).setDescription(event.getUser().getAsTag() + " Has left the server \uD83D\uDE22").setColor(Color.YELLOW).setThumbnail(event.getUser().getAvatarUrl());
 
-        textChannel.sendMessage(embedBuilder.build()).queue();
+        textChannel.sendMessageEmbeds(embedBuilder.build()).queue();
     }
 
     @SubscribeEvent
@@ -150,16 +132,11 @@ public class CEvents {
 
         //Only 1 role.
         if (roleList.size() == 1) {
-            embedBuilder = new EmbedBuilder()
-                    .setAuthor(event.getUser().getAsTag(), event.getUser().getAvatarUrl(), event.getUser().getAvatarUrl())
-                    .setDescription(event.getUser().getAsMention() + " **was given the** " + roleString.toUpperCase() + " **role**")
-                    .setColor(Color.YELLOW);
-        } else embedBuilder = new EmbedBuilder()
-                .setAuthor(event.getUser().getAsTag(), event.getUser().getAvatarUrl(), event.getUser().getAvatarUrl())
-                .setDescription(event.getUser().getAsMention() + " **was given the roles:** " + roleString)
-                .setColor(Color.YELLOW);
+            embedBuilder = new EmbedBuilder().setAuthor(event.getUser().getAsTag(), event.getUser().getAvatarUrl(), event.getUser().getAvatarUrl()).setDescription(event.getUser().getAsMention() + " **was given the** " + roleString.toUpperCase() + " **role**").setColor(Color.YELLOW);
+        } else
+            embedBuilder = new EmbedBuilder().setAuthor(event.getUser().getAsTag(), event.getUser().getAvatarUrl(), event.getUser().getAvatarUrl()).setDescription(event.getUser().getAsMention() + " **was given the roles:** " + roleString).setColor(Color.YELLOW);
 
-        textChannel.sendMessage(embedBuilder.build()).queue();
+        textChannel.sendMessageEmbeds(embedBuilder.build()).queue();
     }
 
     @SubscribeEvent
@@ -178,16 +155,11 @@ public class CEvents {
         EmbedBuilder embedBuilder;
 
         if (roleList.size() == 1) {
-            embedBuilder = new EmbedBuilder()
-                    .setAuthor(event.getUser().getAsTag(), event.getUser().getAvatarUrl(), event.getUser().getAvatarUrl())
-                    .setDescription("**Role:** " + roleString + " **for** " + event.getUser().getAsMention() + " **has been removed!**")
-                    .setColor(Color.ORANGE);
-        } else embedBuilder = new EmbedBuilder()
-                .setAuthor(event.getUser().getAsTag(), event.getUser().getAvatarUrl(), event.getUser().getAvatarUrl())
-                .setDescription("**Roles:** " + roleString + " **for** " + event.getUser().getAsMention() + " **has been removed!**")
-                .setColor(Color.ORANGE);
+            embedBuilder = new EmbedBuilder().setAuthor(event.getUser().getAsTag(), event.getUser().getAvatarUrl(), event.getUser().getAvatarUrl()).setDescription("**Role:** " + roleString + " **for** " + event.getUser().getAsMention() + " **has been removed!**").setColor(Color.ORANGE);
+        } else
+            embedBuilder = new EmbedBuilder().setAuthor(event.getUser().getAsTag(), event.getUser().getAvatarUrl(), event.getUser().getAvatarUrl()).setDescription("**Roles:** " + roleString + " **for** " + event.getUser().getAsMention() + " **has been removed!**").setColor(Color.ORANGE);
 
-        textChannel.sendMessage(embedBuilder.build()).queue();
+        textChannel.sendMessageEmbeds(embedBuilder.build()).queue();
     }
 
     @SubscribeEvent
@@ -201,13 +173,9 @@ public class CEvents {
 
         if (textChannel == null) return;
 
-        EmbedBuilder embedBuilder = new EmbedBuilder()
-                .setAuthor("Member Banned:", event.getUser().getAvatarUrl(), event.getUser().getAvatarUrl())
-                .setDescription(event.getUser().getAsMention() + " Has been BANNED \uD83D\uDE08")
-                .setColor(Color.RED)
-                .setThumbnail(event.getUser().getAvatarUrl());
+        EmbedBuilder embedBuilder = new EmbedBuilder().setAuthor("Member Banned:", event.getUser().getAvatarUrl(), event.getUser().getAvatarUrl()).setDescription(event.getUser().getAsMention() + " Has been BANNED \uD83D\uDE08").setColor(Color.RED).setThumbnail(event.getUser().getAvatarUrl());
 
-        textChannel.sendMessage(embedBuilder.build()).queue();
+        textChannel.sendMessageEmbeds(embedBuilder.build()).queue();
     }
 
     @SubscribeEvent
@@ -221,11 +189,7 @@ public class CEvents {
 
         if (textChannel == null) return;
 
-        EmbedBuilder embedBuilder = new EmbedBuilder()
-                .setAuthor("Member Unbanned:", event.getUser().getAvatarUrl(), event.getUser().getAvatarUrl())
-                .setDescription(event.getUser().getAsMention() + " " + event.getUser().getAsTag())
-                .setColor(Color.MAGENTA)
-                .setThumbnail(event.getUser().getAvatarUrl());
+        EmbedBuilder embedBuilder = new EmbedBuilder().setAuthor("Member Unbanned:", event.getUser().getAvatarUrl(), event.getUser().getAvatarUrl()).setDescription(event.getUser().getAsMention() + " " + event.getUser().getAsTag()).setColor(Color.MAGENTA).setThumbnail(event.getUser().getAvatarUrl());
 
         textChannel.sendMessageEmbeds(embedBuilder.build()).queue();
     }
@@ -265,17 +229,23 @@ public class CEvents {
     }
 
     //Extra not needed but oh well.
+
     @SubscribeEvent
-    public void onPrivateMessages(PrivateMessageReceivedEvent event) {
-        if (event.getAuthor().isBot()) return;
-        event.getChannel().sendMessage("Why are you private messaging me? you weirdo....").queue(a -> a.delete().queueAfter(10, TimeUnit.SECONDS));
-        event.getChannel().close().queue();
+    public void onChannelUpdateNSFWEvent(ChannelUpdateNSFWEvent event) {
+        if (Boolean.FALSE.equals(event.getOldValue()) && event.getChannelType() == ChannelType.TEXT) {
+            TextChannel textChannel = event.getJDA().getTextChannelById(event.getChannel().getId());
+            if (textChannel == null) return;
+            textChannel.sendMessage("NSFW channel is my favorite :wink").queue();
+        }
     }
 
     @SubscribeEvent
-    public void onTextChannelUpdateNSFWEvent(TextChannelUpdateNSFWEvent event) {
-        if (!event.getOldNSFW()) {
-            event.getChannel().sendMessage("Aye NSFW channel my favorite.").queue();
-        }
+    public void onPrivateTextEvent(MessageReceivedEvent event) {
+        if (!(event.getChannelType() == ChannelType.PRIVATE)) return;
+        if (event.getAuthor().isBot()) return;
+
+        PrivateChannel privateChannel = event.getPrivateChannel();
+
+        privateChannel.sendMessage("Why are you private messaging me? you weirdo....").queue(a -> a.delete().queueAfter(10, TimeUnit.SECONDS));
     }
 }
