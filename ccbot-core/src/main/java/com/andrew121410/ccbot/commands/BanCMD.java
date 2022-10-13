@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 @ACommand(command = "ban", description = "Bans the player")
 public class BanCMD extends AbstractCommand {
 
-    private CCBotCore ccBotCore;
+    private final CCBotCore ccBotCore;
 
     public BanCMD(CCBotCore ccBotCore) {
         super(ccBotCore);
@@ -33,29 +33,38 @@ public class BanCMD extends AbstractCommand {
             return true;
         }
 
-        if (args.length == 0) {
-            EmbedBuilder embedBuilder = new EmbedBuilder()
-                    .setAuthor("CCBot Ban Usage!")
-                    .setColor(Color.RED)
-                    .addField("1.", this.ccBotCore.getConfigManager().getMainConfig().getPrefix() + "ban <Member>", false)
-                    .addField("2.", this.ccBotCore.getConfigManager().getMainConfig().getPrefix() + "ban <Member> <MessageDeletionDays>", false);
-            textChannel.sendMessageEmbeds(embedBuilder.build()).queue(a -> a.delete().queueAfter(10, TimeUnit.SECONDS));
-        } else {
+        if (args.length >= 1) {
             Mentions mentions = event.getMessage().getMentions();
             if (mentions.getMembers().isEmpty()) {
                 textChannel.sendMessage("You need to mention a member!").queue(a -> a.delete().queueAfter(10, TimeUnit.SECONDS));
                 return true;
             }
 
-            Integer integer = Utils.asIntegerOrElse(args[1], 0);
-            if (integer > 7) {
-                textChannel.sendMessage("Message deletion days must not be higher then 7.").queue(a -> a.delete().queueAfter(10, TimeUnit.SECONDS));
-                return true;
+            Integer time = 0;
+            if (args.length == 2) {
+                time = Utils.asIntegerOrElse(args[1], 0);
+                if (time > 7) {
+                    textChannel.sendMessage("Message deletion days must not be higher then 7.").queue(a -> a.delete().queueAfter(10, TimeUnit.SECONDS));
+                    return true;
+                }
             }
 
             Member member = mentions.getMembers().get(0);
-            event.getGuild().ban(member, integer, TimeUnit.DAYS).queue();
+            try {
+                event.getGuild().ban(member, time, TimeUnit.DAYS).queue();
+            } catch (Exception e) {
+                textChannel.sendMessage("I can't ban that member!").queue(a -> a.delete().queueAfter(10, TimeUnit.SECONDS));
+                return true;
+            }
             event.getChannel().sendMessage(member.getAsMention() + " **has been banned from the server!** \\uD83D\\uDD34").queue();
+            return true;
+        } else {
+            EmbedBuilder embedBuilder = new EmbedBuilder()
+                    .setAuthor("CCBot Ban Usage!")
+                    .setColor(Color.RED)
+                    .addField("1.", this.ccBotCore.getConfigManager().getMainConfig().getPrefix() + "ban <Member>", false)
+                    .addField("2.", this.ccBotCore.getConfigManager().getMainConfig().getPrefix() + "ban <Member> <MessageDeletionDays>", false);
+            textChannel.sendMessageEmbeds(embedBuilder.build()).queue(a -> a.delete().queueAfter(10, TimeUnit.SECONDS));
         }
         return true;
     }
