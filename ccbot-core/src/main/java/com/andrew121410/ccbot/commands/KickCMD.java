@@ -32,23 +32,27 @@ public class KickCMD extends AbstractCommand {
             return true;
         }
 
-        if (args.length == 0) {
-            EmbedBuilder embedBuilder = new EmbedBuilder()
-                    .setAuthor("CCBot Kick Usage!")
-                    .setColor(Color.RED)
-                    .addField("Usage:", this.ccBotCore.getConfigManager().getMainConfig().getPrefix() + "kick <Member>", false);
-            textChannel.sendMessageEmbeds(embedBuilder.build()).queue(a -> a.delete().queueAfter(10, TimeUnit.SECONDS));
-            return true;
-        } else if (args.length == 1) {
+        if (args.length == 1) {
             Mentions mentions = event.getMessage().getMentions();
             if (mentions.getMembers().isEmpty()) {
                 textChannel.sendMessage("You didn't mention a user.").queue(a -> a.delete().queueAfter(10, TimeUnit.SECONDS));
                 return true;
             }
             Member member = mentions.getMembers().get(0);
-            event.getGuild().kick(member).queue();
+            try {
+                event.getGuild().kick(member).queue();
+            } catch (Exception e) {
+                textChannel.sendMessage("I can't kick that user.").queue(a -> a.delete().queueAfter(10, TimeUnit.SECONDS));
+                return true;
+            }
             event.getChannel().sendMessage(member.getAsMention() + " **has been kicked from the server!**").queue();
             return true;
+        } else {
+            EmbedBuilder embedBuilder = new EmbedBuilder()
+                    .setAuthor("CCBot Kick Usage!")
+                    .setColor(Color.RED)
+                    .addField("Usage:", this.ccBotCore.getConfigManager().getMainConfig().getPrefix() + "kick <Member>", false);
+            textChannel.sendMessageEmbeds(embedBuilder.build()).queue(a -> a.delete().queueAfter(10, TimeUnit.SECONDS));
         }
         return false;
     }
