@@ -22,7 +22,7 @@ public class CButtonManager {
         this.onButtonClick = onButtonClick;
         this.deleteOnShutdown = deleteOnShutdown;
 
-        List<ItemComponent> components = this.cButtons.stream().map(ccbutton -> (ItemComponent) ccbutton).collect(Collectors.toList());
+        List<ItemComponent> components = this.cButtons.stream().map(CButton::getComponent).collect(Collectors.toList());
         ActionRow actionRow = ActionRow.of(components);
         message.editMessageComponents(actionRow).queue();
     }
