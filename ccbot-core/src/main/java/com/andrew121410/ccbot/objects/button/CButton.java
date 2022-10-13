@@ -5,7 +5,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.interactions.components.Component;
+import net.dv8tion.jda.api.interactions.components.ActionComponent;
 
 import java.util.List;
 
@@ -15,5 +15,5 @@ import java.util.List;
 @AllArgsConstructor
 public class CButton {
     private List<Permission> permissions;
-    private Component component;
+    private ActionComponent component;
 }

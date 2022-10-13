@@ -1,6 +1,6 @@
 package com.andrew121410.ccbot.utils;
 
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
 import java.util.ArrayList;
 import java.util.Arrays;

@@ -7,6 +7,7 @@ import com.andrew121410.ccbot.commands.manager.CommandManager;
 import com.andrew121410.ccbot.objects.CGuild;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.awt.*;
@@ -24,9 +25,11 @@ public class TagsCMD extends AbstractCommand {
 
     @Override
     public boolean onMessage(MessageReceivedEvent event, String[] args) {
+        TextChannel textChannel = event.getChannel().asTextChannel();
+
         CGuild cGuild = this.ccBotCore.getSetListMap().getGuildMap().get(event.getGuild().getId());
         if (cGuild == null) {
-            event.getTextChannel().sendMessage("Something went wrong.").queue();
+            textChannel.sendMessage("Something went wrong.").queue();
             throw new NullPointerException("CGuild is null...");
         }
 
@@ -40,12 +43,12 @@ public class TagsCMD extends AbstractCommand {
             i++;
         }
 
-        if (!CommandManager.hasPermission(event.getMember(), event.getTextChannel(), Permission.MANAGE_SERVER)) {
+        if (!CommandManager.hasPermission(event.getMember(), textChannel, Permission.MANAGE_SERVER)) {
             EmbedBuilder embedBuilder = new EmbedBuilder()
                     .setTitle("List of all tags!")
                     .setDescription(stringBuilder.toString())
                     .setColor(Color.MAGENTA);
-            event.getTextChannel().sendMessageEmbeds(embedBuilder.build()).queue();
+            textChannel.sendMessageEmbeds(embedBuilder.build()).queue();
             return true;
         }
 
@@ -55,21 +58,21 @@ public class TagsCMD extends AbstractCommand {
             String[] wordArray = Arrays.copyOfRange(args, 2, args.length);
 
             if (cGuild.getTags().containsKey(tag)) {
-                event.getTextChannel().sendMessage("The tag " + tag + " already exists.").queue();
+                textChannel.sendMessage("The tag " + tag + " already exists.").queue();
                 return true;
             }
             cGuild.getTags().put(tag, String.join(" ", wordArray));
-            event.getTextChannel().sendMessage("**Tag added!**").queue();
+            textChannel.sendMessage("**Tag added!**").queue();
             return true;
         } else if (args.length == 2 && args[0].equalsIgnoreCase("remove")) {
             String tag = args[1].toLowerCase();
 
             if (!cGuild.getTags().containsKey(tag)) {
-                event.getTextChannel().sendMessage("That tag doesn't even exist.").queue();
+                textChannel.sendMessage("That tag doesn't even exist.").queue();
                 return true;
             }
             cGuild.getTags().remove(tag);
-            event.getTextChannel().sendMessage("**Tag was removed!**").queue();
+            textChannel.sendMessage("**Tag was removed!**").queue();
             return true;
         } else {
             String prefix = this.ccBotCore.getConfigManager().getMainConfig().getPrefix();
@@ -79,7 +82,7 @@ public class TagsCMD extends AbstractCommand {
                     .addField("Usage:", prefix + "tags add test this is a test tag \r\n"
                             + prefix + "tags remove test", false)
                     .addField("Tags:", stringBuilder.toString(), false);
-            event.getTextChannel().sendMessageEmbeds(embedBuilder.build()).queue();
+            textChannel.sendMessageEmbeds(embedBuilder.build()).queue();
         }
         return true;
     }

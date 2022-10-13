@@ -4,7 +4,7 @@ import com.andrew121410.ccbot.CCBotCore;
 import com.andrew121410.ccbot.commands.manager.ACommand;
 import com.andrew121410.ccbot.commands.manager.AbstractCommand;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.awt.*;
@@ -21,7 +21,7 @@ public class HelpCMD extends AbstractCommand {
 
     @Override
     public boolean onMessage(MessageReceivedEvent event, String[] args) {
-        helpStyle(event.getTextChannel());
+        helpStyle(event.getChannel().asTextChannel());
         return true;
     }
 

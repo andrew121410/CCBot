@@ -9,7 +9,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageHistory;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.awt.*;
@@ -30,7 +30,9 @@ public class PurgeCMD extends AbstractCommand {
 
     @Override
     public boolean onMessage(MessageReceivedEvent event, String[] args) {
-        if (!CommandManager.hasPermission(event.getMember(), event.getTextChannel(), Permission.MESSAGE_MANAGE)) {
+        TextChannel textChannel = event.getGuildChannel().asTextChannel();
+
+        if (!CommandManager.hasPermission(event.getMember(), textChannel, Permission.MESSAGE_MANAGE)) {
             return true;
         }
 
@@ -41,29 +43,29 @@ public class PurgeCMD extends AbstractCommand {
                     .setAuthor("CCBot Purge Usage!")
                     .setColor(Color.RED)
                     .addField("Usage:", prefix + "purge <Number>" + "\r\n " + prefix + "purge words badword", false);
-            event.getTextChannel().sendMessageEmbeds(embedBuilder.build()).queue(a -> a.delete().queueAfter(10, TimeUnit.SECONDS));
+            textChannel.sendMessageEmbeds(embedBuilder.build()).queue(a -> a.delete().queueAfter(10, TimeUnit.SECONDS));
             return true;
         } else if (args.length == 1) {
             Integer integer = Utils.asIntegerOrElse(args[0], null);
             if (integer == null) {
-                event.getTextChannel().sendMessage("That's not a number.").queue(a -> a.delete().queueAfter(10, TimeUnit.SECONDS));
+                textChannel.sendMessage("That's not a number.").queue(a -> a.delete().queueAfter(10, TimeUnit.SECONDS));
                 return true;
             }
             if (integer <= 1) {
-                event.getTextChannel().sendMessage("Number must be two or more.").queue(a -> a.delete().queueAfter(10, TimeUnit.SECONDS));
+                textChannel.sendMessage("Number must be two or more.").queue(a -> a.delete().queueAfter(10, TimeUnit.SECONDS));
                 return true;
             }
             if (integer >= 100) {
-                event.getTextChannel().sendMessage("The max you can purge at once is 99.").queue(a -> a.delete().queueAfter(10, TimeUnit.SECONDS));
+                textChannel.sendMessage("The max you can purge at once is 99.").queue(a -> a.delete().queueAfter(10, TimeUnit.SECONDS));
                 return true;
             }
-            purge(event.getTextChannel(), integer);
-            event.getTextChannel().sendMessage("**Successfully purged " + integer + " messages!**").queue();
+            purge(textChannel, integer);
+            textChannel.sendMessage("**Successfully purged " + integer + " messages!**").queue();
             return true;
         } else if (args.length >= 2 && args[0].contains("word")) {
             String[] wordArray = Arrays.copyOfRange(args, 1, args.length);
-            purgeWords(event.getTextChannel(), Arrays.asList(wordArray));
-            event.getTextChannel().sendMessage("**We are now deleting messages with the word/s " + Arrays.toString(wordArray) + " in them!**").queue();
+            purgeWords(textChannel, Arrays.asList(wordArray));
+            textChannel.sendMessage("**We are now deleting messages with the word/s " + Arrays.toString(wordArray) + " in them!**").queue();
             return true;
         }
         return false;

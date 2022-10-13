@@ -8,6 +8,8 @@ import com.andrew121410.ccutils.utils.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Mentions;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.awt.*;
@@ -25,7 +27,9 @@ public class BanCMD extends AbstractCommand {
 
     @Override
     public boolean onMessage(MessageReceivedEvent event, String[] args) {
-        if (!CommandManager.hasPermission(event.getMember(), event.getTextChannel(), Permission.BAN_MEMBERS)) {
+        TextChannel textChannel = event.getChannel().asTextChannel();
+
+        if (!CommandManager.hasPermission(event.getMember(), textChannel, Permission.BAN_MEMBERS)) {
             return true;
         }
 
@@ -35,20 +39,22 @@ public class BanCMD extends AbstractCommand {
                     .setColor(Color.RED)
                     .addField("1.", this.ccBotCore.getConfigManager().getMainConfig().getPrefix() + "ban <Member>", false)
                     .addField("2.", this.ccBotCore.getConfigManager().getMainConfig().getPrefix() + "ban <Member> <MessageDeletionDays>", false);
-            event.getTextChannel().sendMessageEmbeds(embedBuilder.build()).queue(a -> a.delete().queueAfter(10, TimeUnit.SECONDS));
+            textChannel.sendMessageEmbeds(embedBuilder.build()).queue(a -> a.delete().queueAfter(10, TimeUnit.SECONDS));
         } else {
-            boolean memberMaybe = event.getMessage().getMentionedMembers().isEmpty();
+            Mentions mentions = event.getMessage().getMentions();
+            if (mentions.getMembers().isEmpty()) {
+                textChannel.sendMessage("You need to mention a member!").queue(a -> a.delete().queueAfter(10, TimeUnit.SECONDS));
+                return true;
+            }
+
             Integer integer = Utils.asIntegerOrElse(args[1], 0);
-            if (!memberMaybe) {
-                event.getTextChannel().sendMessage("You didn't mention a user.").queue(a -> a.delete().queueAfter(10, TimeUnit.SECONDS));
-                return true;
-            }
             if (integer > 7) {
-                event.getTextChannel().sendMessage("Message deletion days must not be higher then 7.").queue(a -> a.delete().queueAfter(10, TimeUnit.SECONDS));
+                textChannel.sendMessage("Message deletion days must not be higher then 7.").queue(a -> a.delete().queueAfter(10, TimeUnit.SECONDS));
                 return true;
             }
-            Member member = event.getMessage().getMentionedMembers().get(0);
-            event.getGuild().ban(member, integer).queue();
+
+            Member member = mentions.getMembers().get(0);
+            event.getGuild().ban(member, integer, TimeUnit.DAYS).queue();
             event.getChannel().sendMessage(member.getAsMention() + " **has been banned from the server!** \\uD83D\\uDD34").queue();
         }
         return true;

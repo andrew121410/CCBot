@@ -12,7 +12,7 @@
     <artifactId>ccbot-core</artifactId>
 
     <properties>
-        <jackson.version>2.13.1</jackson.version>
+        <jackson.version>2.14.0-rc2</jackson.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
     </properties>
@@ -22,20 +22,22 @@
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>5.0.0-alpha.2</version>
+            <version>5.0.0-alpha.21</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.reflections/reflections -->
+        <dependency>
+            <groupId>org.reflections</groupId>
+            <artifactId>reflections</artifactId>
+            <version>0.10.2</version>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>com.github.andrew121410</groupId>
             <artifactId>CCUtilsJava</artifactId>
-            <version>9861d37be8</version>
-            <scope>compile</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.reflections</groupId>
-            <artifactId>reflections</artifactId>
-            <version>0.10.2</version>
+            <version>f10dbe58</version>
             <scope>compile</scope>
         </dependency>
 

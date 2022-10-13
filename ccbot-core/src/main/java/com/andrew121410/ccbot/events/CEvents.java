@@ -9,8 +9,11 @@ import com.andrew121410.ccbot.utils.CUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.events.ReadyEvent;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.channel.ChannelType;
+import net.dv8tion.jda.api.entities.channel.concrete.PrivateChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.channel.update.ChannelUpdateNSFWEvent;
 import net.dv8tion.jda.api.events.guild.GuildBanEvent;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
@@ -20,8 +23,9 @@ import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleAddEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleRemoveEvent;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.SubscribeEvent;
 
 import java.awt.*;
@@ -195,8 +199,7 @@ public class CEvents {
     }
 
     @SubscribeEvent
-    public void onButtonClickEvent(ButtonClickEvent event) {
-        if (event.getMessage() == null) return;
+    public void onButtonClickEvent(ButtonInteractionEvent event) {
         if (event.getMember() == null) return;
         if (event.getMember().getUser().isBot()) return; //No bots
 
@@ -205,7 +208,7 @@ public class CEvents {
         }
 
         CGuild cGuild = this.guildConfigManager.getOrElseAdd(event.getGuild());
-        String theGoldenKey = event.getTextChannel().getId() + event.getMessageId();
+        String theGoldenKey = event.getChannel().asTextChannel().getId() + event.getMessageId();
         CButtonManager cButtonManager = cGuild.getButtonManager().get(theGoldenKey);
         if (cButtonManager == null) {
             event.getMessage().delete().queue();
@@ -228,7 +231,7 @@ public class CEvents {
         }
     }
 
-    //Extra not needed but oh well.
+    //Extra not needed
 
     @SubscribeEvent
     public void onChannelUpdateNSFWEvent(ChannelUpdateNSFWEvent event) {
@@ -244,7 +247,7 @@ public class CEvents {
         if (!(event.getChannelType() == ChannelType.PRIVATE)) return;
         if (event.getAuthor().isBot()) return;
 
-        PrivateChannel privateChannel = event.getPrivateChannel();
+        PrivateChannel privateChannel = event.getChannel().asPrivateChannel();
 
         privateChannel.sendMessage("Why are you private messaging me? you weirdo....").queue(a -> a.delete().queueAfter(10, TimeUnit.SECONDS));
     }

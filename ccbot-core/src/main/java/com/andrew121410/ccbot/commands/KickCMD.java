@@ -7,6 +7,8 @@ import com.andrew121410.ccbot.commands.manager.CommandManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Mentions;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.awt.*;
@@ -24,7 +26,9 @@ public class KickCMD extends AbstractCommand {
 
     @Override
     public boolean onMessage(MessageReceivedEvent event, String[] args) {
-        if (!CommandManager.hasPermission(event.getMember(), event.getTextChannel(), Permission.KICK_MEMBERS)) {
+        TextChannel textChannel = event.getChannel().asTextChannel();
+
+        if (!CommandManager.hasPermission(event.getMember(), textChannel, Permission.KICK_MEMBERS)) {
             return true;
         }
 
@@ -33,15 +37,15 @@ public class KickCMD extends AbstractCommand {
                     .setAuthor("CCBot Kick Usage!")
                     .setColor(Color.RED)
                     .addField("Usage:", this.ccBotCore.getConfigManager().getMainConfig().getPrefix() + "kick <Member>", false);
-            event.getTextChannel().sendMessageEmbeds(embedBuilder.build()).queue(a -> a.delete().queueAfter(10, TimeUnit.SECONDS));
+            textChannel.sendMessageEmbeds(embedBuilder.build()).queue(a -> a.delete().queueAfter(10, TimeUnit.SECONDS));
             return true;
         } else if (args.length == 1) {
-            boolean memberMaybe = event.getMessage().getMentionedMembers().isEmpty();
-            if (!memberMaybe) {
-                event.getTextChannel().sendMessage("You didn't mention a user.").queue(a -> a.delete().queueAfter(10, TimeUnit.SECONDS));
+            Mentions mentions = event.getMessage().getMentions();
+            if (mentions.getMembers().isEmpty()) {
+                textChannel.sendMessage("You didn't mention a user.").queue(a -> a.delete().queueAfter(10, TimeUnit.SECONDS));
                 return true;
             }
-            Member member = event.getMessage().getMentionedMembers().get(0);
+            Member member = mentions.getMembers().get(0);
             event.getGuild().kick(member).queue();
             event.getChannel().sendMessage(member.getAsMention() + " **has been kicked from the server!**").queue();
             return true;

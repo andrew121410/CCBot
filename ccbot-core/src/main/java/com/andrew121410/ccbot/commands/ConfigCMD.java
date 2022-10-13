@@ -9,8 +9,9 @@ import com.andrew121410.ccbot.objects.button.CButton;
 import com.andrew121410.ccbot.objects.button.CButtonManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
 import java.awt.*;
 import java.util.Arrays;
@@ -29,7 +30,9 @@ public class ConfigCMD extends AbstractCommand {
 
     @Override
     public boolean onMessage(MessageReceivedEvent event, String[] args) {
-        if (!CommandManager.hasPermission(event.getMember(), event.getTextChannel(), Permission.MANAGE_PERMISSIONS)) {
+        TextChannel textChannel = event.getGuildChannel().asTextChannel();
+
+        if (!CommandManager.hasPermission(event.getMember(), textChannel, Permission.MANAGE_PERMISSIONS)) {
             return true;
         }
         CGuild cGuild = this.ccBotCore.getConfigManager().getGuildConfigManager().getOrElseAdd(event.getGuild());
@@ -37,15 +40,16 @@ public class ConfigCMD extends AbstractCommand {
         if (args.length == 0) {
             EmbedBuilder embedBuilder = makeEmbed(cGuild);
 
-            event.getTextChannel().sendMessageEmbeds(embedBuilder.build()).queue(message ->
+            textChannel.sendMessageEmbeds(embedBuilder.build()).queue(message ->
                     cGuild.createButtonManager(
-                            message.getTextChannel().getId() + message.getId(),
+                            message.getChannel().asTextChannel().getId() + message.getId(),
                             new CButtonManager(message, Arrays.asList(
                                     new CButton(Collections.singletonList(Permission.MANAGE_SERVER), Button.primary("welcome", "WelcomeMessages - \uD83D\uDC4B")),
                                     new CButton(Collections.singletonList(Permission.MANAGE_SERVER), Button.primary("log", "Logs - \uD83D\uDCF0"))),
                                     (cButtonManager, buttonClickEvent) -> {
                                         switch (buttonClickEvent.getComponentId()) {
-                                            case "welcome" -> cGuild.getSettings().setWelcomeMessages(!cGuild.getSettings().getWelcomeMessages());
+                                            case "welcome" ->
+                                                    cGuild.getSettings().setWelcomeMessages(!cGuild.getSettings().getWelcomeMessages());
                                             case "log" -> cGuild.getSettings().setLogs(!cGuild.getSettings().getLogs());
                                         }
                                         if (buttonClickEvent.getMessage() != null)
