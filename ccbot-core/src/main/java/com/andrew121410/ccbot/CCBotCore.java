@@ -35,7 +35,8 @@ public class CCBotCore {
     public void setupJDA() {
         if (this.configManager.getMainConfig() == null) {
             System.out.println("Please add discord token to config.yml.");
-            exit();
+            System.exit(0);
+            return;
         }
 
         this.commandManager = new CommandManager(this);
