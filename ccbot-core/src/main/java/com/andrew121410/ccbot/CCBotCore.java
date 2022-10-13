@@ -9,6 +9,7 @@ import lombok.SneakyThrows;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.hooks.AnnotatedEventManager;
+import net.dv8tion.jda.api.requests.GatewayIntent;
 
 public class CCBotCore {
 
@@ -42,6 +43,7 @@ public class CCBotCore {
         this.commandManager = new CommandManager(this);
 
         this.jda = JDABuilder.createDefault(this.configManager.getMainConfig().getToken())
+                .enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_PRESENCES, GatewayIntent.MESSAGE_CONTENT)
                 .setEventManager(new AnnotatedEventManager())
                 .addEventListeners(commandManager)
                 .addEventListeners(new CEvents(this))
