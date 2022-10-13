@@ -21,7 +21,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @ACommand(command = "purge", description = "Purges messages")
 public class PurgeCMD extends AbstractCommand {
 
-    private CCBotCore ccBotCore;
+    private final CCBotCore ccBotCore;
 
     public PurgeCMD(CCBotCore ccBotCore) {
         super(ccBotCore);
@@ -38,14 +38,7 @@ public class PurgeCMD extends AbstractCommand {
 
         String prefix = this.ccBotCore.getConfigManager().getMainConfig().getPrefix();
 
-        if (args.length == 0) {
-            EmbedBuilder embedBuilder = new EmbedBuilder()
-                    .setAuthor("CCBot Purge Usage!")
-                    .setColor(Color.RED)
-                    .addField("Usage:", prefix + "purge <Number>" + "\r\n " + prefix + "purge words badword", false);
-            textChannel.sendMessageEmbeds(embedBuilder.build()).queue(a -> a.delete().queueAfter(10, TimeUnit.SECONDS));
-            return true;
-        } else if (args.length == 1) {
+        if (args.length == 1) {
             Integer integer = Utils.asIntegerOrElse(args[0], null);
             if (integer == null) {
                 textChannel.sendMessage("That's not a number.").queue(a -> a.delete().queueAfter(10, TimeUnit.SECONDS));
@@ -67,6 +60,12 @@ public class PurgeCMD extends AbstractCommand {
             purgeWords(textChannel, Arrays.asList(wordArray));
             textChannel.sendMessage("**We are now deleting messages with the word/s " + Arrays.toString(wordArray) + " in them!**").queue();
             return true;
+        } else {
+            EmbedBuilder embedBuilder = new EmbedBuilder()
+                    .setAuthor("CCBot Purge Usage!")
+                    .setColor(Color.RED)
+                    .addField("Usage:", prefix + "purge <Number>" + "\r\n " + prefix + "purge words badword", false);
+            textChannel.sendMessageEmbeds(embedBuilder.build()).queue(a -> a.delete().queueAfter(10, TimeUnit.SECONDS));
         }
         return false;
     }
@@ -92,6 +91,6 @@ public class PurgeCMD extends AbstractCommand {
                     message.delete().queue();
                 }
             return true;
-        }).thenRunAsync(() -> textChannel.sendMessage("Completed! The count was: " + atomicInteger.get()).queue());
+        }).thenRunAsync(() -> textChannel.sendMessage("Completed purge! The count was: " + atomicInteger.get()).queue());
     }
 }

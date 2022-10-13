@@ -28,6 +28,12 @@ public class TagCMD extends AbstractCommand {
 
         if (args.length == 0) {
             String[] tags = cGuild.getTags().keySet().toArray(new String[0]);
+
+            if (tags.length == 0) {
+                textChannel.sendMessage("There are no tags on this guild!").queue();
+                return true;
+            }
+
             StringBuilder stringBuilder = new StringBuilder();
             int i = 1;
             for (String tag : tags) {

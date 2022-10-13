@@ -44,6 +44,11 @@ public class TagsCMD extends AbstractCommand {
         }
 
         if (!CommandManager.hasPermission(event.getMember(), textChannel, Permission.MANAGE_SERVER)) {
+            if (tags.length == 0) {
+                textChannel.sendMessage("There are no tags on this guild.").queue();
+                return true;
+            }
+
             EmbedBuilder embedBuilder = new EmbedBuilder()
                     .setTitle("List of all tags!")
                     .setDescription(stringBuilder.toString())

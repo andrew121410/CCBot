@@ -15,7 +15,14 @@ import java.util.concurrent.TimeUnit;
 @ACommand(command = "superadmin", description = "null")
 public class SuperAdminCMD extends AbstractCommand {
 
-    private CCBotCore ccBotCore;
+    /**
+     * You might think this is very suspicious but this just has basic commands like leaving a guild or seeing the guilds the bot is in.
+     * I might remove this in the future but for now it's here.
+     * <p>
+     * Don't worry I'm not going to steal your server or anything lol, sure that's against the TOS
+     */
+
+    private final CCBotCore ccBotCore;
 
     public SuperAdminCMD(CCBotCore ccBotCore) {
         super(ccBotCore);
@@ -25,6 +32,7 @@ public class SuperAdminCMD extends AbstractCommand {
     @Override
     public boolean onMessage(MessageReceivedEvent event, String[] args) {
         TextChannel textChannel = event.getGuildChannel().asTextChannel();
+        if (event.getMember() == null) return false;
 
         if (!event.getMember().getUser().getName().equals("Andrew121410") && !event.getMember().getUser().getDiscriminator().equals("#2035")) {
             return false;
@@ -44,13 +52,23 @@ public class SuperAdminCMD extends AbstractCommand {
                         .addField("Guilds:", stringBuilder.toString(), false)
                         .addField("More Guild information:", "Total Guilds: " + this.ccBotCore.getJda().getGuilds().size(), false);
                 textChannel.sendMessageEmbeds(embedBuilder.build()).queue();
-            }
-
-            if (args.length == 1) {
-                EmbedBuilder embedBuilder = new EmbedBuilder()
-                        .setAuthor("CCBot SuperAdmin Guilds Usage!")
-                        .addField("1.", this.ccBotCore.getConfigManager().getMainConfig().getPrefix() + "superadmin guilds list", false);
-                textChannel.sendMessageEmbeds(embedBuilder.build()).queue(a -> a.delete().queueAfter(10, TimeUnit.SECONDS));
+                return true;
+            } else if (args.length == 3 && args[1].equalsIgnoreCase("leave")) {
+                Guild guild = this.ccBotCore.getJda().getGuildById(args[2]);
+                if (guild == null) {
+                    textChannel.sendMessage("Guild not found.").queue();
+                    return false;
+                }
+                guild.leave().queue();
+                textChannel.sendMessage("Left guild: " + guild.getName()).queue();
+                return true;
+            } else {
+                if (args.length == 1) {
+                    EmbedBuilder embedBuilder = new EmbedBuilder()
+                            .setAuthor("CCBot SuperAdmin Guilds Usage!")
+                            .addField("1.", this.ccBotCore.getConfigManager().getMainConfig().getPrefix() + "superadmin guilds list", false);
+                    textChannel.sendMessageEmbeds(embedBuilder.build()).queue(a -> a.delete().queueAfter(10, TimeUnit.SECONDS));
+                }
             }
         } else if (args.length == 2 && args[0].equalsIgnoreCase("invite")) {
             String guildId = args[1];

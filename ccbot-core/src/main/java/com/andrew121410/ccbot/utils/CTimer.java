@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 
 public class CTimer {
 
-    private CCBotCore ccBotCore;
+    private final CCBotCore ccBotCore;
 
     private int number;
 
@@ -35,7 +35,7 @@ public class CTimer {
         //But the recommended rate is 15
         //But i'm just gonna do 20 seconds just to be safe.
         Runnable runnable = () -> ccBotCore.getJda().getPresence().setPresence(onlineStatus(), Activity.of(statusType(), Objects.requireNonNull(statusMessage())));
-//        Runnable runnable = () -> this.main.getJda().getPresence().setPresence(OnlineStatus.ONLINE, Activity.of(Activity.ActivityType.DEFAULT, "CCBot | //help"));
+//        Runnable runnable = () -> ccBotCore.getJda().getPresence().setPresence(OnlineStatus.ONLINE, Activity.of(Activity.ActivityType.PLAYING, "CCBot | //help"));
         this.presenceService = Executors.newSingleThreadScheduledExecutor();
         this.presenceService.scheduleAtFixedRate(runnable, 0, 20, TimeUnit.SECONDS);
     }
@@ -50,33 +50,18 @@ public class CTimer {
             number++;
             return this.ccBotCore.getJda().getGuilds().size() + " servers!";
         }
-        if (number == 2) {
-            number++;
-            return "Zzz";
-        }
-        if (number == 3) {
-            number++;
-            return "Ok?";
-        }
-        if (number == 4) {
-            number = 0;
-            return "dead";
-        }
         return null;
     }
 
     private OnlineStatus onlineStatus() {
         return switch (number) {
-            case 0, 1 -> OnlineStatus.ONLINE;
-            case 2 -> OnlineStatus.IDLE;
-            case 3, 4 -> OnlineStatus.DO_NOT_DISTURB;
             default -> OnlineStatus.ONLINE;
         };
     }
 
     private Activity.ActivityType statusType() {
         return switch (number) {
-            case 3 -> Activity.ActivityType.WATCHING;
+            case 1 -> Activity.ActivityType.WATCHING;
             default -> Activity.ActivityType.PLAYING;
         };
     }
