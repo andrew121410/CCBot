@@ -36,12 +36,12 @@ import java.util.stream.Collectors;
 
 public class CEvents {
 
-    private Map<String, CGuild> guildMap;
+    private final Map<String, CGuild> guildMap;
 
-    private CCBotCore ccBotCore;
-    private JDA jda;
-    private GuildConfigManager guildConfigManager;
-    private CUtils cUtils;
+    private final CCBotCore ccBotCore;
+    private final JDA jda;
+    private final GuildConfigManager guildConfigManager;
+    private final CUtils cUtils;
 
     public CEvents(CCBotCore ccBotCore) {
         this.ccBotCore = ccBotCore;
@@ -65,7 +65,7 @@ public class CEvents {
     }
 
     @SubscribeEvent
-    public void OnGuildLeave(GuildLeaveEvent event) {
+    public void onGuildLeave(GuildLeaveEvent event) {
         System.out.println("Guild LEAVE: " + event.getGuild().getName());
         this.guildConfigManager.remove(event.getGuild().getId());
     }
