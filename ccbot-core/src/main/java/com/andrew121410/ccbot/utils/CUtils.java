@@ -8,11 +8,11 @@ import java.util.List;
 
 public class CUtils {
 
-    public TextChannel findTextChannel(List<TextChannel> guildtextChannels, List<String> list) {
+    public TextChannel findTextChannel(List<TextChannel> textChannels, List<String> list) {
         for (String string : list) {
-            for (TextChannel guildtextChannel : guildtextChannels) {
-                if (string.equalsIgnoreCase(guildtextChannel.getName())) {
-                    return guildtextChannel;
+            for (TextChannel textChannel : textChannels) {
+                if (string.equalsIgnoreCase(textChannel.getName())) {
+                    return textChannel;
                 }
             }
         }
@@ -23,7 +23,12 @@ public class CUtils {
         return findTextChannel(guildtextChannels, new ArrayList<>(Arrays.asList(list)));
     }
 
+    public List<String> getLogsList() {
+        return Arrays.stream(getLogsStringArray()).toList();
+    }
+
     public String[] getLogsStringArray() {
-        return new String[]{"logs", "log", "bot-logs", "bots-log", "bots-logs", "ccbot-logs", "discord-log", "discord-logs"};
+        return new String[]{"logs", "log", "bot-logs", "bots-log", "bots-logs", "ccbot-logs", "ccbot-log", "discord-log", "discord-logs", "owner-log", "owners-log"};
+
     }
 }

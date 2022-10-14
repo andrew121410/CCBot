@@ -25,7 +25,7 @@ public class CTimer {
     }
 
     private void setupSaveManager() {
-        Runnable runnable = () -> ccBotCore.getConfigManager().saveAll();
+        Runnable runnable = () -> ccBotCore.getConfigManager().saveAll(true);
         this.saveService = Executors.newSingleThreadScheduledExecutor();
         this.saveService.scheduleAtFixedRate(runnable, 0, 30, TimeUnit.SECONDS);
     }

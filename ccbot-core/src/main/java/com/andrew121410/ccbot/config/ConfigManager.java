@@ -28,8 +28,9 @@ public class ConfigManager {
         this.guildConfigManager.loadAllGuilds();
     }
 
-    public void saveAll() {
-        this.guildConfigManager.saveAllGuilds();
+    public void saveAll(boolean silent) {
+        this.saveConfig();
+        this.guildConfigManager.saveAllGuilds(silent);
     }
 
     @SneakyThrows
@@ -44,6 +45,13 @@ public class ConfigManager {
             objectMapper.writeValue(configFile, new CCBotJacksonConfig());
             return null;
         }
+    }
+
+    @SneakyThrows
+    public void saveConfig() {
+        ObjectMapper objectMapper = createDefaultMapper();
+        File configFile = new File(getConfigFolder(), "config.yml");
+        objectMapper.writeValue(configFile, this.ccBotJacksonConfig);
     }
 
     public ObjectMapper createDefaultMapper() {

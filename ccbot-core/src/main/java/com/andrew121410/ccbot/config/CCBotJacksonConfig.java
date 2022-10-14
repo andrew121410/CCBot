@@ -17,4 +17,7 @@ public class CCBotJacksonConfig {
 
     @JsonProperty("Command-Prefix")
     private String prefix = "//";
+
+    @JsonProperty("LastOn-do-not-touch")
+    private String lastOn = "0";
 }

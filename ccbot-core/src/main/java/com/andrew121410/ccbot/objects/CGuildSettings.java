@@ -13,10 +13,10 @@ import lombok.ToString;
 public class CGuildSettings {
 
     @JsonProperty("WelcomeMessages")
-    private Boolean welcomeMessages = true;
+    private Boolean welcomeMessages = false;
 
     @JsonProperty("Logs")
-    private Boolean logs = true;
+    private Boolean logs = false;
 
     public Boolean getWelcomeMessages() {
         return welcomeMessages;

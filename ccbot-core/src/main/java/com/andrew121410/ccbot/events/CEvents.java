@@ -2,6 +2,7 @@ package com.andrew121410.ccbot.events;
 
 import com.andrew121410.ccbot.CCBotCore;
 import com.andrew121410.ccbot.config.GuildConfigManager;
+import com.andrew121410.ccbot.objects.AMessage;
 import com.andrew121410.ccbot.objects.CGuild;
 import com.andrew121410.ccbot.objects.button.CButton;
 import com.andrew121410.ccbot.objects.button.CButtonManager;
@@ -11,6 +12,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.concrete.PrivateChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
@@ -24,6 +26,7 @@ import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleAddEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleRemoveEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.SubscribeEvent;
@@ -53,9 +56,7 @@ public class CEvents {
 
     @SubscribeEvent
     public void onReady(ReadyEvent event) {
-        for (Guild guild : event.getJDA().getGuilds()) {
-            this.guildConfigManager.add(guild);
-        }
+        for (Guild guild : event.getJDA().getGuilds()) this.guildConfigManager.add(guild);
     }
 
     @SubscribeEvent
@@ -67,6 +68,7 @@ public class CEvents {
     @SubscribeEvent
     public void onGuildLeave(GuildLeaveEvent event) {
         System.out.println("Guild LEAVE: " + event.getGuild().getName());
+        this.ccBotCore.getMessageHistoryManager().deleteGuild(event.getGuild().getId());
         this.guildConfigManager.remove(event.getGuild().getId());
     }
 
@@ -229,6 +231,37 @@ public class CEvents {
         } else {
             throw new NullPointerException("Button is not present. THIS SHOULD NOT HAPPEN");
         }
+    }
+
+    @SubscribeEvent
+    private void onMessageReceivedEvent(MessageReceivedEvent event) {
+        this.ccBotCore.getMessageHistoryManager().saveMessage(event.getMessage());
+    }
+
+    @SubscribeEvent
+    private void onMessageDeleteEvent(MessageDeleteEvent event) {
+        CGuild cGuild = this.guildMap.get(event.getGuild().getId());
+
+        if (!cGuild.getSettings().getLogs()) return;
+
+        // If logs is enabled
+        TextChannel textChannel = cUtils.findTextChannel(event.getGuild().getTextChannels(), cUtils.getLogsList());
+        if (textChannel == null) return;
+
+        AMessage message = this.ccBotCore.getMessageHistoryManager().getMessage(event.getGuild(), event.getChannel().asTextChannel(), event.getMessageId());
+        if (message == null) return;
+
+        User user = this.ccBotCore.getJda().getUserById(message.getAuthorId());
+        if (user == null) return;
+
+        EmbedBuilder embedBuilder = new EmbedBuilder().setAuthor(user.getAsTag(), user.getEffectiveAvatarUrl())
+                .setDescription("**Message sent by** " + user.getAsMention() + " **has been deleted in** " + event.getChannel().getAsMention())
+                .setColor(Color.RED)
+                .addField("Message Content", message.getMessageRawContent(), false);
+
+        textChannel.sendMessageEmbeds(embedBuilder.build()).queue();
+
+        this.ccBotCore.getMessageHistoryManager().deleteMessage(event.getGuild().getId(), event.getChannel().getId(), event.getMessageId());
     }
 
     //Extra not needed

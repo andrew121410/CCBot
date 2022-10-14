@@ -4,6 +4,7 @@ import com.andrew121410.ccbot.commands.manager.CommandManager;
 import com.andrew121410.ccbot.config.ConfigManager;
 import com.andrew121410.ccbot.events.CEvents;
 import com.andrew121410.ccbot.utils.CTimer;
+import com.andrew121410.ccbot.utils.MessageHistoryManager;
 import com.andrew121410.ccbot.utils.SetListMap;
 import lombok.SneakyThrows;
 import net.dv8tion.jda.api.JDA;
@@ -13,7 +14,7 @@ import net.dv8tion.jda.api.requests.GatewayIntent;
 
 public class CCBotCore {
 
-    public static final String VERSION = "2.2";
+    public static final String VERSION = "2.3";
 
     private static CCBotCore instance;
 
@@ -23,6 +24,7 @@ public class CCBotCore {
     private ConfigManager configManager;
     private CommandManager commandManager;
     private CTimer cTimer;
+    private MessageHistoryManager messageHistoryManager;
 
     public CCBotCore(String folderPath) {
         instance = this;
@@ -51,12 +53,15 @@ public class CCBotCore {
                 .awaitReady();
 
         this.cTimer = new CTimer(this);
+        this.messageHistoryManager = new MessageHistoryManager(this);
+        this.messageHistoryManager.cacheEverythingMissing();
     }
 
     public void exit() {
+        this.getConfigManager().getMainConfig().setLastOn(String.valueOf(System.currentTimeMillis()));
         this.cTimer.getSaveService().shutdown();
         this.cTimer.getPresenceService().shutdown();
-        this.configManager.saveAll();
+        this.configManager.saveAll(false);
         System.out.println("Exited Successfully!");
         this.jda.shutdown();
         System.exit(0);
@@ -84,5 +89,9 @@ public class CCBotCore {
 
     public CTimer getCTimer() {
         return cTimer;
+    }
+
+    public MessageHistoryManager getMessageHistoryManager() {
+        return messageHistoryManager;
     }
 }

@@ -42,7 +42,7 @@ public class GuildConfigManager {
     }
 
     @SneakyThrows
-    public void saveAllGuilds() {
+    public void saveAllGuilds(boolean silent) {
         ObjectMapper objectMapper = configManager.createDefaultMapper();
         File guildsFolder = getGuildFolder();
         Instant start = Instant.now();
@@ -54,12 +54,14 @@ public class GuildConfigManager {
         }
         Instant finish = Instant.now();
         long timeElapsed = Duration.between(start, finish).toMillis();
-        System.out.println("Saved all guilds to file took: " + timeElapsed + " milliseconds");
+        if (!silent) {
+            System.out.println("Saved all guilds to file took: " + timeElapsed + " milliseconds");
+        }
     }
 
     public void add(Guild guild) {
         Objects.requireNonNull(guild, "Guild is null");
-        if (this.guildMap.containsKey(guild.getId())) return;
+
         CGuild cGuild = new CGuild(guild);
         this.guildMap.putIfAbsent(guild.getId(), cGuild);
     }

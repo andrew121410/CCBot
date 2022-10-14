@@ -85,7 +85,11 @@ public class SuperAdminCMD extends AbstractCommand {
                 textChannel.sendMessage(randomInvite.getUrl()).queue();
             });
             return true;
+        } else if (args.length == 1 && args[0].equalsIgnoreCase("cache")) {
+            this.ccBotCore.getMessageHistoryManager().cacheAllMessagesOfGuildAsync(event.getGuild());
+            textChannel.sendMessage("Trying to cache everything PLEASE WAIT!").queue();
         }
+
         return false;
     }
 }
