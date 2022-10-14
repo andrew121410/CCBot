@@ -161,9 +161,9 @@ public class CEvents {
         EmbedBuilder embedBuilder;
 
         if (roleList.size() == 1) {
-            embedBuilder = new EmbedBuilder().setAuthor(event.getUser().getAsTag(), event.getUser().getAvatarUrl(), event.getUser().getAvatarUrl()).setDescription("**Role:** " + roleString + " **for** " + event.getUser().getAsMention() + " **has been removed!**").setColor(Color.ORANGE);
+            embedBuilder = new EmbedBuilder().setAuthor(event.getUser().getAsTag(), event.getUser().getAvatarUrl(), event.getUser().getAvatarUrl()).setDescription("**The role** " + roleString.toUpperCase() + " **for** " + event.getUser().getAsMention() + " **has been removed!**").setColor(Color.ORANGE);
         } else
-            embedBuilder = new EmbedBuilder().setAuthor(event.getUser().getAsTag(), event.getUser().getAvatarUrl(), event.getUser().getAvatarUrl()).setDescription("**Roles:** " + roleString + " **for** " + event.getUser().getAsMention() + " **has been removed!**").setColor(Color.ORANGE);
+            embedBuilder = new EmbedBuilder().setAuthor(event.getUser().getAsTag(), event.getUser().getAvatarUrl(), event.getUser().getAvatarUrl()).setDescription("**The roles** " + roleString.toUpperCase() + " **for** " + event.getUser().getAsMention() + " **has been removed!**").setColor(Color.ORANGE);
 
         textChannel.sendMessageEmbeds(embedBuilder.build()).queue();
     }
