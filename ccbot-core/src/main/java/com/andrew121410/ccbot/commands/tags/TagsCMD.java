@@ -85,8 +85,12 @@ public class TagsCMD extends AbstractCommand {
                     .setAuthor("Tags Help!")
                     .setColor(Color.RED)
                     .addField("Usage:", prefix + "tags add test this is a test tag \r\n"
-                            + prefix + "tags remove test", false)
-                    .addField("Tags:", stringBuilder.toString(), false);
+                            + prefix + "tags remove test", false);
+
+            if (tags.length != 0) {
+                embedBuilder.addField("Tags:", stringBuilder.toString(), false);
+            }
+
             textChannel.sendMessageEmbeds(embedBuilder.build()).queue();
         }
         return true;
