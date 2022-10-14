@@ -8,8 +8,8 @@ import java.util.Map;
 
 public class SetListMap {
 
-    private Map<String, AbstractCommand> commandMap;
-    private Map<String, CGuild> guildMap;
+    private final Map<String, AbstractCommand> commandMap;
+    private final Map<String, CGuild> guildMap;
 
     public SetListMap() {
         this.commandMap = new HashMap<>();

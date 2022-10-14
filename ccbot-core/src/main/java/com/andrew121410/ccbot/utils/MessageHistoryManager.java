@@ -2,17 +2,18 @@ package com.andrew121410.ccbot.utils;
 
 import com.andrew121410.ccbot.CCBotCore;
 import com.andrew121410.ccbot.objects.AMessage;
-import com.andrew121410.ccbot.objects.CGuild;
 import com.andrew121410.ccutils.storage.ISQL;
 import com.andrew121410.ccutils.storage.SQLite;
 import com.andrew121410.ccutils.storage.easy.EasySQL;
 import com.andrew121410.ccutils.storage.easy.SQLDataStore;
 import com.google.common.collect.Multimap;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,19 +21,28 @@ import java.util.Map;
 
 public class MessageHistoryManager {
 
-    private CCBotCore ccBotCore;
+    private boolean isFirstTime = true;
+
+    private final CCBotCore ccBotCore;
+    private final String guildId;
 
     private final ISQL isql;
     private final EasySQL easySQL;
 
-    public MessageHistoryManager(CCBotCore ccBotCore) {
-        this.ccBotCore = ccBotCore;
+    private boolean interrupt = false;
+    private boolean isRunning = false;
 
-        this.isql = new SQLite(this.ccBotCore.getConfigManager().getConfigFolder(), "messageHistory");
+    public MessageHistoryManager(CCBotCore ccBotCore, String guildId) {
+        this.ccBotCore = ccBotCore;
+        this.guildId = guildId;
+
+        File db = new File(this.ccBotCore.getConfigManager().getGuildConfigManager().getGuildFolder(), "mh-" + guildId + ".db");
+        if (db.exists()) isFirstTime = false;
+
+        this.isql = new SQLite(this.ccBotCore.getConfigManager().getGuildConfigManager().getGuildFolder(), "mh-" + guildId);
         this.easySQL = new EasySQL(this.isql, "messageHistory");
 
         List<String> columns = new ArrayList<>();
-        columns.add("guildId");
         columns.add("channelId");
         columns.add("messageId");
         columns.add("senderId");
@@ -41,9 +51,10 @@ public class MessageHistoryManager {
         this.easySQL.create(columns, false);
     }
 
-    public void saveMessage(Guild guild, TextChannel textChannel, User user, Message message) {
+    public void saveMessage(TextChannel textChannel, User user, Message message) {
+        if (interrupt) return;
+
         Map<String, String> map = new HashMap<>();
-        map.put("guildId", guild.getId());
         map.put("channelId", textChannel.getId());
         map.put("messageId", message.getId());
         map.put("senderId", user.getId());
@@ -57,13 +68,14 @@ public class MessageHistoryManager {
     }
 
     public void saveMessage(Message message) {
-        saveMessage(message.getGuild(), message.getChannel().asTextChannel(), message.getAuthor(), message);
+        saveMessage(message.getChannel().asTextChannel(), message.getAuthor(), message);
     }
 
-    public AMessage getMessage(Guild guild, TextChannel textChannel, String messageId) {
+    public AMessage getMessage(TextChannel textChannel, String messageId) {
+        if (interrupt) return null;
+
         Map<String, String> map = new HashMap<>();
 
-        map.put("guildId", guild.getId());
         map.put("channelId", textChannel.getId());
         map.put("messageId", messageId);
 
@@ -75,76 +87,74 @@ public class MessageHistoryManager {
         return new AMessage(sqlDataStore.get("message"), sqlDataStore.get("senderId"));
     }
 
-    public void deleteMessage(String guildId, String channelId, String messageId) {
+    public void deleteMessage(String channelId, String messageId) {
+        if (interrupt) return;
+
         Map<String, String> map = new HashMap<>();
 
-        map.put("guildId", guildId);
         map.put("channelId", channelId);
         map.put("messageId", messageId);
 
         this.easySQL.delete(map);
     }
 
-    public void deleteGuild(String guildId) {
-        Map<String, String> map = new HashMap<>();
-        map.put("guildId", guildId);
-        this.easySQL.delete(map);
+    public void delete() {
+        this.interrupt = true;
+        this.isql.disconnect();
+        File file = new File(this.ccBotCore.getConfigManager().getGuildConfigManager().getGuildFolder(), "mh-" + guildId);
+        if (file.delete()) System.out.println("Deleted " + file.getName());
     }
-
-    public boolean isRunning = false;
 
     public void cacheEverythingMissing() {
         if (this.isRunning) return;
         this.isRunning = true;
 
-        System.out.println("Caching missing messages...");
+        System.out.println("Caching missing messages for " + guildId);
 
         String lastOnline = this.ccBotCore.getConfigManager().getMainConfig().getLastOn();
         long lastOnlineLong = Long.parseLong(lastOnline);
 
-        if (lastOnlineLong != 0) {
-            for (Guild guild : this.ccBotCore.getJda().getGuilds()) {
-                CGuild cGuild = this.ccBotCore.getSetListMap().getGuildMap().get(guild.getId());
+        if (!this.isFirstTime) {
+            Guild guild = this.ccBotCore.getJda().getGuildById(guildId);
+            if (guild == null) return;
 
-                // If the guild doesn't have the log feature enabled then skip it.
-                if (!cGuild.getSettings().getLogs()) continue;
+            for (TextChannel textChannel : guild.getTextChannels()) {
+                if (!guild.getSelfMember().getPermissions(textChannel).contains(Permission.VIEW_CHANNEL)) continue;
 
-                for (TextChannel textChannel : guild.getTextChannels()) {
-                    textChannel.getIterableHistory().takeUntilAsync(message -> message.getTimeCreated().toInstant().toEpochMilli() <= lastOnlineLong).thenApply(messages -> {
-                        int size = messages.size();
-                        for (Message message : messages) {
-                            if (size <= 30) {
-                                System.out.println("Caching message: " + message.getId() + " Content: " + message.getContentRaw());
-                            }
-                            this.saveMessage(guild, textChannel, message.getAuthor(), message);
+                textChannel.getIterableHistory().takeUntilAsync(message -> message.getTimeCreated().toInstant().toEpochMilli() <= lastOnlineLong).thenApply(messages -> {
+                    int size = messages.size();
+                    for (Message message : messages) {
+                        if (size <= 30) {
+                            System.out.println("Caching message: " + message.getId() + " Content: " + message.getContentRaw());
                         }
-                        return null;
-                    });
-                }
+                        this.saveMessage(textChannel, message.getAuthor(), message);
+                    }
+                    return null;
+                }).thenApply(aVoid -> {
+                    this.isRunning = false;
+                    return null;
+                });
             }
         } else {
             // Cache everything
             Runnable runnable = () -> {
-                for (Guild guild : this.ccBotCore.getJda().getGuilds()) {
-                    CGuild cGuild = this.ccBotCore.getSetListMap().getGuildMap().get(guild.getId());
+                Guild guild = this.ccBotCore.getJda().getGuildById(guildId);
+                if (guild == null) return;
 
-                    // If the guild doesn't have the log feature enabled then skip it.
-                    if (!cGuild.getSettings().getLogs()) continue;
+                cacheAllMessagesOfGuild(guild);
 
-                    cacheAllMessagesOfGuild(guild);
-                }
-                System.out.println("Done caching ALL messages!");
+                System.out.println("Done caching missing messages for " + guildId);
+                this.isRunning = false;
             };
             new Thread(runnable).start();
         }
-        System.out.println("Done in cacheEverythingMissing!");
-        this.isRunning = false;
     }
 
     private void cacheAllMessagesOfGuild(Guild guild) {
         for (TextChannel textChannel : guild.getTextChannels()) {
+            if (!guild.getSelfMember().getPermissions(textChannel).contains(Permission.VIEW_CHANNEL)) continue;
             for (Message message : textChannel.getIterableHistory()) {
-                saveMessage(guild, textChannel, message.getAuthor(), message);
+                saveMessage(textChannel, message.getAuthor(), message);
             }
         }
     }

@@ -3,18 +3,19 @@ package com.andrew121410.ccbot;
 import com.andrew121410.ccbot.commands.manager.CommandManager;
 import com.andrew121410.ccbot.config.ConfigManager;
 import com.andrew121410.ccbot.events.CEvents;
+import com.andrew121410.ccbot.objects.CGuild;
 import com.andrew121410.ccbot.utils.CTimer;
-import com.andrew121410.ccbot.utils.MessageHistoryManager;
 import com.andrew121410.ccbot.utils.SetListMap;
 import lombok.SneakyThrows;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.hooks.AnnotatedEventManager;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 
 public class CCBotCore {
 
-    public static final String VERSION = "2.3";
+    public static final String VERSION = "2.4";
 
     private static CCBotCore instance;
 
@@ -24,7 +25,6 @@ public class CCBotCore {
     private ConfigManager configManager;
     private CommandManager commandManager;
     private CTimer cTimer;
-    private MessageHistoryManager messageHistoryManager;
 
     public CCBotCore(String folderPath) {
         instance = this;
@@ -47,14 +47,19 @@ public class CCBotCore {
         this.jda = JDABuilder.createDefault(this.configManager.getMainConfig().getToken())
                 .enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_PRESENCES, GatewayIntent.MESSAGE_CONTENT)
                 .setEventManager(new AnnotatedEventManager())
-                .addEventListeners(commandManager)
-                .addEventListeners(new CEvents(this))
                 .build()
                 .awaitReady();
 
+        // Try to init the cGuilds
+        for (Guild guild : this.jda.getGuilds()) {
+            CGuild cGuild = this.configManager.getGuildConfigManager().addOrGet(guild);
+            cGuild.init(guild); // Try to init the guild if it's not already
+        }
+
+        this.jda.addEventListener(new CEvents(this));
+        this.jda.addEventListener(commandManager);
+
         this.cTimer = new CTimer(this);
-        this.messageHistoryManager = new MessageHistoryManager(this);
-        this.messageHistoryManager.cacheEverythingMissing();
     }
 
     public void exit() {
@@ -89,9 +94,5 @@ public class CCBotCore {
 
     public CTimer getCTimer() {
         return cTimer;
-    }
-
-    public MessageHistoryManager getMessageHistoryManager() {
-        return messageHistoryManager;
     }
 }

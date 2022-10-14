@@ -2,6 +2,7 @@ package com.andrew121410.ccbot.objects;
 
 import com.andrew121410.ccbot.CCBotCore;
 import com.andrew121410.ccbot.objects.button.CButtonManager;
+import com.andrew121410.ccbot.utils.MessageHistoryManager;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -22,6 +23,9 @@ import java.util.Map;
 public class CGuild {
 
     @JsonIgnore
+    private boolean initialized = false;
+
+    @JsonIgnore
     private final CCBotCore ccBotCore = CCBotCore.getInstance();
 
     @JsonProperty("Guild-ID")
@@ -37,12 +41,23 @@ public class CGuild {
     private CGuildSettings settings = new CGuildSettings();
 
     @JsonIgnore
-    public CButtonManager createButtonManager(String key, CButtonManager cButtonManager) {
-        return this.buttonManager.putIfAbsent(key, cButtonManager);
-    }
+    private MessageHistoryManager messageHistoryManager;
 
     public CGuild(Guild guild) {
         this.guildId = guild.getId();
+    }
+
+    public void init(Guild guild) {
+        if (this.initialized) return;
+        this.initialized = true;
+
+        this.messageHistoryManager = new MessageHistoryManager(this.ccBotCore, guild.getId());
+        this.messageHistoryManager.cacheEverythingMissing();
+    }
+
+    @JsonIgnore
+    public CButtonManager createButtonManager(String key, CButtonManager cButtonManager) {
+        return this.buttonManager.putIfAbsent(key, cButtonManager);
     }
 
     public String getGuildId() {
@@ -59,5 +74,9 @@ public class CGuild {
 
     public Map<String, String> getTags() {
         return tags;
+    }
+
+    public MessageHistoryManager getMessageHistoryManager() {
+        return messageHistoryManager;
     }
 }

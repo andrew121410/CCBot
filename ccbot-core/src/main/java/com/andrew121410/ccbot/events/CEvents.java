@@ -10,7 +10,6 @@ import com.andrew121410.ccbot.utils.CUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
@@ -56,25 +55,28 @@ public class CEvents {
 
     @SubscribeEvent
     public void onReady(ReadyEvent event) {
-        for (Guild guild : event.getJDA().getGuilds()) this.guildConfigManager.add(guild);
     }
 
     @SubscribeEvent
     public void onGuildJoin(GuildJoinEvent event) {
         System.out.println("New Guild Join: " + event.getGuild().getName());
-        this.guildConfigManager.add(event.getGuild());
+        this.guildConfigManager.addOrGet(event.getGuild());
     }
 
     @SubscribeEvent
     public void onGuildLeave(GuildLeaveEvent event) {
         System.out.println("Guild LEAVE: " + event.getGuild().getName());
-        this.ccBotCore.getMessageHistoryManager().deleteGuild(event.getGuild().getId());
+
+        CGuild cGuild = this.guildMap.get(event.getGuild().getId());
+        if (cGuild == null) return;
+        cGuild.getMessageHistoryManager().delete();
+
         this.guildConfigManager.remove(event.getGuild().getId());
     }
 
     @SubscribeEvent
     public void onGuildMemberJoin(GuildMemberJoinEvent event) {
-        CGuild cGuild = this.guildConfigManager.getOrElseAdd(event.getGuild());
+        CGuild cGuild = this.guildConfigManager.addOrGet(event.getGuild());
         if (!cGuild.getSettings().getWelcomeMessages()) {
             return;
         }
@@ -103,8 +105,8 @@ public class CEvents {
 
     @SubscribeEvent
     public void onGuildMemberLeave(GuildMemberRemoveEvent event) {
-        CGuild cGuild = this.guildConfigManager.getOrElseAdd(event.getGuild());
-        if (!cGuild.getSettings().getLogs()) {
+        CGuild cGuild = this.guildConfigManager.addOrGet(event.getGuild());
+        if (!cGuild.getSettings().isLoggingEnabled()) {
             return;
         }
         List<String> channelList = new ArrayList<>();
@@ -122,8 +124,8 @@ public class CEvents {
 
     @SubscribeEvent
     public void onRoleAddEvent(GuildMemberRoleAddEvent event) {
-        CGuild cGuild = this.guildConfigManager.getOrElseAdd(event.getGuild());
-        if (!cGuild.getSettings().getLogs()) {
+        CGuild cGuild = this.guildConfigManager.addOrGet(event.getGuild());
+        if (!cGuild.getSettings().isLoggingEnabled()) {
             return;
         }
         List<Role> roleList = event.getRoles();
@@ -147,8 +149,8 @@ public class CEvents {
 
     @SubscribeEvent
     public void onRoleRemoveEvent(GuildMemberRoleRemoveEvent event) {
-        CGuild cGuild = this.guildConfigManager.getOrElseAdd(event.getGuild());
-        if (!cGuild.getSettings().getLogs()) {
+        CGuild cGuild = this.guildConfigManager.addOrGet(event.getGuild());
+        if (!cGuild.getSettings().isLoggingEnabled()) {
             return;
         }
         List<Role> roleList = event.getRoles();
@@ -170,8 +172,8 @@ public class CEvents {
 
     @SubscribeEvent
     public void onGuildBan(GuildBanEvent event) {
-        CGuild cGuild = this.guildConfigManager.getOrElseAdd(event.getGuild());
-        if (!cGuild.getSettings().getLogs()) {
+        CGuild cGuild = this.guildConfigManager.addOrGet(event.getGuild());
+        if (!cGuild.getSettings().isLoggingEnabled()) {
             return;
         }
         List<String> channelList = new ArrayList<>(Arrays.asList(cUtils.getLogsStringArray()));
@@ -186,8 +188,8 @@ public class CEvents {
 
     @SubscribeEvent
     public void onGuildUnban(GuildUnbanEvent event) {
-        CGuild cGuild = this.guildConfigManager.getOrElseAdd(event.getGuild());
-        if (!cGuild.getSettings().getLogs()) {
+        CGuild cGuild = this.guildConfigManager.addOrGet(event.getGuild());
+        if (!cGuild.getSettings().isLoggingEnabled()) {
             return;
         }
         List<String> channelList = new ArrayList<>(Arrays.asList(cUtils.getLogsStringArray()));
@@ -209,7 +211,7 @@ public class CEvents {
             throw new NullPointerException("Guild was null for some reason");
         }
 
-        CGuild cGuild = this.guildConfigManager.getOrElseAdd(event.getGuild());
+        CGuild cGuild = this.guildConfigManager.addOrGet(event.getGuild());
         String theGoldenKey = event.getChannel().asTextChannel().getId() + event.getMessageId();
         CButtonManager cButtonManager = cGuild.getButtonManager().get(theGoldenKey);
         if (cButtonManager == null) {
@@ -235,20 +237,22 @@ public class CEvents {
 
     @SubscribeEvent
     private void onMessageReceivedEvent(MessageReceivedEvent event) {
-        this.ccBotCore.getMessageHistoryManager().saveMessage(event.getMessage());
+        CGuild cGuild = this.guildConfigManager.addOrGet(event.getGuild());
+        if (cGuild == null) return;
+        cGuild.getMessageHistoryManager().saveMessage(event.getMessage());
     }
 
     @SubscribeEvent
     private void onMessageDeleteEvent(MessageDeleteEvent event) {
-        CGuild cGuild = this.guildMap.get(event.getGuild().getId());
+        CGuild cGuild = this.guildConfigManager.addOrGet(event.getGuild());
 
-        if (!cGuild.getSettings().getLogs()) return;
+        if (!cGuild.getSettings().isLoggingEnabled()) return;
 
         // If logs is enabled
         TextChannel textChannel = cUtils.findTextChannel(event.getGuild().getTextChannels(), cUtils.getLogsList());
         if (textChannel == null) return;
 
-        AMessage message = this.ccBotCore.getMessageHistoryManager().getMessage(event.getGuild(), event.getChannel().asTextChannel(), event.getMessageId());
+        AMessage message = cGuild.getMessageHistoryManager().getMessage(event.getChannel().asTextChannel(), event.getMessageId());
         if (message == null) return;
 
         User user = this.ccBotCore.getJda().getUserById(message.getAuthorId());
@@ -262,7 +266,7 @@ public class CEvents {
 
         textChannel.sendMessageEmbeds(embedBuilder.build()).queue();
 
-        this.ccBotCore.getMessageHistoryManager().deleteMessage(event.getGuild().getId(), event.getChannel().getId(), event.getMessageId());
+        cGuild.getMessageHistoryManager().deleteMessage(event.getChannel().getId(), event.getMessageId());
     }
 
     //Extra not needed

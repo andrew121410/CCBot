@@ -35,7 +35,7 @@ public class ConfigCMD extends AbstractCommand {
         if (!CommandManager.hasPermission(event.getMember(), textChannel, Permission.MANAGE_PERMISSIONS)) {
             return true;
         }
-        CGuild cGuild = this.ccBotCore.getConfigManager().getGuildConfigManager().getOrElseAdd(event.getGuild());
+        CGuild cGuild = this.ccBotCore.getConfigManager().getGuildConfigManager().addOrGet(event.getGuild());
 
         if (args.length == 0) {
             EmbedBuilder embedBuilder = makeEmbed(cGuild);
@@ -50,7 +50,7 @@ public class ConfigCMD extends AbstractCommand {
                                         switch (buttonClickEvent.getComponentId()) {
                                             case "welcome" ->
                                                     cGuild.getSettings().setWelcomeMessages(!cGuild.getSettings().getWelcomeMessages());
-                                            case "log" -> cGuild.getSettings().setLogs(!cGuild.getSettings().getLogs());
+                                            case "log" -> cGuild.getSettings().setLogs(!cGuild.getSettings().isLoggingEnabled());
                                         }
                                         if (buttonClickEvent.getMessage() != null)
                                             buttonClickEvent.deferEdit().setEmbeds(makeEmbed(cGuild).build()).queue();
@@ -61,7 +61,7 @@ public class ConfigCMD extends AbstractCommand {
 
     private EmbedBuilder makeEmbed(CGuild cGuild) {
         String configSec = "WelcomeMessages: \uD83D\uDC4B " + cGuild.getSettings().getWelcomeMessages()
-                + "\r\n" + "Logs: \uD83D\uDCF0 " + cGuild.getSettings().getLogs();
+                + "\r\n" + "Logs: \uD83D\uDCF0 " + cGuild.getSettings().isLoggingEnabled();
         return new EmbedBuilder()
                 .setAuthor("CCBot")
                 .setTitle("Guild configuration!")

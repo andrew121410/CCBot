@@ -26,7 +26,7 @@ public class CGuildSettings {
         this.welcomeMessages = welcomeMessages;
     }
 
-    public Boolean getLogs() {
+    public Boolean isLoggingEnabled() {
         return logs;
     }
 

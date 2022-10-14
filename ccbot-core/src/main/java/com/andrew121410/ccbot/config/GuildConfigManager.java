@@ -18,10 +18,10 @@ import java.util.stream.Collectors;
 
 public class GuildConfigManager {
 
-    private Map<String, CGuild> guildMap;
+    private final Map<String, CGuild> guildMap;
 
-    private CCBotCore ccBotCore;
-    private ConfigManager configManager;
+    private final CCBotCore ccBotCore;
+    private final ConfigManager configManager;
 
     public GuildConfigManager(CCBotCore ccBotCore, ConfigManager configManager) {
         this.ccBotCore = ccBotCore;
@@ -33,6 +33,7 @@ public class GuildConfigManager {
     public void loadAllGuilds() {
         ObjectMapper objectMapper = configManager.createDefaultMapper();
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
         File guildsFolder = getGuildFolder();
         List<File> ymlFiles = Arrays.stream(guildsFolder.listFiles()).filter(file -> file.getName().endsWith(".yml")).collect(Collectors.toList());
         for (File ymlFile : ymlFiles) {
@@ -44,6 +45,8 @@ public class GuildConfigManager {
     @SneakyThrows
     public void saveAllGuilds(boolean silent) {
         ObjectMapper objectMapper = configManager.createDefaultMapper();
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
         File guildsFolder = getGuildFolder();
         Instant start = Instant.now();
         for (Map.Entry<String, CGuild> entry : this.guildMap.entrySet()) {
@@ -59,15 +62,14 @@ public class GuildConfigManager {
         }
     }
 
-    public void add(Guild guild) {
+    public CGuild addOrGet(Guild guild) {
         Objects.requireNonNull(guild, "Guild is null");
+        if (this.guildMap.containsKey(guild.getId())) return this.guildMap.get(guild.getId());
 
         CGuild cGuild = new CGuild(guild);
+        cGuild.init(guild);
         this.guildMap.putIfAbsent(guild.getId(), cGuild);
-    }
-
-    public void add(String key) {
-        add(this.ccBotCore.getJda().getGuildById(key));
+        return cGuild;
     }
 
     public void remove(String key) {
@@ -78,20 +80,6 @@ public class GuildConfigManager {
             ymlFile.delete();
         }
         this.guildMap.remove(cGuild.getGuildId());
-    }
-
-    public CGuild getOrElseAdd(Guild guild) {
-        if (!this.guildMap.containsKey(guild.getId())) {
-            add(guild);
-        }
-        return this.guildMap.get(guild.getId());
-    }
-
-    public CGuild getOrElseAdd(String key) {
-        if (!this.guildMap.containsKey(key)) {
-            add(key);
-        }
-        return this.guildMap.get(key);
     }
 
     public File getGuildFolder() {
