@@ -95,9 +95,9 @@ public class LoggingUtils {
 
         //Only 1 role.
         if (roleList.size() == 1) {
-            embedBuilder = new EmbedBuilder().setAuthor(event.getUser().getAsTag(), event.getUser().getAvatarUrl(), event.getUser().getAvatarUrl()).setDescription(event.getUser().getAsMention() + " **was given the** " + roleString.toUpperCase() + " **role**").setColor(Color.YELLOW);
+            embedBuilder = new EmbedBuilder().setAuthor(event.getUser().getAsTag(), event.getUser().getAvatarUrl(), event.getUser().getAvatarUrl()).setDescription(event.getUser().getAsMention() + " **was given the** " + roleString.toUpperCase() + " **role**").setColor(Color.orange);
         } else
-            embedBuilder = new EmbedBuilder().setAuthor(event.getUser().getAsTag(), event.getUser().getAvatarUrl(), event.getUser().getAvatarUrl()).setDescription(event.getUser().getAsMention() + " **was given the roles:** " + roleString).setColor(Color.YELLOW);
+            embedBuilder = new EmbedBuilder().setAuthor(event.getUser().getAsTag(), event.getUser().getAvatarUrl(), event.getUser().getAvatarUrl()).setDescription(event.getUser().getAsMention() + " **was given the roles:** " + roleString).setColor(Color.orange);
 
         textChannel.sendMessageEmbeds(embedBuilder.build()).queue();
     }
@@ -165,7 +165,7 @@ public class LoggingUtils {
         if (user == null) return;
         if (user.isBot()) return;
 
-        EmbedBuilder embedBuilder = new EmbedBuilder().setAuthor(user.getAsTag(), user.getEffectiveAvatarUrl())
+        EmbedBuilder embedBuilder = new EmbedBuilder().setAuthor(user.getAsTag(), null, user.getAvatarUrl())
                 .setDescription("**Message sent by** " + user.getAsMention() + " **has been deleted in** " + event.getChannel().getAsMention())
                 .setColor(Color.RED)
                 .addField("Message Content", message.getMessageRawContent(), false);
