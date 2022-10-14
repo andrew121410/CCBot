@@ -17,6 +17,7 @@ import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleRemoveEvent;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.role.RoleCreateEvent;
 import net.dv8tion.jda.api.events.role.RoleDeleteEvent;
+import net.dv8tion.jda.api.events.role.update.RoleUpdateNameEvent;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -83,7 +84,7 @@ public class LoggingUtils {
 
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setAuthor("Role Created:", event.getRole().getGuild().getIconUrl(), event.getRole().getGuild().getIconUrl())
-                .setDescription("The role " + event.getRole().getAsMention() + " has been created!")
+                .setDescription("**The role** " + event.getRole().getAsMention() + " **has been created!**")
                 .setColor(Color.GREEN);
 
         logChannel.sendMessageEmbeds(embedBuilder.build()).queue();
@@ -98,8 +99,23 @@ public class LoggingUtils {
 
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setAuthor("Role Deleted:", event.getRole().getGuild().getIconUrl(), event.getRole().getGuild().getIconUrl())
-                .setDescription("The role " + event.getRole().getAsMention() + " has been deleted!")
+                .setDescription("**The role** " + event.getRole().getName() + " **has been deleted!**")
                 .setColor(Color.RED);
+
+        logChannel.sendMessageEmbeds(embedBuilder.build()).queue();
+    }
+
+    public void handle(RoleUpdateNameEvent event) {
+        CGuild cGuild = this.guildConfigManager.addOrGet(event.getGuild());
+        if (!cGuild.getSettings().isLoggingEnabled()) return;
+
+        TextChannel logChannel = CUtils.findLogChannel(event.getGuild());
+        if (logChannel == null) return;
+
+        EmbedBuilder embedBuilder = new EmbedBuilder()
+                .setAuthor("Role Name Changed:", event.getRole().getGuild().getIconUrl(), event.getRole().getGuild().getIconUrl())
+                .setDescription("**The role** " + event.getRole().getAsMention() + " **has had its name changed from** " + event.getOldName() + " **to** " + event.getNewName())
+                .setColor(Color.YELLOW);
 
         logChannel.sendMessageEmbeds(embedBuilder.build()).queue();
     }

@@ -27,6 +27,7 @@ import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.role.RoleCreateEvent;
 import net.dv8tion.jda.api.events.role.RoleDeleteEvent;
+import net.dv8tion.jda.api.events.role.update.RoleUpdateNameEvent;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.SubscribeEvent;
 
@@ -94,6 +95,11 @@ public class CEvents {
 
     @SubscribeEvent
     public void onRoleDeleteEvent(RoleDeleteEvent event) {
+        this.loggingUtils.handle(event);
+    }
+
+    @SubscribeEvent
+    public void onRoleUpdateNameEvent(RoleUpdateNameEvent event) {
         this.loggingUtils.handle(event);
     }
 
