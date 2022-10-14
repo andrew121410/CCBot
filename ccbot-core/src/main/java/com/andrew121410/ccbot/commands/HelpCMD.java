@@ -42,7 +42,7 @@ public class HelpCMD extends AbstractCommand {
 
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setAuthor("CCBot Help")
-                .setColor(Color.BLUE)
+                .setColor(Color.black)
                 .setDescription("This is the list of commands.")
                 .addField("Basic Commands!", basicHelp, false)
                 .addField("Admin Commands!", adminHelp, false)
