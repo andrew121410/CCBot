@@ -253,6 +253,7 @@ public class CEvents {
 
         User user = this.ccBotCore.getJda().getUserById(message.getAuthorId());
         if (user == null) return;
+        if (user.isBot()) return;
 
         EmbedBuilder embedBuilder = new EmbedBuilder().setAuthor(user.getAsTag(), user.getEffectiveAvatarUrl())
                 .setDescription("**Message sent by** " + user.getAsMention() + " **has been deleted in** " + event.getChannel().getAsMention())
