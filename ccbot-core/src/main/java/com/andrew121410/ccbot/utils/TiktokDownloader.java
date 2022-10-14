@@ -1,8 +1,9 @@
 package com.andrew121410.ccbot.utils;
 
 import com.andrew121410.ccbot.CCBotCore;
-import lombok.SneakyThrows;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.exceptions.ErrorHandler;
+import net.dv8tion.jda.api.requests.ErrorResponse;
 import net.dv8tion.jda.api.utils.FileUpload;
 
 import java.io.File;
@@ -26,7 +27,6 @@ public class TiktokDownloader {
         if (!folder.exists()) folder.mkdir();
     }
 
-    @SneakyThrows
     public void download(String url, TextChannel textChannel) {
         CompletableFuture.supplyAsync(() -> {
             long time = System.currentTimeMillis() - 1;
@@ -47,13 +47,14 @@ public class TiktokDownloader {
                 return;
             }
 
-            try {
-                textChannel.sendFiles(fileUpload).queue(message -> {
-                    if (!file.delete()) System.out.println("Failed to delete after posting video " + file.getName());
-                });
-            } catch (Exception e) {
-                textChannel.sendMessage("Failed to send the video **(most likely the file was too big)**").queue(message -> message.delete().queueAfter(10, TimeUnit.SECONDS));
-            }
+            textChannel.sendFiles(fileUpload).queue(message -> {
+                if (!file.delete()) System.out.println("Failed to delete after posting video " + file.getName());
+            }, new ErrorHandler()
+                    .ignore(ErrorResponse.FILE_UPLOAD_MAX_SIZE_EXCEEDED)
+                    .handle(
+                            ErrorResponse.FILE_UPLOAD_MAX_SIZE_EXCEEDED,
+                            (e) -> textChannel.sendMessage("Tiktok video was too big...").queue(message -> message.delete().queueAfter(10, TimeUnit.SECONDS))));
+
         });
     }
 
