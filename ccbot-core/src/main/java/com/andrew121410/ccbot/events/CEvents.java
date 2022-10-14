@@ -25,6 +25,8 @@ import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleRemoveEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.role.RoleCreateEvent;
+import net.dv8tion.jda.api.events.role.RoleDeleteEvent;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.SubscribeEvent;
 
@@ -82,6 +84,16 @@ public class CEvents {
 
     @SubscribeEvent
     public void onGuildMemberLeave(GuildMemberRemoveEvent event) {
+        this.loggingUtils.handle(event);
+    }
+
+    @SubscribeEvent
+    public void onRoleCreateEvent(RoleCreateEvent event) {
+        this.loggingUtils.handle(event);
+    }
+
+    @SubscribeEvent
+    public void onRoleDeleteEvent(RoleDeleteEvent event) {
         this.loggingUtils.handle(event);
     }
 
