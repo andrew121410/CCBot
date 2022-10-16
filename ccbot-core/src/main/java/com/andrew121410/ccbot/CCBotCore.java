@@ -6,6 +6,7 @@ import com.andrew121410.ccbot.events.CEvents;
 import com.andrew121410.ccbot.objects.CGuild;
 import com.andrew121410.ccbot.utils.CTimer;
 import com.andrew121410.ccbot.utils.SetListMap;
+import com.andrew121410.ccbot.utils.TiktokDownloader;
 import lombok.SneakyThrows;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -66,6 +67,7 @@ public class CCBotCore {
         this.getConfigManager().getMainConfig().setLastOn(String.valueOf(System.currentTimeMillis()));
         this.cTimer.getSaveService().shutdown();
         this.cTimer.getPresenceService().shutdown();
+        TiktokDownloader.TIKTOK_EXECUTOR_SERVICE.shutdown();
         this.configManager.saveAll(false);
         System.out.println("Exited Successfully!");
         this.jda.shutdown();

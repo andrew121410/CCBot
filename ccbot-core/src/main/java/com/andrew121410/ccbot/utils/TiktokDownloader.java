@@ -24,7 +24,10 @@ public class TiktokDownloader {
         this.ccBotCore = ccBotCore;
 
         this.folder = new File(this.ccBotCore.getConfigManager().getConfigFolder(), "tiktoks");
-        if (!folder.exists()) folder.mkdir();
+        if (!folder.exists()) {
+            folder.mkdir();
+            folder.deleteOnExit();
+        }
     }
 
     public void download(String url, TextChannel textChannel) {
