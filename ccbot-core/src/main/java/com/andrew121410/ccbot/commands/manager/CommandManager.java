@@ -21,7 +21,7 @@ public class CommandManager {
 
     public CommandManager(CCBotCore ccBotCore) {
         this.ccBotCore = ccBotCore;
-        this.commandMap = this.ccBotCore.getSetListMap().getCommandMap();
+        this.commandMap = this.ccBotCore.getCommandMap();
         this.prefix = this.ccBotCore.getConfigManager().getMainConfig().getPrefix();
 
         //Find all the commands and register them

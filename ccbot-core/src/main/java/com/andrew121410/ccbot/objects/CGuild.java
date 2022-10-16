@@ -2,7 +2,6 @@ package com.andrew121410.ccbot.objects;
 
 import com.andrew121410.ccbot.CCBotCore;
 import com.andrew121410.ccbot.objects.button.CButtonManager;
-import com.andrew121410.ccbot.utils.MessageHistoryManager;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;

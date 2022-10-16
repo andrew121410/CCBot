@@ -1,4 +1,4 @@
-package com.andrew121410.ccbot.utils;
+package com.andrew121410.ccbot.objects;
 
 import com.andrew121410.ccbot.CCBotCore;
 import com.andrew121410.ccbot.objects.AMessage;

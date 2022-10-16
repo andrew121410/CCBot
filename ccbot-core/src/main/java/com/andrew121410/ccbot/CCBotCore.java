@@ -1,12 +1,13 @@
 package com.andrew121410.ccbot;
 
+import com.andrew121410.ccbot.commands.manager.AbstractCommand;
 import com.andrew121410.ccbot.commands.manager.CommandManager;
 import com.andrew121410.ccbot.config.ConfigManager;
 import com.andrew121410.ccbot.events.CEvents;
 import com.andrew121410.ccbot.objects.CGuild;
 import com.andrew121410.ccbot.utils.CTimer;
-import com.andrew121410.ccbot.utils.SetListMap;
 import com.andrew121410.ccbot.utils.TiktokDownloader;
+import lombok.Getter;
 import lombok.SneakyThrows;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -14,22 +15,33 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.hooks.AnnotatedEventManager;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class CCBotCore {
 
-    public static final String VERSION = "2.4";
+    @Getter
+    private final Map<String, AbstractCommand> commandMap;
+    @Getter
+    private final Map<String, CGuild> guildMap;
+
+    public static final String VERSION = "2.5";
 
     private static CCBotCore instance;
 
     private JDA jda;
 
-    private SetListMap setListMap;
     private ConfigManager configManager;
     private CommandManager commandManager;
     private CTimer cTimer;
 
     public CCBotCore(String folderPath) {
         instance = this;
-        this.setListMap = new SetListMap();
+
+        // Initialize the maps
+        this.commandMap = new HashMap<>();
+        this.guildMap = new HashMap<>();
+
         this.configManager = new ConfigManager(this, folderPath);
         this.configManager.loadAll(); //Loads default config
         setupJDA();
@@ -80,10 +92,6 @@ public class CCBotCore {
 
     public JDA getJda() {
         return jda;
-    }
-
-    public SetListMap getSetListMap() {
-        return setListMap;
     }
 
     public ConfigManager getConfigManager() {

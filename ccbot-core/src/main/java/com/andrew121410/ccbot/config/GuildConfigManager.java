@@ -26,7 +26,7 @@ public class GuildConfigManager {
     public GuildConfigManager(CCBotCore ccBotCore, ConfigManager configManager) {
         this.ccBotCore = ccBotCore;
         this.configManager = configManager;
-        this.guildMap = this.ccBotCore.getSetListMap().getGuildMap();
+        this.guildMap = this.ccBotCore.getGuildMap();
     }
 
     @SneakyThrows

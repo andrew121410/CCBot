@@ -53,7 +53,7 @@ public class CEvents {
         this.jda = this.ccBotCore.getJda();
         this.guildConfigManager = this.ccBotCore.getConfigManager().getGuildConfigManager();
         this.cUtils = new CUtils();
-        this.guildMap = this.ccBotCore.getSetListMap().getGuildMap();
+        this.guildMap = this.ccBotCore.getGuildMap();
 
         this.loggingUtils = new LoggingUtils(this.ccBotCore);
     }

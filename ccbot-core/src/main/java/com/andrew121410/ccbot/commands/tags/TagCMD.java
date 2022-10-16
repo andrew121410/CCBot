@@ -24,7 +24,7 @@ public class TagCMD extends AbstractCommand {
     public boolean onMessage(MessageReceivedEvent event, String[] args) {
         TextChannel textChannel = event.getGuildChannel().asTextChannel();
 
-        CGuild cGuild = this.ccBotCore.getSetListMap().getGuildMap().get(event.getGuild().getId());
+        CGuild cGuild = this.ccBotCore.getConfigManager().getGuildConfigManager().addOrGet(event.getGuild());
 
         if (args.length == 0) {
             String[] tags = cGuild.getTags().keySet().toArray(new String[0]);

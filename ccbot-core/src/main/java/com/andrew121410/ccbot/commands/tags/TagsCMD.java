@@ -27,11 +27,7 @@ public class TagsCMD extends AbstractCommand {
     public boolean onMessage(MessageReceivedEvent event, String[] args) {
         TextChannel textChannel = event.getChannel().asTextChannel();
 
-        CGuild cGuild = this.ccBotCore.getSetListMap().getGuildMap().get(event.getGuild().getId());
-        if (cGuild == null) {
-            textChannel.sendMessage("Something went wrong.").queue();
-            throw new NullPointerException("CGuild is null...");
-        }
+        CGuild cGuild = this.ccBotCore.getConfigManager().getGuildConfigManager().addOrGet(event.getGuild());
 
         String[] tags = cGuild.getTags().keySet().toArray(new String[0]);
         StringBuilder stringBuilder = new StringBuilder();

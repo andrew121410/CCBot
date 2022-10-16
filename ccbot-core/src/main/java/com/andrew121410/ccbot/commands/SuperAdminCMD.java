@@ -3,7 +3,6 @@ package com.andrew121410.ccbot.commands;
 import com.andrew121410.ccbot.CCBotCore;
 import com.andrew121410.ccbot.commands.manager.ACommand;
 import com.andrew121410.ccbot.commands.manager.AbstractCommand;
-import com.andrew121410.ccbot.objects.CGuild;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Invite;
@@ -86,11 +85,6 @@ public class SuperAdminCMD extends AbstractCommand {
                 textChannel.sendMessage(randomInvite.getUrl()).queue();
             });
             return true;
-        } else if (args.length == 1 && args[0].equalsIgnoreCase("cache")) {
-            CGuild cGuild = this.ccBotCore.getSetListMap().getGuildMap().get(event.getGuild().getId());
-            if (cGuild == null) return false;
-            cGuild.getMessageHistoryManager().cacheAllMessagesOfGuildAsync(event.getGuild());
-            textChannel.sendMessage("Caching all messages of the guild.").queue();
         }
         return false;
     }
