@@ -15,6 +15,7 @@ import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleAddEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleRemoveEvent;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
+import net.dv8tion.jda.api.events.message.MessageUpdateEvent;
 import net.dv8tion.jda.api.events.role.RoleCreateEvent;
 import net.dv8tion.jda.api.events.role.RoleDeleteEvent;
 import net.dv8tion.jda.api.events.role.update.RoleUpdateNameEvent;
@@ -200,6 +201,29 @@ public class LoggingUtils {
                 .setDescription("**Message sent by** " + user.getAsMention() + " **has been deleted in** " + event.getChannel().getAsMention())
                 .setColor(Color.RED)
                 .addField("Message Content", message.getMessageRawContent(), false);
+
+        logChannel.sendMessageEmbeds(embedBuilder.build()).queue();
+    }
+
+    public void handle(MessageUpdateEvent event) {
+        CGuild cGuild = this.guildConfigManager.addOrGet(event.getGuild());
+        if (!cGuild.getSettings().isLoggingEnabled()) return;
+
+        TextChannel logChannel = CUtils.findLogChannel(event.getGuild());
+        if (logChannel == null) return;
+
+        AMessage message = cGuild.getMessageHistoryManager().getMessage(event.getChannel().asTextChannel(), event.getMessageId());
+        if (message == null) return;
+
+        User user = this.ccBotCore.getJda().getUserById(message.getAuthorId());
+        if (user == null) return;
+        if (user.isBot()) return;
+
+        EmbedBuilder embedBuilder = new EmbedBuilder().setAuthor(user.getAsTag(), null, user.getAvatarUrl())
+                .setDescription("**Message sent by** " + user.getAsMention() + " **has been edited in** " + event.getChannel().getAsMention())
+                .setColor(Color.YELLOW)
+                .addField("Old Message Content", message.getMessageRawContent(), false)
+                .addField("New Message Content", event.getMessage().getContentRaw(), false);
 
         logChannel.sendMessageEmbeds(embedBuilder.build()).queue();
     }
