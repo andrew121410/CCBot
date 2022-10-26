@@ -12,6 +12,7 @@
     <artifactId>ccbot-core</artifactId>
 
     <properties>
+        <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind -->
         <jackson.version>2.14.0-rc2</jackson.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
@@ -22,7 +23,7 @@
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>5.0.0-alpha.21</version>
+            <version>5.0.0-alpha.22</version>
             <scope>compile</scope>
         </dependency>
 
@@ -37,7 +38,7 @@
         <dependency>
             <groupId>com.github.andrew121410</groupId>
             <artifactId>CCUtilsJava</artifactId>
-            <version>f10dbe58</version>
+            <version>105bf9f6</version>
             <scope>compile</scope>
         </dependency>
 
