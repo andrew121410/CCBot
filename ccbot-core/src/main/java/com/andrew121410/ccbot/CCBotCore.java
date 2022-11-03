@@ -3,6 +3,7 @@ package com.andrew121410.ccbot;
 import com.andrew121410.ccbot.commands.manager.AbstractCommand;
 import com.andrew121410.ccbot.commands.manager.CommandManager;
 import com.andrew121410.ccbot.config.ConfigManager;
+import com.andrew121410.ccbot.config.GuildConfigManager;
 import com.andrew121410.ccbot.events.CEvents;
 import com.andrew121410.ccbot.objects.CGuild;
 import com.andrew121410.ccbot.utils.CTimer;
@@ -96,6 +97,10 @@ public class CCBotCore {
 
     public ConfigManager getConfigManager() {
         return configManager;
+    }
+
+    public GuildConfigManager getGuildConfigManager() {
+        return this.configManager.getGuildConfigManager();
     }
 
     public CommandManager getCommandManager() {
