@@ -16,6 +16,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.hooks.AnnotatedEventManager;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -109,5 +110,10 @@ public class CCBotCore {
 
     public CTimer getCTimer() {
         return cTimer;
+    }
+
+    @SneakyThrows
+    public File getWorkingDirectory() {
+        return new File(CCBotCore.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getParentFile();
     }
 }

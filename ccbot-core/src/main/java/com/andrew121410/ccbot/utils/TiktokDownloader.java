@@ -2,8 +2,6 @@ package com.andrew121410.ccbot.utils;
 
 import com.andrew121410.ccbot.CCBotCore;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import net.dv8tion.jda.api.exceptions.ErrorHandler;
-import net.dv8tion.jda.api.requests.ErrorResponse;
 import net.dv8tion.jda.api.utils.FileUpload;
 
 import java.io.File;
@@ -23,7 +21,7 @@ public class TiktokDownloader {
     public TiktokDownloader(CCBotCore ccBotCore) {
         this.ccBotCore = ccBotCore;
 
-        this.folder = new File(this.ccBotCore.getConfigManager().getConfigFolder(), "tiktoks");
+        this.folder = new File(this.ccBotCore.getWorkingDirectory(), "tiktoks");
         if (!folder.exists()) {
             folder.mkdir();
             folder.deleteOnExit();
@@ -42,23 +40,46 @@ public class TiktokDownloader {
             }
             return new File(folder, fileName);
         }, TIKTOK_EXECUTOR_SERVICE).thenAccept(file -> {
-            FileUpload fileUpload = FileUpload.fromData(file);
-
-            // Empty file...
-            if (file.length() == 0) {
-                if (!file.delete()) System.out.println("Failed to delete after failing " + file.getName());
-                return;
-            }
-
-            textChannel.sendFiles(fileUpload).queue(message -> {
-                if (!file.delete()) System.out.println("Failed to delete after posting video " + file.getName());
-            }, new ErrorHandler()
-                    .ignore(ErrorResponse.FILE_UPLOAD_MAX_SIZE_EXCEEDED)
-                    .handle(
-                            ErrorResponse.FILE_UPLOAD_MAX_SIZE_EXCEEDED,
-                            (e) -> textChannel.sendMessage("Tiktok video was too big...").queue(message -> message.delete().queueAfter(10, TimeUnit.SECONDS))));
-
+            sendVideo(textChannel, file, true);
         });
+    }
+
+    public void sendVideo(TextChannel textChannel, File file, boolean shouldTryToCompressIfTooLarge) {
+        FileUpload fileUpload = FileUpload.fromData(file);
+
+        // Empty file...
+        if (file.length() == 0) {
+            if (!file.delete()) System.out.println("Failed to delete after failing " + file.getName());
+            return;
+        }
+
+        textChannel.sendFiles(fileUpload).queue((message -> {
+            if (!file.delete()) System.out.println("Failed to delete after posting video " + file.getName());
+        }), (exe) -> {
+            if (shouldTryToCompressIfTooLarge && exe.getMessage().contains("too large")) {
+                // Let's try to compress the video
+                textChannel.sendMessage("*The video is too large, trying to compress it...*").queue(message -> message.delete().queueAfter(10, TimeUnit.SECONDS));
+                sendVideo(textChannel, compressVideo(file), false);
+            } else {
+                if (!file.delete()) System.out.println("Failed to delete after failing " + file.getName());
+                textChannel.sendMessage("*Even after trying to compress the video the size was somehow still too large...*").queue(message -> message.delete().queueAfter(10, TimeUnit.SECONDS));
+            }
+        });
+    }
+
+    public File compressVideo(File video) {
+        File compressedVideos = new File(this.folder, "compressedVideos");
+        if (!compressedVideos.exists()) compressedVideos.mkdir();
+
+        try {
+            Process process = Runtime.getRuntime().exec("sudo ../../discordify-new.sh 8 ../" + video.getName() + " zero-h-medium", null, compressedVideos);
+            process.waitFor();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        String videoWithoutExtension = video.getName().replaceFirst("[.][^.]+$", "");
+        return new File(compressedVideos, videoWithoutExtension + "-8.mp4");
     }
 
     public static boolean isTiktok(String url) {
