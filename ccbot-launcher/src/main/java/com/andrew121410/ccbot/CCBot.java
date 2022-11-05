@@ -1,9 +1,8 @@
 package com.andrew121410.ccbot;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import lombok.SneakyThrows;
+
+import java.io.*;
 
 public class CCBot extends CCBotCore {
 
@@ -12,7 +11,7 @@ public class CCBot extends CCBotCore {
     }
 
     public CCBot(String[] args) {
-        super("config/");
+        super(getTheFolderTheJarIsIn());
         setupScanner();
     }
 
@@ -29,5 +28,10 @@ public class CCBot extends CCBotCore {
         } catch (IOException x) {
             x.printStackTrace();
         }
+    }
+
+    @SneakyThrows
+    private static File getTheFolderTheJarIsIn() {
+        return new File(CCBotCore.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getParentFile();
     }
 }

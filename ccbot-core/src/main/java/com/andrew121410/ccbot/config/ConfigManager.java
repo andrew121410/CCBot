@@ -15,11 +15,9 @@ public class ConfigManager {
     private CCBotJacksonConfig ccBotJacksonConfig;
     private GuildConfigManager guildConfigManager;
 
-    private final String folderPath;
 
-    public ConfigManager(CCBotCore ccBotCore, String folderPath) {
+    public ConfigManager(CCBotCore ccBotCore) {
         this.ccBotCore = ccBotCore;
-        this.folderPath = folderPath;
         this.guildConfigManager = new GuildConfigManager(this.ccBotCore, this);
     }
 
@@ -61,9 +59,11 @@ public class ConfigManager {
     }
 
     public File getConfigFolder() {
-        File configFolder = new File(this.folderPath);
+        File configFolder = new File(this.ccBotCore.getWorkingDirectory(), "config");
         if (!configFolder.exists()) {
-            configFolder.mkdir();
+            if (!configFolder.mkdirs()) {
+                System.out.println("Failed to create config folder.");
+            }
         }
         return configFolder;
     }

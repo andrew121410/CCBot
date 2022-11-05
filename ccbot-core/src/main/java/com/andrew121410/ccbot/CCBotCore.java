@@ -30,6 +30,7 @@ public class CCBotCore {
     public static final String VERSION = "2.5";
 
     private static CCBotCore instance;
+    private final File workingDirectory;
 
     private JDA jda;
 
@@ -37,14 +38,15 @@ public class CCBotCore {
     private CommandManager commandManager;
     private CTimer cTimer;
 
-    public CCBotCore(String folderPath) {
+    public CCBotCore(File workingDirectory) {
         instance = this;
+        this.workingDirectory = workingDirectory;
 
         // Initialize the maps
         this.commandMap = new HashMap<>();
         this.guildMap = new HashMap<>();
 
-        this.configManager = new ConfigManager(this, folderPath);
+        this.configManager = new ConfigManager(this);
         this.configManager.loadAll(); //Loads default config
         setupJDA();
     }
@@ -112,8 +114,7 @@ public class CCBotCore {
         return cTimer;
     }
 
-    @SneakyThrows
     public File getWorkingDirectory() {
-        return new File(CCBotCore.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getParentFile();
+        return this.workingDirectory;
     }
 }
