@@ -12,9 +12,13 @@ import lombok.Getter;
 import lombok.SneakyThrows;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.hooks.AnnotatedEventManager;
 import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.api.utils.ChunkingFilter;
+import net.dv8tion.jda.api.utils.MemberCachePolicy;
+import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
 import java.io.File;
 import java.util.HashMap;
@@ -63,7 +67,12 @@ public class CCBotCore {
 
         this.jda = JDABuilder.createDefault(this.configManager.getMainConfig().getToken())
                 .enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_PRESENCES, GatewayIntent.MESSAGE_CONTENT)
+                .setChunkingFilter(ChunkingFilter.ALL)
+                .setMemberCachePolicy(MemberCachePolicy.ALL)
+                .enableCache(CacheFlag.ACTIVITY)
+                .enableCache(CacheFlag.ROLE_TAGS)
                 .setEventManager(new AnnotatedEventManager())
+                .setStatus(OnlineStatus.ONLINE)
                 .build()
                 .awaitReady();
 
@@ -82,7 +91,6 @@ public class CCBotCore {
     public void exit() {
         this.getConfigManager().getMainConfig().setLastOn(String.valueOf(System.currentTimeMillis()));
         this.cTimer.getSaveService().shutdown();
-        this.cTimer.getPresenceService().shutdown();
         TiktokDownloader.TIKTOK_EXECUTOR_SERVICE.shutdown();
         this.configManager.saveAll(false);
         System.out.println("Exited Successfully!");
