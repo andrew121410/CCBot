@@ -24,7 +24,7 @@ public class CommandManager {
         this.commandMap = this.ccBotCore.getCommandMap();
         this.prefix = this.ccBotCore.getConfigManager().getMainConfig().getPrefix();
 
-        //Find all the commands and register them
+        // Find all the commands and register them
         new Reflections("com.andrew121410.ccbot.commands").getTypesAnnotatedWith(ACommand.class).stream()
                 .filter(AbstractCommand.class::isAssignableFrom)
                 .forEach(aClass -> {
@@ -39,9 +39,12 @@ public class CommandManager {
 
     @SubscribeEvent
     public void onMessageReceived(MessageReceivedEvent event) {
-        if (!event.getMessage().getContentRaw().startsWith(prefix)) {
-            return;
-        }
+        // Check the prefix
+        if (!event.getMessage().getContentRaw().startsWith(this.prefix)) return;
+
+        // Ignore if member is null, and ignore if a bot
+        if (event.getMember() == null || event.getAuthor().isBot()) return;
+
         String arg = event.getMessage().getContentRaw();
         String[] oldArgs = arg.split(" ");
         oldArgs[0] = oldArgs[0].replace(prefix, "");
