@@ -48,17 +48,18 @@ public class PurgeCMD extends AbstractCommand {
                 textChannel.sendMessage("Number must be two or more.").queue(a -> a.delete().queueAfter(10, TimeUnit.SECONDS));
                 return true;
             }
-            if (integer >= 100) {
-                textChannel.sendMessage("The max you can purge at once is 99.").queue(a -> a.delete().queueAfter(10, TimeUnit.SECONDS));
+            if (integer >= 101) {
+                textChannel.sendMessage("The max you can purge at once is 100.").queue(a -> a.delete().queueAfter(10, TimeUnit.SECONDS));
                 return true;
             }
+            if (integer == 100) integer--;
+
             purge(textChannel, integer);
             textChannel.sendMessage("**Successfully purged " + integer + " messages!**").queue();
             return true;
         } else if (args.length >= 2 && args[0].contains("word")) {
             String[] wordArray = Arrays.copyOfRange(args, 1, args.length);
             purgeWords(textChannel, Arrays.asList(wordArray));
-            textChannel.sendMessage("**We are now deleting messages with the word/s " + Arrays.toString(wordArray) + " in them!**").queue();
             return true;
         } else {
             EmbedBuilder embedBuilder = new EmbedBuilder()
@@ -91,6 +92,9 @@ public class PurgeCMD extends AbstractCommand {
                     message.delete().queue();
                 }
             return true;
-        }).thenRunAsync(() -> textChannel.sendMessage("Completed purge! The count was: " + atomicInteger.get()).queue());
+        }).thenRunAsync(() -> {
+            textChannel.sendMessage("Completed purge! The message count was: " + atomicInteger.get()).queue();
+            textChannel.sendMessage("The words were: " + strings.toString()).queue();
+        });
     }
 }
