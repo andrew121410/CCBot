@@ -21,6 +21,7 @@ import net.dv8tion.jda.api.events.role.RoleDeleteEvent;
 import net.dv8tion.jda.api.events.role.update.RoleUpdateNameEvent;
 
 import java.awt.*;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -39,6 +40,7 @@ public class LoggingUtils {
 
     public void handle(GuildMemberJoinEvent event) {
         CGuild cGuild = this.guildConfigManager.addOrGet(event.getGuild());
+        long time = Instant.now().getEpochSecond();
 
         if (cGuild.getSettings().getWelcomeMessages() && event.getGuild().getSystemChannel() != null) {
             EmbedBuilder embedBuilder;
@@ -52,9 +54,14 @@ public class LoggingUtils {
         }
 
         if (cGuild.getSettings().isLoggingEnabled()) {
-            TextChannel logChannel = CUtils.findTextChannel(event.getGuild().getTextChannels(), CUtils.getLogsStringArray());
+            TextChannel logChannel = CUtils.findLogChannel(event.getGuild());
             if (logChannel == null) return;
-            EmbedBuilder logEmbedBuilder = new EmbedBuilder().setAuthor("Member Joined:", event.getUser().getAvatarUrl(), event.getUser().getAvatarUrl()).setDescription(event.getUser().getAsMention() + " " + event.getUser().getAsTag()).setColor(Color.GREEN).setThumbnail(event.getUser().getAvatarUrl());
+            EmbedBuilder logEmbedBuilder = new EmbedBuilder()
+                    .setAuthor("Member Joined:", event.getUser().getAvatarUrl(), event.getUser().getAvatarUrl())
+                    .setDescription(event.getUser().getAsMention() + " " + event.getUser().getAsTag())
+                    .addField("More information:", "Account Created: " + event.getUser().getTimeCreated().toLocalDate().toString() + "\nTime since joined: <t:" + time + ":R>", false)
+                    .setColor(Color.GREEN)
+                    .setThumbnail(event.getUser().getAvatarUrl());
             logChannel.sendMessageEmbeds(logEmbedBuilder.build()).queue();
         }
     }
@@ -71,7 +78,11 @@ public class LoggingUtils {
 
         if (textChannel == null) return;
 
-        EmbedBuilder embedBuilder = new EmbedBuilder().setAuthor("Member Left:", event.getUser().getAvatarUrl(), event.getUser().getAvatarUrl()).setDescription(event.getUser().getAsTag() + " Has left the server \uD83D\uDE22").setColor(Color.YELLOW).setThumbnail(event.getUser().getAvatarUrl());
+        EmbedBuilder embedBuilder = new EmbedBuilder()
+                .setAuthor("Member Left:", event.getUser().getAvatarUrl(), event.getUser().getAvatarUrl())
+                .setDescription(event.getUser().getAsTag() + " Has left the server \uD83D\uDE22")
+                .setColor(Color.YELLOW)
+                .setThumbnail(event.getUser().getAvatarUrl());
 
         textChannel.sendMessageEmbeds(embedBuilder.build()).queue();
     }
