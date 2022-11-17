@@ -208,6 +208,9 @@ public class LoggingUtils {
         if (user == null) return;
         if (user.isBot()) return;
 
+         // This prevents empty messages from being logged (most likely a video or photo was deleted)
+        if (message.getMessageRawContent().isEmpty() || message.getMessageRawContent().isBlank()) return;
+
         EmbedBuilder embedBuilder = new EmbedBuilder().setAuthor(user.getAsTag(), null, user.getAvatarUrl())
                 .setDescription("**Message sent by** " + user.getAsMention() + " **has been deleted in** " + event.getChannel().getAsMention())
                 .setColor(Color.RED)
