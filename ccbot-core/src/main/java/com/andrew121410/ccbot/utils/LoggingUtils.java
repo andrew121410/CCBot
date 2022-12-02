@@ -208,7 +208,7 @@ public class LoggingUtils {
         if (user == null) return;
         if (user.isBot()) return;
 
-         // This prevents empty messages from being logged (most likely a video or photo was deleted)
+        // This prevents empty messages from being logged (most likely a video or photo was deleted)
         if (message.getMessageRawContent().isEmpty() || message.getMessageRawContent().isBlank()) return;
 
         EmbedBuilder embedBuilder = new EmbedBuilder().setAuthor(user.getAsTag(), null, user.getAvatarUrl())
@@ -232,6 +232,9 @@ public class LoggingUtils {
         User user = this.ccBotCore.getJda().getUserById(message.getAuthorId());
         if (user == null) return;
         if (user.isBot()) return;
+
+        // This prevents messages that are the same from being logged (this happens when a message is pinned for some reason...)
+        if (event.getMessage().getContentRaw().equals(message.getMessageRawContent())) return;
 
         EmbedBuilder embedBuilder = new EmbedBuilder().setAuthor(user.getAsTag(), null, user.getAvatarUrl())
                 .setDescription("**Message sent by** " + user.getAsMention() + " **has been edited in** " + event.getChannel().getAsMention())
