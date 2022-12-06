@@ -1,6 +1,7 @@
 package com.andrew121410.ccbot.objects;
 
 import com.andrew121410.ccbot.CCBotCore;
+import com.andrew121410.ccbot.msp.AMinecraftServer;
 import com.andrew121410.ccbot.objects.button.CButtonManager;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -11,7 +12,9 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import net.dv8tion.jda.api.entities.Guild;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @ToString
@@ -35,6 +38,9 @@ public class CGuild {
 
     @JsonProperty("Tags")
     private Map<String, String> tags = new HashMap<>();
+
+    @JsonProperty("Minecraft-Server-Pinger")
+    private List<AMinecraftServer> aMinecraftServers = new ArrayList<>();
 
     @JsonProperty("Settings")
     private CGuildSettings settings = new CGuildSettings();
@@ -77,5 +83,9 @@ public class CGuild {
 
     public MessageHistoryManager getMessageHistoryManager() {
         return messageHistoryManager;
+    }
+
+    public List<AMinecraftServer> getaMinecraftServers() {
+        return aMinecraftServers;
     }
 }

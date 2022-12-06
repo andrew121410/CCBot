@@ -5,6 +5,7 @@ import com.andrew121410.ccbot.commands.manager.CommandManager;
 import com.andrew121410.ccbot.config.ConfigManager;
 import com.andrew121410.ccbot.config.GuildConfigManager;
 import com.andrew121410.ccbot.events.CEvents;
+import com.andrew121410.ccbot.msp.MCServerPingerManager;
 import com.andrew121410.ccbot.objects.CGuild;
 import com.andrew121410.ccbot.utils.CTimer;
 import com.andrew121410.ccbot.utils.TiktokDownloader;
@@ -41,6 +42,8 @@ public class CCBotCore {
     private ConfigManager configManager;
     private CommandManager commandManager;
     private CTimer cTimer;
+
+    private MCServerPingerManager mcServerPingerManager;
 
     public CCBotCore(File workingDirectory) {
         instance = this;
@@ -86,12 +89,15 @@ public class CCBotCore {
         this.jda.addEventListener(commandManager);
 
         this.cTimer = new CTimer(this);
+
+        this.mcServerPingerManager = new MCServerPingerManager(this);
     }
 
     public void exit() {
         this.getConfigManager().getMainConfig().setLastOn(String.valueOf(System.currentTimeMillis()));
         this.cTimer.getSaveService().shutdown();
         TiktokDownloader.TIKTOK_EXECUTOR_SERVICE.shutdown();
+        MCServerPingerManager.SCHEDULED_EXECUTOR_SERVICE.shutdown();
         this.configManager.saveAll(false);
         System.out.println("Exited Successfully!");
         this.jda.shutdown();
@@ -124,5 +130,9 @@ public class CCBotCore {
 
     public File getWorkingDirectory() {
         return this.workingDirectory;
+    }
+
+    public MCServerPingerManager getMcServerPingerManager() {
+        return mcServerPingerManager;
     }
 }
