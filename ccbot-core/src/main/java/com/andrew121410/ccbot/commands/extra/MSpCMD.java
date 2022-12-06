@@ -47,7 +47,7 @@ public class MSpCMD extends AbstractCommand {
             String port = args[2];
             String name = String.join(" ", Arrays.copyOfRange(args, 3, args.length));
 
-            this.mcServerPingerManager.add(event.getGuild(), new AMinecraftServer(textChannel.getIdLong(), name, ip, Integer.parseInt(port)));
+            this.mcServerPingerManager.add(event.getGuild(), new AMinecraftServer(textChannel.getIdLong(), name, ip, Integer.parseInt(port), false));
             textChannel.sendMessage("Adding " + ip + ":" + port + " with the name " + name).queue();
             return true;
         } else if (args.length == 2 && args[0].equalsIgnoreCase("remove")) {
@@ -87,6 +87,13 @@ public class MSpCMD extends AbstractCommand {
             }
 
             textChannel.sendMessage(stringBuilder.toString()).queue();
+        } else if (args.length == 2 && args[0].equalsIgnoreCase("useStatusWebsiteAPI")) {
+            String ip = args[1];
+
+            cGuild.getaMinecraftServers().stream().filter(aMinecraftServer -> aMinecraftServer.getIp().equalsIgnoreCase(ip)).findFirst().ifPresent(aMinecraftServer -> {
+                aMinecraftServer.setUseStatusWebsiteApi(true);
+                textChannel.sendMessage("Set " + aMinecraftServer.getIp() + " to use the status website API -> " + aMinecraftServer.isUseStatusWebsiteApi()).queue();
+            });
         }
         return true;
     }

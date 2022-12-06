@@ -42,6 +42,13 @@
             <scope>compile</scope>
         </dependency>
 
+        <dependency>
+            <groupId>com.github.andrew121410</groupId>
+            <artifactId>minecraft-server-ping</artifactId>
+            <version>b1d8c960</version>
+            <scope>compile</scope>
+        </dependency>
+
         <!-- Jackson JSON and YAML serialization -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>

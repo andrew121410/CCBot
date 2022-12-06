@@ -28,10 +28,14 @@ public class AMinecraftServer {
     @JsonProperty("Did-we-send-a-message")
     private boolean sentMessage = false;
 
-    public AMinecraftServer(long channelId, String name, String ip, int port) {
+    @JsonProperty("Use-status-website-api")
+    private boolean useStatusWebsiteApi = false;
+
+    public AMinecraftServer(long channelId, String name, String ip, int port, boolean useStatusWebsiteApi) {
         this.channelId = channelId;
         this.name = name;
         this.ip = ip;
         this.port = port;
+        this.useStatusWebsiteApi = useStatusWebsiteApi;
     }
 }

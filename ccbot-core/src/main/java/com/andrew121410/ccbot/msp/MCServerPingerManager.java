@@ -1,5 +1,8 @@
 package com.andrew121410.ccbot.msp;
 
+import br.com.azalim.mcserverping.MCPing;
+import br.com.azalim.mcserverping.MCPingOptions;
+import br.com.azalim.mcserverping.MCPingResponse;
 import com.andrew121410.ccbot.CCBotCore;
 import com.andrew121410.ccbot.objects.CGuild;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -54,10 +57,10 @@ public class MCServerPingerManager {
                 List<AMinecraftServer> aMinecraftServers = cGuild.getaMinecraftServers();
 
                 for (AMinecraftServer aMinecraftServer : aMinecraftServers) {
-                    MinecraftServerStatus serverStatus = getServerStatus(aMinecraftServer);
+                    MinecraftServerStatus serverStatus = !aMinecraftServer.isUseStatusWebsiteApi() ? getServerStatus(aMinecraftServer) : getServerStatusFromOnline(aMinecraftServer);
 
                     if (serverStatus == null) {
-                        System.out.println("Failed to get server status for " + aMinecraftServer.getIp() + ":" + aMinecraftServer.getPort());
+                        System.out.println("Failed to get server status for " + aMinecraftServer.getIp() + ":" + aMinecraftServer.getPort() + " useStatusWebsiteApi: " + aMinecraftServer.isUseStatusWebsiteApi());
                         return;
                     }
 
@@ -107,10 +110,24 @@ public class MCServerPingerManager {
             }
         };
 
-        SCHEDULED_EXECUTOR_SERVICE.scheduleAtFixedRate(runnable, 0, 30, TimeUnit.SECONDS);
+        SCHEDULED_EXECUTOR_SERVICE.scheduleAtFixedRate(runnable, 0, 1, TimeUnit.MINUTES);
     }
 
-    private MinecraftServerStatus getServerStatus(AMinecraftServer aMinecraftServer) {
+    public MinecraftServerStatus getServerStatus(AMinecraftServer aMinecraftServer) {
+        MCPingOptions options = MCPingOptions.builder()
+                .hostname(aMinecraftServer.getIp())
+                .port(aMinecraftServer.getPort())
+                .build();
+
+        try {
+            MCPingResponse response = MCPing.getPing(options);
+            return new MinecraftServerStatus(true);
+        } catch (Exception e) {
+            return new MinecraftServerStatus(false);
+        }
+    }
+
+    public MinecraftServerStatus getServerStatusFromOnline(AMinecraftServer aMinecraftServer) {
         try {
             HttpClient client = HttpClient.newHttpClient();
 
@@ -125,8 +142,7 @@ public class MCServerPingerManager {
             ObjectMapper objectMapper = new ObjectMapper();
             return objectMapper.readValue(response.body(), MinecraftServerStatus.class);
         } catch (Exception e) {
-            e.printStackTrace();
+            return null;
         }
-        return null;
     }
 }
