@@ -13,6 +13,9 @@ import lombok.*;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class AMinecraftServer {
 
+    @JsonProperty("name")
+    private String name;
+
     @JsonProperty("Server-IP")
     private String ip;
     @JsonProperty("Server-Port")
@@ -25,8 +28,9 @@ public class AMinecraftServer {
     @JsonProperty("Did-we-send-a-message")
     private boolean sentMessage = false;
 
-    public AMinecraftServer(long channelId, String ip, int port) {
+    public AMinecraftServer(long channelId, String name, String ip, int port) {
         this.channelId = channelId;
+        this.name = name;
         this.ip = ip;
         this.port = port;
     }

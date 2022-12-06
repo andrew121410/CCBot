@@ -11,6 +11,8 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import java.util.Arrays;
+
 @ACommand(command = "msp", description = "Allows you to edit the configuration for the bot!")
 public class MSpCMD extends AbstractCommand {
 
@@ -39,11 +41,13 @@ public class MSpCMD extends AbstractCommand {
         if (args.length == 0) {
             textChannel.sendMessage(prefix + "msp add <ip> <port>" + "\r\n" + prefix + "msp remove <ip>").queue();
             return true;
-        } else if (args.length >= 2 && args[0].equalsIgnoreCase("add")) {
+        } else if (args.length >= 4 && args[0].equalsIgnoreCase("add")) {
             String ip = args[1];
-            String port = args.length == 2 ? "25565" : args[2];
-            this.mcServerPingerManager.add(event.getGuild(), new AMinecraftServer(textChannel.getIdLong(), ip, Integer.parseInt(port)));
-            textChannel.sendMessage("Added the server -> " + ip + ":" + port).queue();
+            String port = args[2];
+            String name = String.join(" ", Arrays.copyOfRange(args, 3, args.length));
+
+            this.mcServerPingerManager.add(event.getGuild(), new AMinecraftServer(textChannel.getIdLong(), name, ip, Integer.parseInt(port)));
+            textChannel.sendMessage("Adding " + ip + ":" + port + " with the name " + name).queue();
         } else if (args.length == 2 && args[0].equalsIgnoreCase("remove")) {
             String ip = args[1];
 

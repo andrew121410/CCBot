@@ -54,7 +54,8 @@ public class CCBotCore {
         this.guildMap = new HashMap<>();
 
         this.configManager = new ConfigManager(this);
-        this.configManager.loadAll(); //Loads default config
+        this.configManager.loadAll();
+
         setupJDA();
     }
 
@@ -65,8 +66,6 @@ public class CCBotCore {
             System.exit(0);
             return;
         }
-
-        this.commandManager = new CommandManager(this);
 
         this.jda = JDABuilder.createDefault(this.configManager.getMainConfig().getToken())
                 .enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_PRESENCES, GatewayIntent.MESSAGE_CONTENT)
@@ -85,20 +84,30 @@ public class CCBotCore {
             cGuild.init(guild); // Try to init the guild if it's not already
         }
 
-        this.jda.addEventListener(new CEvents(this));
-        this.jda.addEventListener(commandManager);
-
+        // Other stuff
         this.cTimer = new CTimer(this);
-
         this.mcServerPingerManager = new MCServerPingerManager(this);
+
+        // Register the events
+        this.jda.addEventListener(new CEvents(this));
+
+        // Register all the commands (should be the last thing we do)
+        this.commandManager = new CommandManager(this);
+        this.jda.addEventListener(commandManager);
     }
 
     public void exit() {
         this.getConfigManager().getMainConfig().setLastOn(String.valueOf(System.currentTimeMillis()));
+
+        // Shutdown executors
         this.cTimer.getSaveService().shutdown();
         TiktokDownloader.TIKTOK_EXECUTOR_SERVICE.shutdown();
         MCServerPingerManager.SCHEDULED_EXECUTOR_SERVICE.shutdown();
+
+        // Save all the configs
         this.configManager.saveAll(false);
+
+        // Shutdown the bot
         System.out.println("Exited Successfully!");
         this.jda.shutdown();
         System.exit(0);

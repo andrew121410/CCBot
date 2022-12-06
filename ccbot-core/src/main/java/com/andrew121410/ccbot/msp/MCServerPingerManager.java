@@ -70,8 +70,12 @@ public class MCServerPingerManager {
                             if (textChannel == null) return;
 
                             EmbedBuilder embedBuilder = new EmbedBuilder();
-                            embedBuilder.setTitle("Server is offline!");
-                            embedBuilder.setDescription("The server " + aMinecraftServer.getIp() + " is offline!");
+                            if (aMinecraftServer.getName() != null) {
+                                embedBuilder.setTitle(aMinecraftServer.getName() + " is offline!");
+                            } else {
+                                embedBuilder.setTitle("Server is offline!");
+                            }
+                            embedBuilder.setDescription("The Minecraft Server `" + aMinecraftServer.getIp() + ":" + aMinecraftServer.getPort() + "` is offline!");
                             embedBuilder.setColor(Color.RED);
 
                             textChannel.sendMessageEmbeds(embedBuilder.build()).queue();
@@ -86,8 +90,12 @@ public class MCServerPingerManager {
                             if (textChannel == null) return;
 
                             EmbedBuilder embedBuilder = new EmbedBuilder();
-                            embedBuilder.setTitle("Server is online!");
-                            embedBuilder.setDescription("The server " + aMinecraftServer.getIp() + " is online!");
+                            if (aMinecraftServer.getName() != null) {
+                                embedBuilder.setTitle(aMinecraftServer.getName() + " is online!");
+                            } else {
+                                embedBuilder.setTitle("Server is online!");
+                            }
+                            embedBuilder.setDescription("The Minecraft Server `" + aMinecraftServer.getIp() + ":" + aMinecraftServer.getPort() + "` is online!");
                             embedBuilder.setColor(Color.GREEN);
 
                             textChannel.sendMessageEmbeds(embedBuilder.build()).queue();
