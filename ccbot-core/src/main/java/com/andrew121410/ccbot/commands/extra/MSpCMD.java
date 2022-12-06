@@ -12,6 +12,7 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Arrays;
+import java.util.List;
 
 @ACommand(command = "msp", description = "Allows you to edit the configuration for the bot!")
 public class MSpCMD extends AbstractCommand {
@@ -39,7 +40,7 @@ public class MSpCMD extends AbstractCommand {
         String prefix = ccBotCore.getConfigManager().getMainConfig().getPrefix();
 
         if (args.length == 0) {
-            textChannel.sendMessage(prefix + "msp add <ip> <port>" + "\r\n" + prefix + "msp remove <ip>").queue();
+            textChannel.sendMessage(prefix + "msp add <ip> <port>" + "\r\n" + prefix + "msp remove <ip>" + "\r\n" + prefix + "msp list").queue();
             return true;
         } else if (args.length >= 4 && args[0].equalsIgnoreCase("add")) {
             String ip = args[1];
@@ -48,6 +49,7 @@ public class MSpCMD extends AbstractCommand {
 
             this.mcServerPingerManager.add(event.getGuild(), new AMinecraftServer(textChannel.getIdLong(), name, ip, Integer.parseInt(port)));
             textChannel.sendMessage("Adding " + ip + ":" + port + " with the name " + name).queue();
+            return true;
         } else if (args.length == 2 && args[0].equalsIgnoreCase("remove")) {
             String ip = args[1];
 
@@ -59,6 +61,32 @@ public class MSpCMD extends AbstractCommand {
 
             this.mcServerPingerManager.remove(event.getGuild(), ip);
             textChannel.sendMessage("Removed the server -> " + ip).queue();
+            return true;
+        } else if (args[0].equalsIgnoreCase("list")) {
+            List<AMinecraftServer> aMinecraftServers = cGuild.getaMinecraftServers();
+
+            if (aMinecraftServers.isEmpty()) {
+                textChannel.sendMessage("There are no servers to list!").queue();
+                return true;
+            }
+
+            StringBuilder stringBuilder = new StringBuilder();
+
+            // Debug
+            if (args.length == 2 && args[1].equalsIgnoreCase("@debug")) {
+                for (AMinecraftServer aMinecraftServer : aMinecraftServers) {
+                    stringBuilder.append(aMinecraftServer.toString()).append("\r\n");
+                }
+                textChannel.sendMessage(stringBuilder.toString()).queue();
+                return true;
+            }
+
+
+            for (AMinecraftServer aMinecraftServer : aMinecraftServers) {
+                stringBuilder.append(aMinecraftServer.getName()).append(" -> ").append(aMinecraftServer.getIp()).append(":").append(aMinecraftServer.getPort()).append("\r\n");
+            }
+
+            textChannel.sendMessage(stringBuilder.toString()).queue();
         }
         return true;
     }

@@ -12,10 +12,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import net.dv8tion.jda.api.entities.Guild;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @ToString
 @EqualsAndHashCode
@@ -40,7 +37,7 @@ public class CGuild {
     private Map<String, String> tags = new HashMap<>();
 
     @JsonProperty("Minecraft-Server-Pinger")
-    private List<AMinecraftServer> aMinecraftServers = new ArrayList<>();
+    private List<AMinecraftServer> aMinecraftServers = Collections.synchronizedList(new ArrayList<>());
 
     @JsonProperty("Settings")
     private CGuildSettings settings = new CGuildSettings();
@@ -58,6 +55,9 @@ public class CGuild {
 
         this.messageHistoryManager = new MessageHistoryManager(this.ccBotCore, guild.getId());
         this.messageHistoryManager.cacheEverythingMissing();
+
+        // Make sure it's actually a sync list.
+        this.aMinecraftServers = Collections.synchronizedList(this.aMinecraftServers);
     }
 
     @JsonIgnore
