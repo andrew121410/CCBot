@@ -1,5 +1,6 @@
 package com.andrew121410.ccbot.msp;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
@@ -19,6 +20,7 @@ public class AMinecraftServer {
 
     @JsonProperty("Channel-ID")
     private long channelId;
+    @JsonIgnore
     private int attempts;
     @JsonProperty("Did-we-send-a-message")
     private boolean sentMessage = false;

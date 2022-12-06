@@ -57,7 +57,7 @@ public class MCServerPingerManager {
                     MinecraftServerStatus serverStatus = getServerStatus(aMinecraftServer);
 
                     if (serverStatus == null) {
-                        System.out.println("The serverStatus is null for " + aMinecraftServer.getIp());
+                        System.out.println("Failed to get server status for " + aMinecraftServer.getIp() + ":" + aMinecraftServer.getPort());
                         return;
                     }
 
