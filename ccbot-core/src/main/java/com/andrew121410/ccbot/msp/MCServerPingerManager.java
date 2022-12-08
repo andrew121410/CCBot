@@ -66,9 +66,9 @@ public class MCServerPingerManager {
 
                     if (!serverStatus.getOnline()) {
                         aMinecraftServer.setAttempts(aMinecraftServer.getAttempts() + 1);
-                        if (aMinecraftServer.getAttempts() >= 50) aMinecraftServer.setAttempts(5);
+                        if (aMinecraftServer.getAttempts() >= 100) aMinecraftServer.setAttempts(5);
 
-                        if (aMinecraftServer.getAttempts() >= 3 && !aMinecraftServer.isSentMessage()) {
+                        if (aMinecraftServer.getAttempts() >= aMinecraftServer.getMaxAttempts() && !aMinecraftServer.isSentMessage()) {
                             TextChannel textChannel = guild.getTextChannelById(aMinecraftServer.getChannelId());
                             if (textChannel == null) return;
 

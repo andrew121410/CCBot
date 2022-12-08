@@ -28,8 +28,11 @@ public class AMinecraftServer {
     @JsonProperty("Did-we-send-a-message")
     private boolean sentMessage = false;
 
+    // User Settings
     @JsonProperty("Use-status-website-api")
     private boolean useStatusWebsiteApi = false;
+    @JsonProperty("max-attempts")
+    private int maxAttempts = 3;
 
     public AMinecraftServer(long channelId, String name, String ip, int port, boolean useStatusWebsiteApi) {
         this.channelId = channelId;
