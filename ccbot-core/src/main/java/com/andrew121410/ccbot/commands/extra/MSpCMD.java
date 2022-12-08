@@ -134,7 +134,7 @@ public class MSpCMD extends AbstractCommand {
                 return true;
             } else if (args.length == 3) {
                 String ip = args[1];
-                int maxAttempts = Integer.parseInt(args[2]);
+                int maxAttempts = Utils.asIntegerOrElse(args[2], 3);
 
                 cGuild.getaMinecraftServers().stream().filter(aMinecraftServer -> aMinecraftServer.getIp().equalsIgnoreCase(ip)).findFirst().ifPresent(aMinecraftServer -> {
                     aMinecraftServer.setMaxAttempts(maxAttempts);
