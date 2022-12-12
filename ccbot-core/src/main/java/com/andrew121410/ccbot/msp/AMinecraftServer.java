@@ -27,6 +27,8 @@ public class AMinecraftServer {
     private int attempts;
     @JsonProperty("Did-we-send-a-message")
     private boolean sentMessage = false;
+    @JsonProperty("Time-of-offline")
+    private long timeOfOffline = 0L;
 
     // User Settings
     @JsonProperty("Use-status-website-api")

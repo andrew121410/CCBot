@@ -51,7 +51,7 @@ public class MSpCMD extends AbstractCommand {
 
             // Usage of commands
             embedBuilder.addField("Usage",
-                    prefix + "msp add <ip> <port>"
+                    prefix + "msp add <ip> <port> <name>"
                             + "\r\n" + prefix + "msp remove <ip>"
                             + "\r\n" + prefix + "msp list", false);
             embedBuilder.addField("Settings",

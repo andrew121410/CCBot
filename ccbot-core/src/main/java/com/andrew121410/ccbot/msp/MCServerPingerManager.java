@@ -5,6 +5,7 @@ import br.com.azalim.mcserverping.MCPingOptions;
 import br.com.azalim.mcserverping.MCPingResponse;
 import com.andrew121410.ccbot.CCBotCore;
 import com.andrew121410.ccbot.objects.CGuild;
+import com.andrew121410.ccutils.utils.StringDataTimeBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -72,6 +73,9 @@ public class MCServerPingerManager {
                             TextChannel textChannel = guild.getTextChannelById(aMinecraftServer.getChannelId());
                             if (textChannel == null) return;
 
+                            // Set the time of offline
+                            aMinecraftServer.setTimeOfOffline(System.currentTimeMillis());
+
                             EmbedBuilder embedBuilder = new EmbedBuilder();
                             if (aMinecraftServer.getName() != null) {
                                 embedBuilder.setTitle(aMinecraftServer.getName() + " is offline!");
@@ -98,7 +102,14 @@ public class MCServerPingerManager {
                             } else {
                                 embedBuilder.setTitle("Server is online!");
                             }
-                            embedBuilder.setDescription("The Minecraft Server `" + aMinecraftServer.getIp() + ":" + aMinecraftServer.getPort() + "` is online!");
+
+                            if (aMinecraftServer.getTimeOfOffline() != 0L) { // temp
+                                embedBuilder.setDescription("The Minecraft Server `" + aMinecraftServer.getIp() + ":" + aMinecraftServer.getPort() + "` is online!"
+                                        + "\n\rThe server was offline for " + StringDataTimeBuilder.makeIntoEnglishWords(aMinecraftServer.getTimeOfOffline(), System.currentTimeMillis(), true, false));
+                            } else {
+                                embedBuilder.setDescription("The Minecraft Server `" + aMinecraftServer.getIp() + ":" + aMinecraftServer.getPort() + "` is online!");
+                            }
+
                             embedBuilder.setColor(Color.GREEN);
 
                             textChannel.sendMessageEmbeds(embedBuilder.build()).queue();
