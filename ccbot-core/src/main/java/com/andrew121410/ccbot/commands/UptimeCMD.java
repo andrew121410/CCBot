@@ -18,7 +18,7 @@ public class UptimeCMD extends AbstractCommand {
 
     @Override
     public boolean onMessage(MessageReceivedEvent event, String[] args) {
-        String theUptime = TimeUtils.makeIntoEnglishWords(this.ccBotCore.getUptime(), System.currentTimeMillis(), false, false);
+        String theUptime = TimeUtils.makeIntoEnglishWords(this.ccBotCore.getUptime(), System.currentTimeMillis(), false, true);
         event.getChannel().sendMessage("The uptime of the bot is " + theUptime).queue();
         return true;
     }
