@@ -45,6 +45,9 @@ public class CCBotCore {
 
     private MCServerPingerManager mcServerPingerManager;
 
+    @Getter
+    private long uptime;
+
     public CCBotCore(File workingDirectory) {
         instance = this;
         this.workingDirectory = workingDirectory;
@@ -94,6 +97,9 @@ public class CCBotCore {
         // Register all the commands (should be the last thing we do)
         this.commandManager = new CommandManager(this);
         this.jda.addEventListener(commandManager);
+
+        // Set the uptime
+        this.uptime = System.currentTimeMillis();
     }
 
     public void exit() {

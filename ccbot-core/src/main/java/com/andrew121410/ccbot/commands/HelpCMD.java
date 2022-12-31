@@ -37,7 +37,7 @@ public class HelpCMD extends AbstractCommand {
                 + "\r\n" + " " + prefix + "config"
                 + "\r\n" + " " + prefix + "tags";
 
-//        String addonhelp = API.PREFIX + "ticket"
+        String addonHelp = prefix + "msp";
 //                + "\r\n" + " " + API.PREFIX + "suggest";
 
         EmbedBuilder embedBuilder = new EmbedBuilder()
@@ -46,7 +46,7 @@ public class HelpCMD extends AbstractCommand {
                 .setDescription("This is the list of commands.")
                 .addField("Basic Commands!", basicHelp, false)
                 .addField("Admin Commands!", adminHelp, false)
-//                .addField("Addon Commands!", addonhelp, false)
+                .addField("Addon Commands!", addonHelp, false)
                 .setFooter("CCBot | Version: " + CCBotCore.VERSION + " | Developed by Andrew121410#2035");
 
         textChannel.sendMessageEmbeds(embedBuilder.build()).queue();

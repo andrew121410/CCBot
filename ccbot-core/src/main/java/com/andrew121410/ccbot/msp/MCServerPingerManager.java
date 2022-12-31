@@ -5,7 +5,7 @@ import br.com.azalim.mcserverping.MCPingOptions;
 import br.com.azalim.mcserverping.MCPingResponse;
 import com.andrew121410.ccbot.CCBotCore;
 import com.andrew121410.ccbot.objects.CGuild;
-import com.andrew121410.ccutils.utils.StringDataTimeBuilder;
+import com.andrew121410.ccutils.utils.TimeUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -115,7 +115,7 @@ public class MCServerPingerManager {
 
                             if (aMinecraftServer.getTimeOfOffline() != 0L) {
                                 embedBuilder.setDescription("The Minecraft Server `" + aMinecraftServer.getIp() + ":" + aMinecraftServer.getPort() + "` is online!"
-                                        + "\n\rThe server was offline for " + StringDataTimeBuilder.makeIntoEnglishWords(aMinecraftServer.getTimeOfOffline(), System.currentTimeMillis(), true, false));
+                                        + "\n\rThe server was offline for " + TimeUtils.makeIntoEnglishWords(aMinecraftServer.getTimeOfOffline(), System.currentTimeMillis(), true, false));
                             } else {
                                 embedBuilder.setDescription("The Minecraft Server `" + aMinecraftServer.getIp() + ":" + aMinecraftServer.getPort() + "` is online!");
                             }
