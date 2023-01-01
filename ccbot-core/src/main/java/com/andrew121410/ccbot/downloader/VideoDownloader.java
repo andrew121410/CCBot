@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.utils.FileUpload;
 
 import java.io.File;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -35,12 +36,21 @@ public class VideoDownloader {
         DPlatform dPlatform = identifyPlatform(possibleUrl);
 
         // Could not identify the platform
-        if (dPlatform == null) return;
+        if (dPlatform == null) {
+            textChannel.sendMessage("Could not identify the platform").queue();
+            return;
+        }
 
         IDownloader iDownloader = getDownloader(dPlatform);
-        if (iDownloader == null) return;
+        if (iDownloader == null) {
+            System.out.println("Downloader is null");
+            return;
+        }
 
-        iDownloader.download(possibleUrl, textChannel).thenAccept(file -> {
+        CompletableFuture<File> fileCompletableFuture = iDownloader.download(possibleUrl, textChannel);
+        if (fileCompletableFuture == null) return;
+
+        fileCompletableFuture.thenAccept(file -> {
             if (file == null) return;
             sendVideo(textChannel, file, true);
         });
@@ -95,8 +105,6 @@ public class VideoDownloader {
     public static DPlatform identifyPlatform(String url) {
         if (url.contains("tiktok.com/t/")) {
             return DPlatform.TIKTOK;
-        } else if (url.startsWith("https://instagram.com")) {
-            return DPlatform.INSTAGRAM;
         }
         return null;
     }
