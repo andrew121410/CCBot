@@ -7,7 +7,6 @@ import com.andrew121410.ccbot.objects.button.CButton;
 import com.andrew121410.ccbot.objects.button.CButtonManager;
 import com.andrew121410.ccbot.utils.CUtils;
 import com.andrew121410.ccbot.utils.LoggingUtils;
-import com.andrew121410.ccbot.utils.TiktokDownloader;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
@@ -162,9 +161,7 @@ public class CEvents {
         CGuild cGuild = this.guildConfigManager.addOrGet(event.getGuild());
         if (cGuild == null) return;
 
-        if (TiktokDownloader.isTiktok(event.getMessage().getContentRaw())) {
-            new TiktokDownloader(this.ccBotCore).download(event.getMessage().getContentRaw(), event.getChannel().asTextChannel());
-        }
+        this.ccBotCore.getVideoDownloader().handle(event.getChannel().asTextChannel(), event.getMessage().getContentDisplay());
 
         cGuild.getMessageHistoryManager().saveMessage(event.getMessage());
     }

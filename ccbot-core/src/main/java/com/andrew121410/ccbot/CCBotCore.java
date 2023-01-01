@@ -4,11 +4,11 @@ import com.andrew121410.ccbot.commands.manager.AbstractCommand;
 import com.andrew121410.ccbot.commands.manager.CommandManager;
 import com.andrew121410.ccbot.config.ConfigManager;
 import com.andrew121410.ccbot.config.GuildConfigManager;
+import com.andrew121410.ccbot.downloader.VideoDownloader;
 import com.andrew121410.ccbot.events.CEvents;
 import com.andrew121410.ccbot.msp.MCServerPingerManager;
 import com.andrew121410.ccbot.objects.CGuild;
 import com.andrew121410.ccbot.utils.CTimer;
-import com.andrew121410.ccbot.utils.TiktokDownloader;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import net.dv8tion.jda.api.JDA;
@@ -43,6 +43,8 @@ public class CCBotCore {
     private CommandManager commandManager;
     private CTimer cTimer;
 
+    @Getter
+    private VideoDownloader videoDownloader;
     private MCServerPingerManager mcServerPingerManager;
 
     @Getter
@@ -98,6 +100,9 @@ public class CCBotCore {
         this.commandManager = new CommandManager(this);
         this.jda.addEventListener(commandManager);
 
+        // Video downloader
+        this.videoDownloader = new VideoDownloader(this);
+
         // Set the uptime
         this.uptime = System.currentTimeMillis();
     }
@@ -107,7 +112,7 @@ public class CCBotCore {
 
         // Shutdown executors
         this.cTimer.getSaveService().shutdown();
-        TiktokDownloader.TIKTOK_EXECUTOR_SERVICE.shutdown();
+        VideoDownloader.VIDEO_DOWNLOADER_EXECUTOR_SERVICE.shutdown();
         MCServerPingerManager.SCHEDULED_EXECUTOR_SERVICE.shutdown();
 
         // Save all the configs
