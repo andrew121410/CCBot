@@ -36,16 +36,10 @@ public class VideoDownloader {
         DPlatform dPlatform = identifyPlatform(possibleUrl);
 
         // Could not identify the platform
-        if (dPlatform == null) {
-            textChannel.sendMessage("Could not identify the platform").queue();
-            return;
-        }
+        if (dPlatform == null) return;
 
         IDownloader iDownloader = getDownloader(dPlatform);
-        if (iDownloader == null) {
-            System.out.println("Downloader is null");
-            return;
-        }
+        if (iDownloader == null) return;
 
         CompletableFuture<File> fileCompletableFuture = iDownloader.download(possibleUrl, textChannel);
         if (fileCompletableFuture == null) return;
