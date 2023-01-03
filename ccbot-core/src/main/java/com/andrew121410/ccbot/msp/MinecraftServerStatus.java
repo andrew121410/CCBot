@@ -17,11 +17,22 @@ public class MinecraftServerStatus {
     @JsonProperty("online")
     private Boolean online;
 
+    @JsonProperty("icon")
+    private String icon;
+
     public Boolean getOnline() {
         return online;
     }
 
     public void setOnline(Boolean online) {
         this.online = online;
+    }
+
+    public String getIcon() {
+        return icon;
+    }
+
+    public void setIcon(String icon) {
+        this.icon = icon;
     }
 }

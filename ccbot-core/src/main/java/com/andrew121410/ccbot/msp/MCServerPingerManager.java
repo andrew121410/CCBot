@@ -150,9 +150,9 @@ public class MCServerPingerManager {
             // Save the icon
             saveIcon(aMinecraftServer, response.getFavicon());
 
-            return new MinecraftServerStatus(true);
+            return new MinecraftServerStatus(true, null); // Icon is null, because we already saved it.
         } catch (Exception e) {
-            return new MinecraftServerStatus(false);
+            return new MinecraftServerStatus(false, null);
         }
     }
 
@@ -169,7 +169,13 @@ public class MCServerPingerManager {
 
             HttpResponse<String> response = client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
             ObjectMapper objectMapper = new ObjectMapper();
-            return objectMapper.readValue(response.body(), MinecraftServerStatus.class);
+
+            MinecraftServerStatus minecraftServerStatus = objectMapper.readValue(response.body(), MinecraftServerStatus.class);
+
+            // Save the icon
+            saveIcon(aMinecraftServer, minecraftServerStatus.getIcon());
+
+            return minecraftServerStatus;
         } catch (Exception e) {
             return null;
         }
