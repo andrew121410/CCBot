@@ -22,6 +22,7 @@ import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -56,7 +57,7 @@ public class CCBotCore {
 
         // Initialize the maps
         this.commandMap = new HashMap<>();
-        this.guildMap = new HashMap<>();
+        this.guildMap = Collections.synchronizedMap(new HashMap<>());
 
         this.configManager = new ConfigManager(this);
         this.configManager.loadAll();

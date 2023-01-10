@@ -16,6 +16,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import java.awt.*;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 @ACommand(command = "msp", description = "Allows you to edit the configuration for the bot!")
 public class MSpCMD extends AbstractCommand {
@@ -142,6 +143,15 @@ public class MSpCMD extends AbstractCommand {
                 });
             }
             return true;
+        } else if (args[0].equalsIgnoreCase("isThreadFrozen")) {
+            AtomicLong seeIfFrozen = this.ccBotCore.getMcServerPingerManager().getLastRan();
+
+            // Check if more than 3 mins
+            if (System.currentTimeMillis() - seeIfFrozen.get() > 180000) {
+                event.getChannel().sendMessage("It is frozen!!!").queue();
+            } else {
+                event.getChannel().sendMessage("It is not frozen!!!").queue();
+            }
         }
         return true;
     }

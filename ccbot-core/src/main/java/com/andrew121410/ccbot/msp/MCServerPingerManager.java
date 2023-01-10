@@ -7,6 +7,7 @@ import com.andrew121410.ccbot.CCBotCore;
 import com.andrew121410.ccbot.objects.CGuild;
 import com.andrew121410.ccutils.utils.TimeUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Getter;
 import lombok.SneakyThrows;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
@@ -30,10 +31,13 @@ import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class MCServerPingerManager {
 
     private final CCBotCore ccBotCore;
+    @Getter
+    private AtomicLong lastRan = new AtomicLong(0L);
 
     public static final ScheduledExecutorService SCHEDULED_EXECUTOR_SERVICE = Executors.newSingleThreadScheduledExecutor();
 
@@ -133,6 +137,7 @@ public class MCServerPingerManager {
                     }
                 }
             }
+            lastRan.set(System.currentTimeMillis());
         };
 
         SCHEDULED_EXECUTOR_SERVICE.scheduleAtFixedRate(runnable, 0, 1, TimeUnit.MINUTES);
