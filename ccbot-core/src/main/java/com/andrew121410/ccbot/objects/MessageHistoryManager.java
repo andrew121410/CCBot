@@ -1,7 +1,6 @@
 package com.andrew121410.ccbot.objects;
 
 import com.andrew121410.ccbot.CCBotCore;
-import com.andrew121410.ccbot.objects.AMessage;
 import com.andrew121410.ccutils.storage.ISQL;
 import com.andrew121410.ccutils.storage.SQLite;
 import com.andrew121410.ccutils.storage.easy.EasySQL;
@@ -54,7 +53,7 @@ public class MessageHistoryManager {
     public void saveMessage(TextChannel textChannel, User user, Message message) {
         if (interrupt) return;
 
-        Map<String, String> map = new HashMap<>();
+        SQLDataStore map = new SQLDataStore();
         map.put("channelId", textChannel.getId());
         map.put("messageId", message.getId());
         map.put("senderId", user.getId());
@@ -74,7 +73,7 @@ public class MessageHistoryManager {
     public AMessage getMessage(TextChannel textChannel, String messageId) {
         if (interrupt) return null;
 
-        Map<String, String> map = new HashMap<>();
+        SQLDataStore map = new SQLDataStore();
 
         map.put("channelId", textChannel.getId());
         map.put("messageId", messageId);
