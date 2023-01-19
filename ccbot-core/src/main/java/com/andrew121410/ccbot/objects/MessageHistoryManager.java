@@ -4,6 +4,7 @@ import com.andrew121410.ccbot.CCBotCore;
 import com.andrew121410.ccutils.storage.ISQL;
 import com.andrew121410.ccutils.storage.SQLite;
 import com.andrew121410.ccutils.storage.easy.EasySQL;
+import com.andrew121410.ccutils.storage.easy.MultiTableEasySQL;
 import com.andrew121410.ccutils.storage.easy.SQLDataStore;
 import com.google.common.collect.Multimap;
 import net.dv8tion.jda.api.Permission;
@@ -13,6 +14,7 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
 import java.io.File;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -39,7 +41,7 @@ public class MessageHistoryManager {
         if (db.exists()) isFirstTime = false;
 
         this.isql = new SQLite(this.ccBotCore.getConfigManager().getGuildConfigManager().getGuildFolder(), "mh-" + guildId);
-        this.easySQL = new EasySQL(this.isql, "messageHistory");
+        this.easySQL = new EasySQL("messageHistory", new MultiTableEasySQL(this.isql));
 
         List<String> columns = new ArrayList<>();
         columns.add("channelId");
@@ -78,7 +80,13 @@ public class MessageHistoryManager {
         map.put("channelId", textChannel.getId());
         map.put("messageId", messageId);
 
-        Multimap<String, SQLDataStore> bigMap = this.easySQL.get(map);
+        Multimap<String, SQLDataStore> bigMap = null;
+        try {
+            bigMap = this.easySQL.get(map);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        if (bigMap == null) return null;
 
         SQLDataStore sqlDataStore = bigMap.values().stream().findFirst().orElse(null);
         if (sqlDataStore == null) return null;
