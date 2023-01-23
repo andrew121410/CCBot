@@ -177,7 +177,10 @@ public class LoggingUtils {
         TextChannel logChannel = CUtils.findLogChannel(event.getGuild());
         if (logChannel == null) return;
 
-        EmbedBuilder embedBuilder = new EmbedBuilder().setAuthor("Member Banned:", event.getUser().getAvatarUrl(), event.getUser().getAvatarUrl()).setDescription(event.getUser().getAsMention() + " Has been BANNED \uD83D\uDE08").setColor(Color.RED).setThumbnail(event.getUser().getAvatarUrl());
+        EmbedBuilder embedBuilder = new EmbedBuilder()
+                .setAuthor("Member Banned:", event.getUser().getAvatarUrl(), event.getUser().getAvatarUrl())
+                .setDescription(event.getUser().getAsMention() + " Has been banned! \u203C")
+                .setColor(Color.RED).setThumbnail(event.getUser().getAvatarUrl());
 
         logChannel.sendMessageEmbeds(embedBuilder.build()).queue();
     }
