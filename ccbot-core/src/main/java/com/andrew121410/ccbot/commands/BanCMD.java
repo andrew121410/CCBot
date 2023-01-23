@@ -56,7 +56,7 @@ public class BanCMD extends AbstractCommand {
                 textChannel.sendMessage("I can't ban that member!").queue(a -> a.delete().queueAfter(10, TimeUnit.SECONDS));
                 return true;
             }
-            event.getChannel().sendMessage(member.getAsMention() + " **has been banned from the server!** \\uD83D\\uDD34").queue();
+            event.getChannel().sendMessage(member.getAsMention() + " **has been banned from the server!** \uD83D\uDD34").queue();
             return true;
         } else {
             EmbedBuilder embedBuilder = new EmbedBuilder()
