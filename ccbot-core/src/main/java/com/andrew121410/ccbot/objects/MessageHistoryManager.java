@@ -121,6 +121,8 @@ public class MessageHistoryManager {
         long lastOnlineLong = Long.parseLong(lastOnline);
 
         if (!this.isFirstTime) {
+            System.out.println("Caching everything missing from the last time the bot was online for " + guildId);
+
             Guild guild = this.ccBotCore.getJda().getGuildById(guildId);
             if (guild == null) return;
 
