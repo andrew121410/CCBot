@@ -3,9 +3,10 @@ package com.andrew121410.ccbot.objects;
 import com.andrew121410.ccbot.CCBotCore;
 import com.andrew121410.ccutils.storage.ISQL;
 import com.andrew121410.ccutils.storage.SQLite;
-import com.andrew121410.ccutils.storage.easy.EasySQL;
 import com.andrew121410.ccutils.storage.easy.MultiTableEasySQL;
 import com.andrew121410.ccutils.storage.easy.SQLDataStore;
+import com.andrew121410.ccutils.storage.easy.SynchronizedEasySQL;
+import com.andrew121410.ccutils.storage.easy.SynchronizedMultiTableEasySQL;
 import com.google.common.collect.Multimap;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -28,7 +29,7 @@ public class MessageHistoryManager {
     private final String guildId;
 
     private final ISQL isql;
-    private final EasySQL easySQL;
+    private final SynchronizedEasySQL easySQL;
 
     private boolean interrupt = false;
     private boolean isRunning = false;
@@ -41,7 +42,7 @@ public class MessageHistoryManager {
         if (db.exists()) isFirstTime = false;
 
         this.isql = new SQLite(this.ccBotCore.getConfigManager().getGuildConfigManager().getGuildFolder(), "mh-" + guildId);
-        this.easySQL = new EasySQL("messageHistory", new MultiTableEasySQL(this.isql));
+        this.easySQL = new SynchronizedEasySQL("messageHistory", new SynchronizedMultiTableEasySQL(new MultiTableEasySQL(this.isql)));
 
         List<String> columns = new ArrayList<>();
         columns.add("channelId");
@@ -116,8 +117,6 @@ public class MessageHistoryManager {
         if (this.isRunning) return;
         this.isRunning = true;
 
-        System.out.println("Caching missing messages for " + guildId);
-
         String lastOnline = this.ccBotCore.getConfigManager().getMainConfig().getLastOn();
         long lastOnlineLong = Long.parseLong(lastOnline);
 
@@ -145,12 +144,14 @@ public class MessageHistoryManager {
         } else {
             // Cache everything
             Runnable runnable = () -> {
+                System.out.println("Caching ALL messages for " + guildId);
+
                 Guild guild = this.ccBotCore.getJda().getGuildById(guildId);
                 if (guild == null) return;
 
                 cacheAllMessagesOfGuild(guild);
 
-                System.out.println("Done caching missing messages for " + guildId);
+                System.out.println("Done caching ALL messages for " + guildId);
                 this.isRunning = false;
             };
             new Thread(runnable).start();
@@ -164,11 +165,6 @@ public class MessageHistoryManager {
                 saveMessage(textChannel, message.getAuthor(), message);
             }
         }
-    }
-
-    public void cacheAllMessagesOfGuildAsync(Guild guild) {
-        Runnable runnable = () -> cacheAllMessagesOfGuild(guild);
-        new Thread(runnable).start();
     }
 }
 
