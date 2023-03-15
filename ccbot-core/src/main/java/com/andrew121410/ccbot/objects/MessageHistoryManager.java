@@ -16,9 +16,7 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import java.io.File;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class MessageHistoryManager {
 
@@ -97,12 +95,16 @@ public class MessageHistoryManager {
     public void deleteMessage(String channelId, String messageId) {
         if (interrupt) return;
 
-        Map<String, String> map = new HashMap<>();
+        SQLDataStore map = new SQLDataStore();
 
         map.put("channelId", channelId);
         map.put("messageId", messageId);
 
-        this.easySQL.delete(map);
+        try {
+            this.easySQL.delete(map);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     public void delete() {
