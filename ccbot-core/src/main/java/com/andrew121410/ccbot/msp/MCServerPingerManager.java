@@ -81,12 +81,23 @@ public class MCServerPingerManager {
                     }
 
                     if (!serverStatus.getOnline()) { // If the server is offline.
+                        // Add 1 to the attempts.
                         aMinecraftServer.setAttempts(aMinecraftServer.getAttempts() + 1);
+
+                        // Don't let the attempts go over 100.
                         if (aMinecraftServer.getAttempts() >= 100) aMinecraftServer.setAttempts(5);
 
+                        // Send the message if the attempts are over the max attempts, and if the message hasn't been sent.
                         if (aMinecraftServer.getAttempts() >= aMinecraftServer.getMaxAttempts() && !aMinecraftServer.isSentMessage()) {
                             TextChannel textChannel = guild.getTextChannelById(aMinecraftServer.getChannelId());
                             if (textChannel == null) return;
+
+                            // Test to see if I can't reach the server, but the website says it's online.
+                            if (!aMinecraftServer.isUseStatusWebsiteApi()) {
+                                MinecraftServerStatus serverStatus2 = getServerStatusFromOnline(aMinecraftServer);
+                                if (serverStatus2 == null && !serverStatus2.getOnline()) return;
+                                textChannel.sendMessage("Take the next message with a gain of salt as I detected a mismatched server status for " + aMinecraftServer.getIp() + ":" + aMinecraftServer.getPort() + " `https://mcsrvstat.us/` states that the server is still online, but I can't reach it?").queue();
+                            }
 
                             // Set the time of offline
                             aMinecraftServer.setTimeOfOffline(System.currentTimeMillis());

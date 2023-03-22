@@ -14,6 +14,7 @@ import java.io.InputStreamReader;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
+// https://github.com/krypton-byte/tiktok-downloader
 public class TiktokDownloader implements IDownloader {
 
     private CCBotCore ccBotCore;

@@ -10,6 +10,7 @@ import com.andrew121410.ccbot.msp.MCServerPingerManager;
 import com.andrew121410.ccbot.objects.CGuild;
 import com.andrew121410.ccbot.utils.CTimer;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.SneakyThrows;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -50,6 +51,9 @@ public class CCBotCore {
 
     @Getter
     private long uptime;
+    @Getter
+    @Setter
+    private boolean autoRestart;
 
     public CCBotCore(File workingDirectory) {
         instance = this;
@@ -106,6 +110,12 @@ public class CCBotCore {
 
         // Set the uptime
         this.uptime = System.currentTimeMillis();
+
+        // If auto restart is enabled
+        if (this.autoRestart) {
+            this.cTimer.setupAutoRestarter();
+            System.out.println("Auto restart will restart the bot every day.");
+        }
     }
 
     public void exit() {

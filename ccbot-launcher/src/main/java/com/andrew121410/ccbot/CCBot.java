@@ -12,6 +12,14 @@ public class CCBot extends CCBotCore {
 
     public CCBot(String[] args) {
         super(getTheFolderTheJarIsIn());
+
+        // Check if --auto-restart is in the args
+        for (String arg : args) {
+            if (arg.equalsIgnoreCase("--auto-restart")) {
+                this.setAutoRestart(true);
+            }
+        }
+
         setupScanner();
     }
 

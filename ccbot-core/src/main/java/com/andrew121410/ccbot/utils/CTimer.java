@@ -11,6 +11,7 @@ public class CTimer {
     private final CCBotCore ccBotCore;
 
     private ScheduledExecutorService saveService;
+    private ScheduledExecutorService autoRestarter;
 
     public CTimer(CCBotCore ccBotCore) {
         this.ccBotCore = ccBotCore;
@@ -21,6 +22,13 @@ public class CTimer {
         Runnable runnable = () -> ccBotCore.getConfigManager().saveAll(true);
         this.saveService = Executors.newSingleThreadScheduledExecutor();
         this.saveService.scheduleAtFixedRate(runnable, 0, 30, TimeUnit.SECONDS);
+    }
+
+    public void setupAutoRestarter() {
+        Runnable runnable = this.ccBotCore::exit;
+
+        this.autoRestarter = Executors.newSingleThreadScheduledExecutor();
+        this.autoRestarter.schedule(runnable, 1, TimeUnit.DAYS);
     }
 
     public ScheduledExecutorService getSaveService() {
