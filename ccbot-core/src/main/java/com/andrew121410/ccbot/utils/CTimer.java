@@ -1,6 +1,7 @@
 package com.andrew121410.ccbot.utils;
 
 import com.andrew121410.ccbot.CCBotCore;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -11,7 +12,8 @@ public class CTimer {
     private final CCBotCore ccBotCore;
 
     private ScheduledExecutorService saveService;
-    private ScheduledExecutorService autoRestarter;
+    @Nullable
+    private ScheduledExecutorService autoRestarter = null;
 
     public CTimer(CCBotCore ccBotCore) {
         this.ccBotCore = ccBotCore;
@@ -29,9 +31,15 @@ public class CTimer {
 
         this.autoRestarter = Executors.newSingleThreadScheduledExecutor();
         this.autoRestarter.schedule(runnable, 1, TimeUnit.DAYS);
+
+        System.out.println("Auto restarter will restart the bot in 24 hours.");
     }
 
     public ScheduledExecutorService getSaveService() {
         return saveService;
+    }
+
+    public ScheduledExecutorService getAutoRestarter() {
+        return autoRestarter;
     }
 }

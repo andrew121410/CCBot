@@ -17,6 +17,7 @@ public class CCBot extends CCBotCore {
         for (String arg : args) {
             if (arg.equalsIgnoreCase("--auto-restart")) {
                 this.setAutoRestart(true);
+                this.getCTimer().setupAutoRestarter();
             }
         }
 

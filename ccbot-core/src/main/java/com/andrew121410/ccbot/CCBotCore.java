@@ -110,12 +110,6 @@ public class CCBotCore {
 
         // Set the uptime
         this.uptime = System.currentTimeMillis();
-
-        // If auto restart is enabled
-        if (this.autoRestart) {
-            this.cTimer.setupAutoRestarter();
-            System.out.println("Auto restart will restart the bot every day.");
-        }
     }
 
     public void exit() {
@@ -123,6 +117,9 @@ public class CCBotCore {
 
         // Shutdown executors
         this.cTimer.getSaveService().shutdown();
+        if (this.cTimer.getAutoRestarter() != null) {
+            this.cTimer.getAutoRestarter().shutdown();
+        }
         VideoDownloader.VIDEO_DOWNLOADER_EXECUTOR_SERVICE.shutdown();
         MCServerPingerManager.SCHEDULED_EXECUTOR_SERVICE.shutdown();
 
