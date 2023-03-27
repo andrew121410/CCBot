@@ -31,16 +31,13 @@ public class AMinecraftServer {
     private long timeOfOffline = 0L;
 
     // User Settings
-    @JsonProperty("Use-status-website-api")
-    private boolean useStatusWebsiteApi = false;
     @JsonProperty("max-attempts")
     private int maxAttempts = 3;
 
-    public AMinecraftServer(long channelId, String name, String ip, int port, boolean useStatusWebsiteApi) {
+    public AMinecraftServer(long channelId, String name, String ip, int port) {
         this.channelId = channelId;
         this.name = name;
         this.ip = ip;
         this.port = port;
-        this.useStatusWebsiteApi = useStatusWebsiteApi;
     }
 }

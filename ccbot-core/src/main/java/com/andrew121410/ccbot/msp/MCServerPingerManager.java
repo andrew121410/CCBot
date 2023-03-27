@@ -6,7 +6,6 @@ import br.com.azalim.mcserverping.MCPingResponse;
 import com.andrew121410.ccbot.CCBotCore;
 import com.andrew121410.ccbot.objects.CGuild;
 import com.andrew121410.ccutils.utils.TimeUtils;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -19,12 +18,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
-import java.time.Duration;
 import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
@@ -73,12 +67,8 @@ public class MCServerPingerManager {
                 List<AMinecraftServer> aMinecraftServers = cGuild.getaMinecraftServers();
 
                 for (AMinecraftServer aMinecraftServer : aMinecraftServers) {
-                    MinecraftServerStatus serverStatus = !aMinecraftServer.isUseStatusWebsiteApi() ? getServerStatus(aMinecraftServer) : getServerStatusFromOnline(aMinecraftServer);
-
-                    if (serverStatus == null) {
-                        System.out.println("Failed to get server status for " + aMinecraftServer.getIp() + ":" + aMinecraftServer.getPort() + " useStatusWebsiteApi: " + aMinecraftServer.isUseStatusWebsiteApi());
-                        return;
-                    }
+                    MinecraftServerStatus serverStatus = getServerStatus(aMinecraftServer);
+                    if (serverStatus == null) return;
 
                     if (!serverStatus.getOnline()) { // If the server is offline.
                         // Add 1 to the attempts.
@@ -91,13 +81,6 @@ public class MCServerPingerManager {
                         if (aMinecraftServer.getAttempts() >= aMinecraftServer.getMaxAttempts() && !aMinecraftServer.isSentMessage()) {
                             TextChannel textChannel = guild.getTextChannelById(aMinecraftServer.getChannelId());
                             if (textChannel == null) return;
-
-                            // Test to see if I can't reach the server, but the website says it's online.
-                            if (!aMinecraftServer.isUseStatusWebsiteApi()) {
-                                MinecraftServerStatus serverStatus2 = getServerStatusFromOnline(aMinecraftServer);
-                                if (serverStatus2 == null && !serverStatus2.getOnline()) return;
-                                textChannel.sendMessage("Take the next message with a gain of salt as I detected a mismatched server status for " + aMinecraftServer.getIp() + ":" + aMinecraftServer.getPort() + " `https://mcsrvstat.us/` states that the server is still online, but I can't reach it?").queue();
-                            }
 
                             // Set the time of offline
                             aMinecraftServer.setTimeOfOffline(System.currentTimeMillis());
@@ -169,31 +152,6 @@ public class MCServerPingerManager {
             return new MinecraftServerStatus(true, null); // Icon is null, because we already saved it.
         } catch (Exception e) {
             return new MinecraftServerStatus(false, null);
-        }
-    }
-
-    private MinecraftServerStatus getServerStatusFromOnline(AMinecraftServer aMinecraftServer) {
-        try {
-            HttpClient client = HttpClient.newHttpClient();
-
-            HttpRequest httpRequest = HttpRequest.newBuilder()
-                    .uri(URI.create("https://api.mcsrvstat.us/2/" + aMinecraftServer.getIp() + ":" + aMinecraftServer.getPort()))
-                    .timeout(Duration.ofMinutes(1))
-                    .header("Content-Type", "application/json")
-                    .GET()
-                    .build();
-
-            HttpResponse<String> response = client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
-            ObjectMapper objectMapper = new ObjectMapper();
-
-            MinecraftServerStatus minecraftServerStatus = objectMapper.readValue(response.body(), MinecraftServerStatus.class);
-
-            // Save the icon
-            saveIcon(aMinecraftServer, minecraftServerStatus.getIcon());
-
-            return minecraftServerStatus;
-        } catch (Exception e) {
-            return null;
         }
     }
 
