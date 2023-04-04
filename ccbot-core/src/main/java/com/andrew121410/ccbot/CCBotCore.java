@@ -5,7 +5,7 @@ import com.andrew121410.ccbot.commands.manager.CommandManager;
 import com.andrew121410.ccbot.config.ConfigManager;
 import com.andrew121410.ccbot.config.GuildConfigManager;
 import com.andrew121410.ccbot.downloader.VideoDownloader;
-import com.andrew121410.ccbot.events.CEvents;
+import com.andrew121410.ccbot.listeners.CEvents;
 import com.andrew121410.ccbot.msp.MCServerPingerManager;
 import com.andrew121410.ccbot.objects.CGuild;
 import com.andrew121410.ccbot.utils.CTimer;

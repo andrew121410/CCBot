@@ -13,7 +13,7 @@
 
     <properties>
         <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind -->
-        <jackson.version>2.14.2</jackson.version>
+        <jackson.version>2.15.0-rc2</jackson.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
     </properties>
@@ -38,7 +38,7 @@
         <dependency>
             <groupId>com.github.andrew121410</groupId>
             <artifactId>CCUtilsJava</artifactId>
-            <version>0dc8d953</version>
+            <version>9faf6b65</version>
             <scope>compile</scope>
         </dependency>
 

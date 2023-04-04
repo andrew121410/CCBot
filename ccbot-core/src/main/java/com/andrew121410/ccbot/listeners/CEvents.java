@@ -1,4 +1,4 @@
-package com.andrew121410.ccbot.events;
+package com.andrew121410.ccbot.listeners;
 
 import com.andrew121410.ccbot.CCBotCore;
 import com.andrew121410.ccbot.config.GuildConfigManager;
