@@ -78,14 +78,14 @@ public class VideoDownloader {
         if (!compressedVideos.exists()) compressedVideos.mkdir();
 
         try {
-            Process process = Runtime.getRuntime().exec("sudo ../../discordify-new.sh 8 ../" + video.getName() + " zero-h-medium", null, compressedVideos);
+            Process process = Runtime.getRuntime().exec("sudo ../../discordify-new.sh 25 ../" + video.getName() + " zero-h-medium", null, compressedVideos);
             process.waitFor();
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         String videoWithoutExtension = video.getName().replaceFirst("[.][^.]+$", "");
-        return new File(compressedVideos, videoWithoutExtension + "-8.mp4");
+        return new File(compressedVideos, videoWithoutExtension + "-25.mp4");
     }
 
     public IDownloader getDownloader(DPlatform dPlatform) {
