@@ -80,7 +80,7 @@ public class LoggingUtils {
 
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setAuthor("Member Left:", event.getUser().getAvatarUrl(), event.getUser().getAvatarUrl())
-                .setDescription(event.getUser().getAsTag() + " Has left the server \uD83D\uDE22")
+                .setDescription(event.getUser().getAsTag() + " has left the server \uD83D\uDE22")
                 .setColor(Color.YELLOW)
                 .setThumbnail(event.getUser().getAvatarUrl());
 
