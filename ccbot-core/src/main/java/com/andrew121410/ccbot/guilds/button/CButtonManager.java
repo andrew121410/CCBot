@@ -1,4 +1,4 @@
-package com.andrew121410.ccbot.objects.button;
+package com.andrew121410.ccbot.guilds.button;
 
 import lombok.Getter;
 import net.dv8tion.jda.api.entities.Message;

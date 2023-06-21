@@ -1,8 +1,8 @@
-package com.andrew121410.ccbot.objects;
+package com.andrew121410.ccbot.guilds;
 
 import com.andrew121410.ccbot.CCBotCore;
 import com.andrew121410.ccbot.msp.AMinecraftServer;
-import com.andrew121410.ccbot.objects.button.CButtonManager;
+import com.andrew121410.ccbot.guilds.button.CButtonManager;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;

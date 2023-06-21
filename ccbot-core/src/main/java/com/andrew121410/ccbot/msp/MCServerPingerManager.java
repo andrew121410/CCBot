@@ -4,7 +4,7 @@ import br.com.azalim.mcserverping.MCPing;
 import br.com.azalim.mcserverping.MCPingOptions;
 import br.com.azalim.mcserverping.MCPingResponse;
 import com.andrew121410.ccbot.CCBotCore;
-import com.andrew121410.ccbot.objects.CGuild;
+import com.andrew121410.ccbot.guilds.CGuild;
 import com.andrew121410.ccutils.utils.TimeUtils;
 import lombok.Getter;
 import lombok.SneakyThrows;

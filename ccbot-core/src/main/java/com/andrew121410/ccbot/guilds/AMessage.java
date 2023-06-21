@@ -1,4 +1,4 @@
-package com.andrew121410.ccbot.objects;
+package com.andrew121410.ccbot.guilds;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

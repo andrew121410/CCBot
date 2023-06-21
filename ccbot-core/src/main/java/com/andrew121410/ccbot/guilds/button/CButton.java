@@ -1,4 +1,4 @@
-package com.andrew121410.ccbot.objects.button;
+package com.andrew121410.ccbot.guilds.button;
 
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;

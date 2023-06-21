@@ -4,7 +4,7 @@ import com.andrew121410.ccbot.CCBotCore;
 import com.andrew121410.ccbot.commands.manager.ACommand;
 import com.andrew121410.ccbot.commands.manager.AbstractCommand;
 import com.andrew121410.ccbot.commands.manager.CommandManager;
-import com.andrew121410.ccbot.objects.CGuild;
+import com.andrew121410.ccbot.guilds.CGuild;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;

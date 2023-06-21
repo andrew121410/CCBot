@@ -2,8 +2,8 @@ package com.andrew121410.ccbot.utils;
 
 import com.andrew121410.ccbot.CCBotCore;
 import com.andrew121410.ccbot.config.GuildConfigManager;
-import com.andrew121410.ccbot.objects.AMessage;
-import com.andrew121410.ccbot.objects.CGuild;
+import com.andrew121410.ccbot.guilds.AMessage;
+import com.andrew121410.ccbot.guilds.CGuild;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;

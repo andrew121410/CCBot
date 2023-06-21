@@ -7,7 +7,7 @@ import com.andrew121410.ccbot.config.GuildConfigManager;
 import com.andrew121410.ccbot.downloader.VideoDownloader;
 import com.andrew121410.ccbot.listeners.CEvents;
 import com.andrew121410.ccbot.msp.MCServerPingerManager;
-import com.andrew121410.ccbot.objects.CGuild;
+import com.andrew121410.ccbot.guilds.CGuild;
 import com.andrew121410.ccbot.utils.CTimer;
 import lombok.Getter;
 import lombok.Setter;

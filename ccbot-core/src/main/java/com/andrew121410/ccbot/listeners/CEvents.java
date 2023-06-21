@@ -2,9 +2,9 @@ package com.andrew121410.ccbot.listeners;
 
 import com.andrew121410.ccbot.CCBotCore;
 import com.andrew121410.ccbot.config.GuildConfigManager;
-import com.andrew121410.ccbot.objects.CGuild;
-import com.andrew121410.ccbot.objects.button.CButton;
-import com.andrew121410.ccbot.objects.button.CButtonManager;
+import com.andrew121410.ccbot.guilds.CGuild;
+import com.andrew121410.ccbot.guilds.button.CButton;
+import com.andrew121410.ccbot.guilds.button.CButtonManager;
 import com.andrew121410.ccbot.utils.CUtils;
 import com.andrew121410.ccbot.utils.LoggingUtils;
 import net.dv8tion.jda.api.JDA;

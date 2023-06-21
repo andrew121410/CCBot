@@ -1,4 +1,4 @@
-package com.andrew121410.ccbot.objects;
+package com.andrew121410.ccbot.guilds;
 
 import com.andrew121410.ccbot.CCBotCore;
 import com.andrew121410.ccutils.storage.ISQL;
@@ -121,30 +121,8 @@ public class MessageHistoryManager {
         String lastOnline = this.ccBotCore.getConfigManager().getMainConfig().getLastOn();
         long lastOnlineLong = Long.parseLong(lastOnline);
 
-        if (!this.isFirstTime) {
-            System.out.println("Caching everything missing from the last time the bot was online for " + guildId);
-
-            Guild guild = this.ccBotCore.getJda().getGuildById(guildId);
-            if (guild == null) return;
-
-            for (TextChannel textChannel : guild.getTextChannels()) {
-                if (!guild.getSelfMember().getPermissions(textChannel).contains(Permission.VIEW_CHANNEL)) continue;
-
-                textChannel.getIterableHistory().takeUntilAsync(message -> message.getTimeCreated().toInstant().toEpochMilli() <= lastOnlineLong).thenApply(messages -> {
-                    int size = messages.size();
-                    for (Message message : messages) {
-                        if (size <= 30) {
-                            System.out.println("Caching message: " + message.getId() + " Content: " + message.getContentRaw());
-                        }
-                        this.saveMessage(textChannel, message.getAuthor(), message);
-                    }
-                    return null;
-                }).thenApply(aVoid -> {
-                    this.isRunning = false;
-                    return null;
-                });
-            }
-        } else {
+        // Cache everything if this is the first time
+        if (this.isFirstTime) {
             // Cache everything
             Runnable runnable = () -> {
                 System.out.println("Caching ALL messages for " + guildId);
@@ -158,6 +136,30 @@ public class MessageHistoryManager {
                 this.isRunning = false;
             };
             new Thread(runnable).start();
+            return;
+        }
+
+        System.out.println("Caching everything missing from the last time the bot was online for " + guildId);
+
+        Guild guild = this.ccBotCore.getJda().getGuildById(guildId);
+        if (guild == null) return;
+
+        for (TextChannel textChannel : guild.getTextChannels()) {
+            if (!guild.getSelfMember().getPermissions(textChannel).contains(Permission.VIEW_CHANNEL)) continue;
+
+            textChannel.getIterableHistory().takeUntilAsync(message -> message.getTimeCreated().toInstant().toEpochMilli() <= lastOnlineLong).thenApply(messages -> {
+                int size = messages.size();
+                for (Message message : messages) {
+                    if (size <= 30) {
+                        System.out.println("Caching message: " + message.getId() + " Content: " + message.getContentRaw());
+                    }
+                    this.saveMessage(textChannel, message.getAuthor(), message);
+                }
+                return null;
+            }).thenApply(aVoid -> {
+                this.isRunning = false;
+                return null;
+            });
         }
     }
 

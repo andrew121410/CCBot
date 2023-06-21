@@ -6,7 +6,7 @@ import com.andrew121410.ccbot.commands.manager.AbstractCommand;
 import com.andrew121410.ccbot.commands.manager.CommandManager;
 import com.andrew121410.ccbot.msp.AMinecraftServer;
 import com.andrew121410.ccbot.msp.MCServerPingerManager;
-import com.andrew121410.ccbot.objects.CGuild;
+import com.andrew121410.ccbot.guilds.CGuild;
 import com.andrew121410.ccutils.utils.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;

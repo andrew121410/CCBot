@@ -1,7 +1,7 @@
 package com.andrew121410.ccbot.config;
 
 import com.andrew121410.ccbot.CCBotCore;
-import com.andrew121410.ccbot.objects.CGuild;
+import com.andrew121410.ccbot.guilds.CGuild;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
