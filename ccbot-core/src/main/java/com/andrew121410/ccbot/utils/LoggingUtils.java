@@ -58,7 +58,7 @@ public class LoggingUtils {
             if (logChannel == null) return;
             EmbedBuilder logEmbedBuilder = new EmbedBuilder()
                     .setAuthor("Member Joined:", event.getUser().getAvatarUrl(), event.getUser().getAvatarUrl())
-                    .setDescription(event.getUser().getAsMention() + " " + event.getUser().getAsTag())
+                    .setDescription(event.getUser().getAsMention())
                     .addField("More information:", "Account Created: " + event.getUser().getTimeCreated().toLocalDate().toString() + "\nTime since joined: <t:" + time + ":R>", false)
                     .setColor(Color.GREEN)
                     .setThumbnail(event.getUser().getAvatarUrl());
@@ -80,7 +80,7 @@ public class LoggingUtils {
 
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setAuthor("Member Left:", event.getUser().getAvatarUrl(), event.getUser().getAvatarUrl())
-                .setDescription(event.getUser().getAsTag() + " has left the server \uD83D\uDE22")
+                .setDescription(event.getUser().getAsMention() + " has left the server \uD83D\uDE22")
                 .setColor(Color.YELLOW)
                 .setThumbnail(event.getUser().getAvatarUrl());
 
@@ -144,9 +144,16 @@ public class LoggingUtils {
 
         EmbedBuilder embedBuilder;
         if (roleList.size() == 1) {
-            embedBuilder = new EmbedBuilder().setAuthor(event.getUser().getAsTag(), event.getUser().getAvatarUrl(), event.getUser().getAvatarUrl()).setDescription(event.getUser().getAsMention() + " **was given the** " + roleString.toUpperCase() + " **role**").setColor(Color.orange);
-        } else
-            embedBuilder = new EmbedBuilder().setAuthor(event.getUser().getAsTag(), event.getUser().getAvatarUrl(), event.getUser().getAvatarUrl()).setDescription(event.getUser().getAsMention() + " **was given the roles:** " + roleString).setColor(Color.orange);
+            embedBuilder = new EmbedBuilder()
+                    .setAuthor(event.getUser().getName(), event.getUser().getAvatarUrl(), event.getUser().getAvatarUrl())
+                    .setDescription(event.getUser().getAsMention() + " **was given the** " + roleString.toUpperCase() + " **role**")
+                    .setColor(Color.orange);
+        } else {
+            embedBuilder = new EmbedBuilder()
+                    .setAuthor(event.getUser().getName(), event.getUser().getAvatarUrl(), event.getUser().getAvatarUrl())
+                    .setDescription(event.getUser().getAsMention() + " **was given the roles:** " + roleString)
+                    .setColor(Color.orange);
+        }
 
         logChannel.sendMessageEmbeds(embedBuilder.build()).queue();
     }
@@ -163,9 +170,15 @@ public class LoggingUtils {
 
         EmbedBuilder embedBuilder;
         if (roleList.size() == 1) {
-            embedBuilder = new EmbedBuilder().setAuthor(event.getUser().getAsTag(), event.getUser().getAvatarUrl(), event.getUser().getAvatarUrl()).setDescription("**The role** " + roleString.toUpperCase() + " **for** " + event.getUser().getAsMention() + " **has been removed!**").setColor(Color.ORANGE);
+            embedBuilder = new EmbedBuilder()
+                    .setAuthor(event.getUser().getName(), event.getUser().getAvatarUrl(), event.getUser().getAvatarUrl())
+                    .setDescription("**The role** " + roleString.toUpperCase() + " **for** " + event.getUser().getAsMention() + " **has been removed!**")
+                    .setColor(Color.ORANGE);
         } else
-            embedBuilder = new EmbedBuilder().setAuthor(event.getUser().getAsTag(), event.getUser().getAvatarUrl(), event.getUser().getAvatarUrl()).setDescription("**The roles** " + roleString.toUpperCase() + " **for** " + event.getUser().getAsMention() + " **has been removed!**").setColor(Color.ORANGE);
+            embedBuilder = new EmbedBuilder()
+                    .setAuthor(event.getUser().getName(), event.getUser().getAvatarUrl(), event.getUser().getAvatarUrl())
+                    .setDescription("**The roles** " + roleString.toUpperCase() + " **for** " + event.getUser().getAsMention() + " **has been removed!**")
+                    .setColor(Color.ORANGE);
 
         logChannel.sendMessageEmbeds(embedBuilder.build()).queue();
     }
@@ -179,7 +192,7 @@ public class LoggingUtils {
 
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setAuthor("Member Banned:", event.getUser().getAvatarUrl(), event.getUser().getAvatarUrl())
-                .setDescription(event.getUser().getAsMention() + " Has been banned! \u203C")
+                .setDescription(event.getUser().getAsMention() + " Has been banned!")
                 .setColor(Color.RED).setThumbnail(event.getUser().getAvatarUrl());
 
         logChannel.sendMessageEmbeds(embedBuilder.build()).queue();
@@ -192,7 +205,11 @@ public class LoggingUtils {
         TextChannel logChannel = CUtils.findLogChannel(event.getGuild());
         if (logChannel == null) return;
 
-        EmbedBuilder embedBuilder = new EmbedBuilder().setAuthor("Member Unbanned:", event.getUser().getAvatarUrl(), event.getUser().getAvatarUrl()).setDescription(event.getUser().getAsMention() + " " + event.getUser().getAsTag()).setColor(Color.MAGENTA).setThumbnail(event.getUser().getAvatarUrl());
+        EmbedBuilder embedBuilder = new EmbedBuilder()
+                .setAuthor("Member Unbanned:", event.getUser().getAvatarUrl(), event.getUser().getAvatarUrl())
+                .setDescription(event.getUser().getAsMention() + " has been unbanned!")
+                .setColor(Color.MAGENTA)
+                .setThumbnail(event.getUser().getAvatarUrl());
 
         logChannel.sendMessageEmbeds(embedBuilder.build()).queue();
     }
@@ -214,7 +231,7 @@ public class LoggingUtils {
         // This prevents empty messages from being logged (most likely a video or photo was deleted)
         if (message.getMessageRawContent().isEmpty() || message.getMessageRawContent().isBlank()) return;
 
-        EmbedBuilder embedBuilder = new EmbedBuilder().setAuthor(user.getAsTag(), null, user.getAvatarUrl())
+        EmbedBuilder embedBuilder = new EmbedBuilder().setAuthor(user.getName(), null, user.getAvatarUrl())
                 .setDescription("**Message sent by** " + user.getAsMention() + " **has been deleted in** " + event.getChannel().getAsMention())
                 .setColor(Color.RED)
                 .addField("Message Content", message.getMessageRawContent(), false);
@@ -239,7 +256,7 @@ public class LoggingUtils {
         // This prevents messages that are the same from being logged (this happens when a message is pinned for some reason...)
         if (event.getMessage().getContentRaw().equals(message.getMessageRawContent())) return;
 
-        EmbedBuilder embedBuilder = new EmbedBuilder().setAuthor(user.getAsTag(), null, user.getAvatarUrl())
+        EmbedBuilder embedBuilder = new EmbedBuilder().setAuthor(user.getName(), null, user.getAvatarUrl())
                 .setDescription("**Message sent by** " + user.getAsMention() + " **has been edited in** " + event.getChannel().getAsMention())
                 .setColor(Color.YELLOW)
                 .addField("Old Message Content", message.getMessageRawContent(), false)

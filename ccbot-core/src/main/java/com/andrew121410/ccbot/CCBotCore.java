@@ -5,9 +5,9 @@ import com.andrew121410.ccbot.commands.manager.CommandManager;
 import com.andrew121410.ccbot.config.ConfigManager;
 import com.andrew121410.ccbot.config.GuildConfigManager;
 import com.andrew121410.ccbot.downloader.VideoDownloader;
+import com.andrew121410.ccbot.guilds.CGuild;
 import com.andrew121410.ccbot.listeners.CEvents;
 import com.andrew121410.ccbot.msp.MCServerPingerManager;
-import com.andrew121410.ccbot.guilds.CGuild;
 import com.andrew121410.ccbot.utils.CTimer;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,6 +15,7 @@ import lombok.SneakyThrows;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
+import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.hooks.AnnotatedEventManager;
 import net.dv8tion.jda.api.requests.GatewayIntent;
@@ -34,7 +35,7 @@ public class CCBotCore {
     @Getter
     private final Map<String, CGuild> guildMap;
 
-    public static final String VERSION = "2.5";
+    public static final String VERSION = "2.6";
 
     private static CCBotCore instance;
     private final File workingDirectory;
@@ -110,6 +111,8 @@ public class CCBotCore {
 
         // Set the uptime
         this.uptime = System.currentTimeMillis();
+
+        this.jda.getPresence().setActivity(Activity.watching("over"));
     }
 
     public void exit() {
