@@ -51,7 +51,7 @@ public class KickCMD extends AbstractCommand {
             EmbedBuilder embedBuilder = new EmbedBuilder()
                     .setAuthor("CCBot Kick Usage!")
                     .setColor(Color.RED)
-                    .addField("Usage:", this.ccBotCore.getConfigManager().getMainConfig().getPrefix() + "kick <Member>", false);
+                    .addField("Usage:", "```" + this.ccBotCore.getConfigManager().getMainConfig().getPrefix() + "kick <@user>```", false);
             textChannel.sendMessageEmbeds(embedBuilder.build()).queue(a -> a.delete().queueAfter(10, TimeUnit.SECONDS));
         }
         return false;

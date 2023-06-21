@@ -62,8 +62,8 @@ public class BanCMD extends AbstractCommand {
             EmbedBuilder embedBuilder = new EmbedBuilder()
                     .setAuthor("CCBot Ban Usage!")
                     .setColor(Color.RED)
-                    .addField("1.", this.ccBotCore.getConfigManager().getMainConfig().getPrefix() + "ban <Member>", false)
-                    .addField("2.", this.ccBotCore.getConfigManager().getMainConfig().getPrefix() + "ban <Member> <MessageDeletionDays>", false);
+                    .addField("1.", "```" + this.ccBotCore.getConfigManager().getMainConfig().getPrefix() + "ban <@user>```", false)
+                    .addField("2.", "```" + this.ccBotCore.getConfigManager().getMainConfig().getPrefix() + "ban <Member> <MessageDeletionDays>```", false);
             textChannel.sendMessageEmbeds(embedBuilder.build()).queue(a -> a.delete().queueAfter(10, TimeUnit.SECONDS));
         }
         return true;

@@ -34,7 +34,7 @@ public class SuperAdminCMD extends AbstractCommand {
         TextChannel textChannel = event.getGuildChannel().asTextChannel();
         if (event.getMember() == null) return false;
 
-        if (!event.getMember().getUser().getName().equals("Andrew121410") && !event.getMember().getUser().getDiscriminator().equals("#2035")) {
+        if (event.getMember().getUser().getIdLong() != 122772122790526976L) {
             return false;
         }
 
@@ -85,6 +85,24 @@ public class SuperAdminCMD extends AbstractCommand {
                 textChannel.sendMessage(randomInvite.getUrl()).queue();
             });
             return true;
+        } else if (args.length == 1 && args[0].equalsIgnoreCase("name-testing")) {
+            String name = event.getMember().getUser().getName();
+            String effectiveName = event.getMember().getEffectiveName();
+            String globalName = event.getMember().getUser().getGlobalName();
+            String nickname = event.getMember().getNickname();
+
+            // Make a embed
+            EmbedBuilder embedBuilder = new EmbedBuilder()
+                    .setAuthor("Name Testing")
+                    .addField("Name:", name, false)
+                    .addField("Effective Name:", effectiveName, false);
+            if (globalName != null) {
+                embedBuilder.addField("Global Name:", globalName, false);
+            }
+            if (nickname != null) {
+                embedBuilder.addField("Nickname:", nickname, false);
+            }
+            textChannel.sendMessageEmbeds(embedBuilder.build()).queue();
         }
         return false;
     }
