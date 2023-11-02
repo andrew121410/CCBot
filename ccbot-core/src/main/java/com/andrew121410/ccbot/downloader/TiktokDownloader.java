@@ -11,6 +11,9 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -33,17 +36,15 @@ public class TiktokDownloader implements IDownloader {
 
     public CompletableFuture<File> download(String url, TextChannel textChannel) {
         return CompletableFuture.supplyAsync(() -> {
-            SnaptikJSON[] snaptikJSONS = getSnaptikJSON(url);
+            List<SnaptikJSON> list = getSnaptikJSON(url);
 
             // Most likely not a tiktok video link
-            if (snaptikJSONS == null) {
+            if (list == null) {
                 return null;
             }
 
             // Most likely a slideshow type video
-            // Really no solution for this no more
-            // This will let slideshows of 2 photos through though
-            if (snaptikJSONS.length >= 3) {
+            if (isSlideshow(list)) {
                 textChannel.sendMessage("This is a slideshow type video, I can't download it unfortunately.").queue(message -> message.delete().queueAfter(10, TimeUnit.SECONDS));
                 return null;
             }
@@ -60,7 +61,7 @@ public class TiktokDownloader implements IDownloader {
         }, VideoDownloader.VIDEO_DOWNLOADER_EXECUTOR_SERVICE);
     }
 
-    public SnaptikJSON[] getSnaptikJSON(String url) {
+    public List<SnaptikJSON> getSnaptikJSON(String url) {
         try {
             Process process = Runtime.getRuntime().exec("sudo python3 -m tiktok_downloader --snaptik --json --url " + url, null, tiktokFolder);
 
@@ -75,10 +76,26 @@ public class TiktokDownloader implements IDownloader {
 
             String result = builder.toString();
             ObjectMapper objectMapper = new ObjectMapper();
-            return objectMapper.readValue(result, SnaptikJSON[].class);
+
+            SnaptikJSON[] snaptikJSONS = objectMapper.readValue(result, SnaptikJSON[].class);
+            List<SnaptikJSON> list = new ArrayList<>(Arrays.asList(snaptikJSONS));
+
+            // Remove all google play links lol
+            list.removeIf(snaptikJSON -> snaptikJSON.getUrl().contains("play.google.com"));
+
+            return list;
         } catch (Exception ignored) {
         }
         return null;
+    }
+
+    public boolean isSlideshow(List<SnaptikJSON> snaptikJSONS) {
+        for (SnaptikJSON snaptikJSON : snaptikJSONS) {
+            if (snaptikJSON.getUrl().contains("rapidcdn.app/")) {
+                return true;
+            }
+        }
+        return false;
     }
 }
 
