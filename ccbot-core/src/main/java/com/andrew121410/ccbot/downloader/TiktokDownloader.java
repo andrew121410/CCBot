@@ -41,7 +41,9 @@ public class TiktokDownloader implements IDownloader {
             }
 
             // Most likely a slideshow type video
-            if (snaptikJSONS.length >= 2) {
+            // Really no solution for this no more
+            // This will let slideshows of 2 photos through though
+            if (snaptikJSONS.length >= 3) {
                 textChannel.sendMessage("This is a slideshow type video, I can't download it unfortunately.").queue(message -> message.delete().queueAfter(10, TimeUnit.SECONDS));
                 return null;
             }
