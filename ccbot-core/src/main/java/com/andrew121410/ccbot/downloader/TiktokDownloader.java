@@ -2,14 +2,12 @@ package com.andrew121410.ccbot.downloader;
 
 import com.andrew121410.ccbot.CCBotCore;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,21 +41,38 @@ public class TiktokDownloader implements IDownloader {
                 return null;
             }
 
-            // Most likely a slideshow type video
-            if (isSlideshow(list)) {
-                textChannel.sendMessage("This is a slideshow type video, I can't download it unfortunately.").queue(message -> message.delete().queueAfter(10, TimeUnit.SECONDS));
-                return null;
-            }
-
             long time = System.currentTimeMillis() - 1;
-            String fileName = time + ".mp4";
+            String fileName = time + ".noIdea";
             try {
                 Process process = Runtime.getRuntime().exec("sudo python3 -m tiktok_downloader --snaptik --save " + fileName + " --url " + url, null, tiktokFolder);
                 process.waitFor();
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            return new File(tiktokFolder, fileName);
+
+            // Check if it's a mp4 file
+            File file = new File(tiktokFolder, fileName);
+            try {
+                if (isMP4File(file)) {
+                    // Rename the file to the correct name
+                    String newName = time + ".mp4";
+                    File newFile = new File(tiktokFolder, newName);
+                    if (!file.renameTo(newFile)) {
+                        throw new IOException("Failed to rename file: " + file.getAbsolutePath());
+                    }
+
+                    return newFile;
+                } else {
+                    textChannel.sendMessage("This is a slideshow type video, I can't download it unfortunately.").queue(message -> message.delete().queueAfter(10, TimeUnit.SECONDS));
+                    System.out.println("Not a mp4 file: " + file.getAbsolutePath());
+                    if (!file.delete()) throw new IOException("Failed to delete file: " + file.getAbsolutePath());
+                    return null;
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return null;
         }, VideoDownloader.VIDEO_DOWNLOADER_EXECUTOR_SERVICE);
     }
 
@@ -89,13 +104,13 @@ public class TiktokDownloader implements IDownloader {
         return null;
     }
 
-    public boolean isSlideshow(List<SnaptikJSON> snaptikJSONS) {
-        for (SnaptikJSON snaptikJSON : snaptikJSONS) {
-            if (snaptikJSON.getUrl().contains("rapidcdn.app/")) {
-                return true;
-            }
-        }
-        return false;
+    @SneakyThrows
+    public static boolean isMP4File(File file) throws IOException {
+        Process process = Runtime.getRuntime().exec("file -b --mime-type " + file.getAbsolutePath());
+        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        String line = reader.readLine();
+        process.waitFor();
+        return line.equals("video/mp4");
     }
 }
 
