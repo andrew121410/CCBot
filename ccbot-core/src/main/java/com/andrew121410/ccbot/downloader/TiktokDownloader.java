@@ -33,7 +33,6 @@ public class TiktokDownloader implements IDownloader {
     }
 
     public CompletableFuture<File> download(String url, TextChannel textChannel) {
-        //test
         return CompletableFuture.supplyAsync(() -> {
             List<SnaptikJSON> list = getSnaptikJSON(url);
 
