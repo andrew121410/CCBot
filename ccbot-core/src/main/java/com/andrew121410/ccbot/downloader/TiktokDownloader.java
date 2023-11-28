@@ -78,7 +78,7 @@ public class TiktokDownloader implements IDownloader {
 
     public List<SnaptikJSON> getSnaptikJSON(String url) {
         try {
-            Process process = Runtime.getRuntime().exec("sudo python3 -m tiktok_downloader --snaptik --json --url " + url, null, tiktokFolder);
+            Process process = Runtime.getRuntime().exec("sudo python3.11 -m tiktok_downloader --snaptik --json --url " + url, null, tiktokFolder);
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             StringBuilder builder = new StringBuilder();
