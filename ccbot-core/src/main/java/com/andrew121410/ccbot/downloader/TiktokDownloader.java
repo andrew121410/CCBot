@@ -121,5 +121,6 @@ public class TiktokDownloader implements IDownloader {
 class SnaptikJSON {
     private String type;
     private String url;
+    private boolean render;
     private boolean watermark;
 }
