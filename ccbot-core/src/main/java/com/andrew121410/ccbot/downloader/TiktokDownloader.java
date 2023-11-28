@@ -44,7 +44,7 @@ public class TiktokDownloader implements IDownloader {
             long time = System.currentTimeMillis() - 1;
             String fileName = time + ".noIdea";
             try {
-                Process process = Runtime.getRuntime().exec("sudo python3 -m tiktok_downloader --snaptik --save " + fileName + " --url " + url, null, tiktokFolder);
+                Process process = Runtime.getRuntime().exec("sudo python3.11 -m tiktok_downloader --snaptik --save " + fileName + " --url " + url, null, tiktokFolder);
                 process.waitFor();
             } catch (Exception e) {
                 e.printStackTrace();
@@ -63,7 +63,7 @@ public class TiktokDownloader implements IDownloader {
 
                     return newFile;
                 } else {
-                    textChannel.sendMessage("This is a slideshow type video, I can't download it unfortunately.").queue(message -> message.delete().queueAfter(10, TimeUnit.SECONDS));
+                    textChannel.sendMessage("Not a valid video?").queue(message -> message.delete().queueAfter(10, TimeUnit.SECONDS));
                     System.out.println("Not a mp4 file: " + file.getAbsolutePath());
                     if (!file.delete()) throw new IOException("Failed to delete file: " + file.getAbsolutePath());
                     return null;
