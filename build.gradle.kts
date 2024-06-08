@@ -1,6 +1,6 @@
 plugins {
     `java-library`
-    id("io.freefair.lombok") version "8.4" apply false
+    id("io.freefair.lombok") version "8.6" apply false
     id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
