@@ -3,6 +3,7 @@ package com.andrew121410.ccbot.commands;
 import com.andrew121410.ccbot.CCBotCore;
 import com.andrew121410.ccbot.commands.manager.ACommand;
 import com.andrew121410.ccbot.commands.manager.AbstractCommand;
+import com.andrew121410.ccutils.utils.HashBasedUpdater;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Invite;
@@ -39,7 +40,12 @@ public class SuperAdminCMD extends AbstractCommand {
         }
 
         if (args.length == 0) {
-            textChannel.sendMessage("You're honestly not smart.").queue(a -> a.delete().queueAfter(5, TimeUnit.SECONDS));
+            EmbedBuilder embedBuilder = new EmbedBuilder()
+                    .setAuthor("CCBot SuperAdmin Usage!")
+                    .addField("1.", this.ccBotCore.getConfigManager().getMainConfig().getPrefix() + "superadmin guilds", false)
+                    .addField("2.", this.ccBotCore.getConfigManager().getMainConfig().getPrefix() + "superadmin invite <guildId>", false)
+                    .addField("3.", this.ccBotCore.getConfigManager().getMainConfig().getPrefix() + "superadmin name-testing", false);
+            textChannel.sendMessageEmbeds(embedBuilder.build()).queue(a -> a.delete().queueAfter(10, TimeUnit.SECONDS));
         } else if (args[0].equalsIgnoreCase("guilds")) {
             if (args.length == 2 && args[1].equalsIgnoreCase("list")) {
                 StringBuilder stringBuilder = new StringBuilder();
@@ -66,7 +72,8 @@ public class SuperAdminCMD extends AbstractCommand {
                 if (args.length == 1) {
                     EmbedBuilder embedBuilder = new EmbedBuilder()
                             .setAuthor("CCBot SuperAdmin Guilds Usage!")
-                            .addField("1.", this.ccBotCore.getConfigManager().getMainConfig().getPrefix() + "superadmin guilds list", false);
+                            .addField("1.", this.ccBotCore.getConfigManager().getMainConfig().getPrefix() + "superadmin guilds list", false)
+                            .addField("2.", this.ccBotCore.getConfigManager().getMainConfig().getPrefix() + "superadmin guilds leave <guildId>", false);
                     textChannel.sendMessageEmbeds(embedBuilder.build()).queue(a -> a.delete().queueAfter(10, TimeUnit.SECONDS));
                 }
             }
@@ -103,6 +110,29 @@ public class SuperAdminCMD extends AbstractCommand {
                 embedBuilder.addField("Nickname:", nickname, false);
             }
             textChannel.sendMessageEmbeds(embedBuilder.build()).queue();
+        } else if (args.length == 1 && args[0].equalsIgnoreCase("update")) {
+            String latestJar = "https://github.com/andrew121410/CCBot/releases/download/latest/CCBot.jar";
+            String latestHash = "https://github.com/andrew121410/CCBot/releases/download/latest/hash.txt";
+
+            HashBasedUpdater hashBasedUpdater = new HashBasedUpdater(this.ccBotCore.getClass(), latestJar, latestHash);
+
+            if (!hashBasedUpdater.shouldUpdate()) {
+                textChannel.sendMessage("The bot is already up to date!").queue();
+                return false;
+            }
+
+            // Run in a new thread, so we don't block the main thread.
+            Runnable runnable = () -> {
+                textChannel.sendMessage("Updating the bot!").queue();
+                hashBasedUpdater.update();
+
+                textChannel.sendMessage("The bot has been updated! Now restarting...").queue((message) -> {
+                    // Shutdown the bot.
+                    this.ccBotCore.exit();
+                });
+            };
+
+            new Thread(runnable).start();
         }
         return false;
     }
