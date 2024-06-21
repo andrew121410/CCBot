@@ -1,7 +1,8 @@
 plugins {
     `java-library`
-    id("io.freefair.lombok") version "8.6" apply false
-    id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("io.freefair.lombok") version "8.6" apply false // https://plugins.gradle.org/plugin/io.freefair.lombok
+//    id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("io.github.goooler.shadow") version "8.1.7" // https://github.com/johnrengelman/shadow/pull/876 https://github.com/Goooler/shadow https://plugins.gradle.org/plugin/io.github.goooler.shadow
 }
 
 allprojects {
@@ -12,7 +13,7 @@ allprojects {
 subprojects {
     apply(plugin = "java-library")
     apply(plugin = "io.freefair.lombok")
-    apply(plugin = "com.github.johnrengelman.shadow")
+    apply(plugin = "io.github.goooler.shadow")
 
     repositories {
         mavenCentral()
@@ -28,8 +29,8 @@ subprojects {
     }
 
     java {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
 
     tasks.withType<JavaCompile> {

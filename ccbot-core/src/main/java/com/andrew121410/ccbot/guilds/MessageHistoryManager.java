@@ -1,12 +1,12 @@
 package com.andrew121410.ccbot.guilds;
 
 import com.andrew121410.ccbot.CCBotCore;
+import com.andrew121410.ccutils.dependencies.google.common.collect.Multimap;
 import com.andrew121410.ccutils.storage.ISQL;
 import com.andrew121410.ccutils.storage.SQLite;
 import com.andrew121410.ccutils.storage.easy.EasySQL;
 import com.andrew121410.ccutils.storage.easy.MultiTableEasySQL;
 import com.andrew121410.ccutils.storage.easy.SQLDataStore;
-import com.google.common.collect.Multimap;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
