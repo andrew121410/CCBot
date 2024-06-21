@@ -19,6 +19,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
@@ -86,17 +87,26 @@ public class MCServerPingerManager {
                             aMinecraftServer.setTimeOfOffline(System.currentTimeMillis());
 
                             EmbedBuilder embedBuilder = new EmbedBuilder();
-                            embedBuilder.setColor(Color.RED);
-                            embedBuilder.setTitle(aMinecraftServer.getName() + " is offline!");
-                            embedBuilder.setDescription("The Minecraft Server `" + aMinecraftServer.getIp() + ":" + aMinecraftServer.getPort() + "` is offline!");
+                            embedBuilder.setColor(new Color(255, 100, 100)); // Custom color
+                            embedBuilder.setTitle("**" + aMinecraftServer.getName() + "** is offline!"); // Bold title
+                            embedBuilder.setDescription("The Minecraft Server is offline!");
 
-                            // Send the message
+                            embedBuilder.addField("IP", "`" + aMinecraftServer.getIp() + "`", true);
+
+                            // If the port is not the default port (25565)
+                            if (aMinecraftServer.getPort() != 25565) {
+                                embedBuilder.addField("Port", "`" + aMinecraftServer.getPort() + "`", true);
+                            }
+
                             if (doesIconExist(aMinecraftServer)) { // Send the message with the icon.
                                 embedBuilder.setThumbnail("attachment://server.png");
                                 textChannel.sendFiles(FileUpload.fromData(getIconFile(aMinecraftServer), "server.png")).setEmbeds(embedBuilder.build()).queue();
                             } else { // Send the message without the icon.
                                 textChannel.sendMessageEmbeds(embedBuilder.build()).queue();
                             }
+
+                            embedBuilder.setFooter("Server Status", null);
+                            embedBuilder.setTimestamp(Instant.now()); // Current timestamp
 
                             aMinecraftServer.setSentMessage(true);
                         }
@@ -108,14 +118,22 @@ public class MCServerPingerManager {
                             if (textChannel == null) return;
 
                             EmbedBuilder embedBuilder = new EmbedBuilder();
-                            embedBuilder.setColor(Color.GREEN);
-                            embedBuilder.setTitle(aMinecraftServer.getName() + " is online!");
+                            embedBuilder.setColor(new Color(100, 255, 100)); // Custom color
+                            embedBuilder.setTitle("**" + aMinecraftServer.getName() + "** is online!"); // Bold title
 
                             if (aMinecraftServer.getTimeOfOffline() != 0L) {
-                                embedBuilder.setDescription("The Minecraft Server `" + aMinecraftServer.getIp() + ":" + aMinecraftServer.getPort() + "` is online!"
-                                        + "\n\rThe server was offline for " + TimeUtils.makeIntoEnglishWords(aMinecraftServer.getTimeOfOffline(), System.currentTimeMillis(), true, false));
+                                embedBuilder.setDescription("The Minecraft Server is online!"
+                                        + "\n\rThe server was offline for " + TimeUtils.makeIntoEnglishWords(aMinecraftServer.getTimeOfOffline(), System.currentTimeMillis(), false, false));
                             } else {
-                                embedBuilder.setDescription("The Minecraft Server `" + aMinecraftServer.getIp() + ":" + aMinecraftServer.getPort() + "` is online!");
+                                embedBuilder.setDescription("The Minecraft Server is online!");
+                            }
+
+                            // Add fields
+                            embedBuilder.addField("IP", "`" + aMinecraftServer.getIp() + "`", true);
+
+                            // If the port is not the default port (25565)
+                            if (aMinecraftServer.getPort() != 25565) {
+                                embedBuilder.addField("Port", "`" + aMinecraftServer.getPort() + "`", true);
                             }
 
                             // Send the message
@@ -125,6 +143,10 @@ public class MCServerPingerManager {
                             } else { // Send the message without the icon.
                                 textChannel.sendMessageEmbeds(embedBuilder.build()).queue();
                             }
+
+                            // Add footer and timestamp
+                            embedBuilder.setFooter("Server Status", null); // You can replace null with a URL of an icon for the footer
+                            embedBuilder.setTimestamp(Instant.now()); // Current timestamp
 
                             aMinecraftServer.setSentMessage(false);
                         }
