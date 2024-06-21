@@ -29,7 +29,8 @@ public class HelpCMD extends AbstractCommand {
         String prefix = this.ccBotCore.getConfigManager().getMainConfig().getPrefix();
 
         String basicHelp = prefix + "help"
-                + "\r\n" + " " + prefix + "tag";
+                + "\r\n" + " " + prefix + "tag"
+                + "\r\n" + " " + prefix + "uptime";
 
         String adminHelp = prefix + "ban"
                 + "\r\n" + " " + prefix + "kick"
@@ -47,7 +48,7 @@ public class HelpCMD extends AbstractCommand {
                 .addField("Basic Commands!", basicHelp, false)
                 .addField("Admin Commands!", adminHelp, false)
                 .addField("Addon Commands!", addonHelp, false)
-                .setFooter("CCBot | Version: " + CCBotCore.VERSION + " | Developed by Andrew121410#2035");
+                .setFooter("CCBot | Version: " + CCBotCore.VERSION + " | Developed by Andrew121410");
 
         textChannel.sendMessageEmbeds(embedBuilder.build()).queue();
     }

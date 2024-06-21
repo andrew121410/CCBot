@@ -35,7 +35,7 @@ public class CCBotCore {
     @Getter
     private final Map<String, CGuild> guildMap;
 
-    public static final String VERSION = "2.6";
+    public static final String VERSION = "2.8";
 
     private static CCBotCore instance;
     private final File workingDirectory;
