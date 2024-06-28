@@ -111,9 +111,9 @@ public class MCServerPingerManager {
                 embedBuilder.setColor(new Color(255, 100, 100)); // Custom color
                 embedBuilder.setTitle("**" + aMinecraftServer.getName() + "** is offline!"); // Bold title
 
-                // Use <t:{timestamp}:R> to make it more descriptive.
-                embedBuilder.setDescription("The Minecraft Server is offline!"
-                        + "\n\rThe server has been offline for <t:" + aMinecraftServer.getTimeOfOffline() / 1000 + ":R>");
+                // Set the description
+                embedBuilder.setDescription("The " + aMinecraftServer.getName() + " Minecraft Server is offline!"
+                        + "\n\rThe server has been offline since <t:" + aMinecraftServer.getTimeOfOffline() / 1000 + ":R>");
 
                 embedBuilder.addField("IP", "`" + aMinecraftServer.getIp() + "`", true);
 
@@ -145,10 +145,10 @@ public class MCServerPingerManager {
                 embedBuilder.setTitle("**" + aMinecraftServer.getName() + "** is online!"); // Bold title
 
                 if (aMinecraftServer.getTimeOfOffline() != 0L) {
-                    embedBuilder.setDescription("The Minecraft Server is online!"
+                    embedBuilder.setDescription("The " + aMinecraftServer.getName() + " Minecraft Server is online!"
                             + "\n\rThe server was offline for " + TimeUtils.makeIntoEnglishWords(aMinecraftServer.getTimeOfOffline(), System.currentTimeMillis(), false, false));
                 } else {
-                    embedBuilder.setDescription("The Minecraft Server is online!");
+                    embedBuilder.setDescription("The " + aMinecraftServer.getName() + " Minecraft Server is online!");
                 }
 
                 // Add fields
