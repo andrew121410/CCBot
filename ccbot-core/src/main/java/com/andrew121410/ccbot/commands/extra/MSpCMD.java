@@ -60,7 +60,7 @@ public class MSpCMD extends AbstractCommand {
                     //+ "\r\n" +
                     prefix + "msp maxAttempts <ip> <int> -> (default: 3) - The max attempts until we send a message that the server is offline."
                             + "\r\n" + prefix + "msp channel <ip> -> Change where the message is sent when the server goes online or offline. (Changes to this text channel)"
-                            + "\r\n" + prefix + "msp beMoreDescriptive <ip> <true/false> -> (default: false) - This will make the message more descriptive."
+//                            + "\r\n" + prefix + "msp beMoreDescriptive <ip> <true/false> -> (default: false) - This will make the message more descriptive."
                     , false);
 
             // Show the list of servers if there are any
