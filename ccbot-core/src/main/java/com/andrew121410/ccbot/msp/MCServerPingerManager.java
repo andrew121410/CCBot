@@ -22,10 +22,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class MCServerPingerManager {
@@ -34,7 +31,7 @@ public class MCServerPingerManager {
     @Getter
     private AtomicLong lastRan = new AtomicLong(0L);
 
-    public static final ScheduledExecutorService SCHEDULED_EXECUTOR_SERVICE = Executors.newSingleThreadScheduledExecutor();
+    public static final ScheduledExecutorService SCHEDULED_EXECUTOR_SERVICE = Executors.newScheduledThreadPool(4); // Use a thread pool
 
     public MCServerPingerManager(CCBotCore ccBotCore) {
         this.ccBotCore = ccBotCore;
@@ -67,96 +64,114 @@ public class MCServerPingerManager {
                 Guild guild = this.ccBotCore.getJda().getGuildById(cGuild.getGuildId());
                 List<AMinecraftServer> aMinecraftServers = cGuild.getaMinecraftServers();
 
-                for (AMinecraftServer aMinecraftServer : aMinecraftServers) {
-                    MinecraftServerStatus serverStatus = getServerStatus(aMinecraftServer);
-                    if (serverStatus == null) return;
+                aMinecraftServers.parallelStream().forEach(aMinecraftServer -> {
+                    ExecutorService executor = Executors.newSingleThreadExecutor();
+                    Future<?> future = executor.submit(() -> {
+                        MinecraftServerStatus serverStatus = getServerStatus(aMinecraftServer);
+                        if (serverStatus == null) return;
 
-                    if (!serverStatus.getOnline()) { // If the server is offline.
-                        // Add 1 to the attempts.
-                        aMinecraftServer.setAttempts(aMinecraftServer.getAttempts() + 1);
+                        handleServerStatus(aMinecraftServer, serverStatus, guild);
+                    });
 
-                        // Don't let the attempts go over 100.
-                        if (aMinecraftServer.getAttempts() >= 100) aMinecraftServer.setAttempts(5);
-
-                        // Send the message if the attempts are over the max attempts, and if the message hasn't been sent.
-                        if (aMinecraftServer.getAttempts() >= aMinecraftServer.getMaxAttempts() && !aMinecraftServer.isSentMessage()) {
-                            TextChannel textChannel = guild.getTextChannelById(aMinecraftServer.getChannelId());
-                            if (textChannel == null) return;
-
-                            // Set the time of offline
-                            aMinecraftServer.setTimeOfOffline(System.currentTimeMillis());
-
-                            EmbedBuilder embedBuilder = new EmbedBuilder();
-                            embedBuilder.setColor(new Color(255, 100, 100)); // Custom color
-                            embedBuilder.setTitle("**" + aMinecraftServer.getName() + "** is offline!"); // Bold title
-                            embedBuilder.setDescription("The Minecraft Server is offline!");
-
-                            embedBuilder.addField("IP", "`" + aMinecraftServer.getIp() + "`", true);
-
-                            // If the port is not the default port (25565)
-                            if (aMinecraftServer.getPort() != 25565) {
-                                embedBuilder.addField("Port", "`" + aMinecraftServer.getPort() + "`", true);
-                            }
-
-                            if (doesIconExist(aMinecraftServer)) { // Send the message with the icon.
-                                embedBuilder.setThumbnail("attachment://server.png");
-                                textChannel.sendFiles(FileUpload.fromData(getIconFile(aMinecraftServer), "server.png")).setEmbeds(embedBuilder.build()).queue();
-                            } else { // Send the message without the icon.
-                                textChannel.sendMessageEmbeds(embedBuilder.build()).queue();
-                            }
-
-                            embedBuilder.setFooter("Server Status", null);
-                            embedBuilder.setTimestamp(Instant.now()); // Current timestamp
-
-                            aMinecraftServer.setSentMessage(true);
-                        }
-                    } else { // If the server is online.
-                        aMinecraftServer.setAttempts(0);
-
-                        if (aMinecraftServer.isSentMessage()) {
-                            TextChannel textChannel = guild.getTextChannelById(aMinecraftServer.getChannelId());
-                            if (textChannel == null) return;
-
-                            EmbedBuilder embedBuilder = new EmbedBuilder();
-                            embedBuilder.setColor(new Color(100, 255, 100)); // Custom color
-                            embedBuilder.setTitle("**" + aMinecraftServer.getName() + "** is online!"); // Bold title
-
-                            if (aMinecraftServer.getTimeOfOffline() != 0L) {
-                                embedBuilder.setDescription("The Minecraft Server is online!"
-                                        + "\n\rThe server was offline for " + TimeUtils.makeIntoEnglishWords(aMinecraftServer.getTimeOfOffline(), System.currentTimeMillis(), false, false));
-                            } else {
-                                embedBuilder.setDescription("The Minecraft Server is online!");
-                            }
-
-                            // Add fields
-                            embedBuilder.addField("IP", "`" + aMinecraftServer.getIp() + "`", true);
-
-                            // If the port is not the default port (25565)
-                            if (aMinecraftServer.getPort() != 25565) {
-                                embedBuilder.addField("Port", "`" + aMinecraftServer.getPort() + "`", true);
-                            }
-
-                            // Send the message
-                            if (doesIconExist(aMinecraftServer)) { // Send the message with the icon.
-                                embedBuilder.setThumbnail("attachment://server.png");
-                                textChannel.sendFiles(FileUpload.fromData(getIconFile(aMinecraftServer), "server.png")).setEmbeds(embedBuilder.build()).queue();
-                            } else { // Send the message without the icon.
-                                textChannel.sendMessageEmbeds(embedBuilder.build()).queue();
-                            }
-
-                            // Add footer and timestamp
-                            embedBuilder.setFooter("Server Status", null); // You can replace null with a URL of an icon for the footer
-                            embedBuilder.setTimestamp(Instant.now()); // Current timestamp
-
-                            aMinecraftServer.setSentMessage(false);
-                        }
+                    try {
+                        future.get(30, TimeUnit.SECONDS); // Set your timeout duration
+                    } catch (TimeoutException e) {
+                        future.cancel(true); // Cancel the task if it times out
+                        System.out.println("Task timed out and was cancelled.");
+                    } catch (InterruptedException | ExecutionException e) {
+                        e.printStackTrace();
+                    } finally {
+                        executor.shutdown();
                     }
-                }
+                });
             }
             lastRan.set(System.currentTimeMillis());
         };
 
         SCHEDULED_EXECUTOR_SERVICE.scheduleAtFixedRate(runnable, 0, 1, TimeUnit.MINUTES);
+    }
+
+    private void handleServerStatus(AMinecraftServer aMinecraftServer, MinecraftServerStatus serverStatus, Guild guild) {
+        if (!serverStatus.getOnline()) { // If the server is offline.
+            // Add 1 to the attempts.
+            aMinecraftServer.setAttempts(aMinecraftServer.getAttempts() + 1);
+
+            // Don't let the attempts go over 100.
+            if (aMinecraftServer.getAttempts() >= 100) aMinecraftServer.setAttempts(5);
+
+            // Send the message if the attempts are over the max attempts, and if the message hasn't been sent.
+            if (aMinecraftServer.getAttempts() >= aMinecraftServer.getMaxAttempts() && !aMinecraftServer.isSentMessage()) {
+                TextChannel textChannel = guild.getTextChannelById(aMinecraftServer.getChannelId());
+                if (textChannel == null) return;
+
+                // Set the time of offline
+                aMinecraftServer.setTimeOfOffline(System.currentTimeMillis());
+
+                EmbedBuilder embedBuilder = new EmbedBuilder();
+                embedBuilder.setColor(new Color(255, 100, 100)); // Custom color
+                embedBuilder.setTitle("**" + aMinecraftServer.getName() + "** is offline!"); // Bold title
+
+                // Use <t:{timestamp}:R> to make it more descriptive.
+                embedBuilder.setDescription("The Minecraft Server is offline!"
+                        + "\n\rThe server has been offline for <t:" + aMinecraftServer.getTimeOfOffline() / 1000 + ":R>");
+
+                embedBuilder.addField("IP", "`" + aMinecraftServer.getIp() + "`", true);
+
+                // If the port is not the default port (25565)
+                if (aMinecraftServer.getPort() != 25565) {
+                    embedBuilder.addField("Port", "`" + aMinecraftServer.getPort() + "`", true);
+                }
+
+                embedBuilder.setTimestamp(Instant.now()); // Current timestamp
+
+                if (doesIconExist(aMinecraftServer)) { // Send the message with the icon.
+                    embedBuilder.setThumbnail("attachment://server.png");
+                    textChannel.sendFiles(FileUpload.fromData(getIconFile(aMinecraftServer), "server.png")).setEmbeds(embedBuilder.build()).queue();
+                } else { // Send the message without the icon.
+                    textChannel.sendMessageEmbeds(embedBuilder.build()).queue();
+                }
+
+                aMinecraftServer.setSentMessage(true);
+            }
+        } else { // If the server is online.
+            aMinecraftServer.setAttempts(0);
+
+            if (aMinecraftServer.isSentMessage()) {
+                TextChannel textChannel = guild.getTextChannelById(aMinecraftServer.getChannelId());
+                if (textChannel == null) return;
+
+                EmbedBuilder embedBuilder = new EmbedBuilder();
+                embedBuilder.setColor(new Color(100, 255, 100)); // Custom color
+                embedBuilder.setTitle("**" + aMinecraftServer.getName() + "** is online!"); // Bold title
+
+                if (aMinecraftServer.getTimeOfOffline() != 0L) {
+                    embedBuilder.setDescription("The Minecraft Server is online!"
+                            + "\n\rThe server was offline for " + TimeUtils.makeIntoEnglishWords(aMinecraftServer.getTimeOfOffline(), System.currentTimeMillis(), false, false));
+                } else {
+                    embedBuilder.setDescription("The Minecraft Server is online!");
+                }
+
+                // Add fields
+                embedBuilder.addField("IP", "`" + aMinecraftServer.getIp() + "`", true);
+
+                // If the port is not the default port (25565)
+                if (aMinecraftServer.getPort() != 25565) {
+                    embedBuilder.addField("Port", "`" + aMinecraftServer.getPort() + "`", true);
+                }
+
+                embedBuilder.setTimestamp(Instant.now()); // Current timestamp
+
+                // Send the message
+                if (doesIconExist(aMinecraftServer)) { // Send the message with the icon.
+                    embedBuilder.setThumbnail("attachment://server.png");
+                    textChannel.sendFiles(FileUpload.fromData(getIconFile(aMinecraftServer), "server.png")).setEmbeds(embedBuilder.build()).queue();
+                } else { // Send the message without the icon.
+                    textChannel.sendMessageEmbeds(embedBuilder.build()).queue();
+                }
+
+                aMinecraftServer.setSentMessage(false);
+            }
+        }
     }
 
     private MinecraftServerStatus getServerStatus(AMinecraftServer aMinecraftServer) {
@@ -214,10 +229,16 @@ public class MCServerPingerManager {
     }
 
     private void deleteAllIcons() {
-        File file = new File(this.ccBotCore.getWorkingDirectory(), "mc-server-icons");
-        if (!file.exists()) return;
-        for (File file1 : Objects.requireNonNull(file.listFiles())) {
-            file1.delete();
+        File directory = new File(this.ccBotCore.getWorkingDirectory(), "mc-server-icons");
+        if (directory.exists()) {
+            File[] files = directory.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    if (!file.isDirectory()) {
+                        file.delete();
+                    }
+                }
+            }
         }
     }
 }

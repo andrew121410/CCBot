@@ -4,9 +4,9 @@ import com.andrew121410.ccbot.CCBotCore;
 import com.andrew121410.ccbot.commands.manager.ACommand;
 import com.andrew121410.ccbot.commands.manager.AbstractCommand;
 import com.andrew121410.ccbot.commands.manager.CommandManager;
+import com.andrew121410.ccbot.guilds.CGuild;
 import com.andrew121410.ccbot.msp.AMinecraftServer;
 import com.andrew121410.ccbot.msp.MCServerPingerManager;
-import com.andrew121410.ccbot.guilds.CGuild;
 import com.andrew121410.ccutils.utils.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -58,7 +58,10 @@ public class MSpCMD extends AbstractCommand {
             embedBuilder.addField("Settings",
 //                    prefix + "msp useStatusWebsiteAPI <ip> <true/false> -> (default: false) - This will use https://mcsrvstat.us/ to get the status of the server."
                     //+ "\r\n" +
-                    prefix + "msp maxAttempts <ip> <int> -> (default: 3) - The max attempts until we send a message that the server is offline.", false);
+                    prefix + "msp maxAttempts <ip> <int> -> (default: 3) - The max attempts until we send a message that the server is offline."
+                            + "\r\n" + prefix + "msp channel <ip> -> Change where the message is sent when the server goes online or offline. (Changes to this text channel)"
+                            + "\r\n" + prefix + "msp beMoreDescriptive <ip> <true/false> -> (default: false) - This will make the message more descriptive."
+                    , false);
 
             // Show the list of servers if there are any
             if (cGuild.getaMinecraftServers().size() > 0) {
@@ -71,12 +74,25 @@ public class MSpCMD extends AbstractCommand {
 
             textChannel.sendMessageEmbeds(embedBuilder.build()).queue();
             return true;
-        } else if (args.length >= 4 && args[0].equalsIgnoreCase("add")) {
+        } else if (args.length >= 3 && args[0].equalsIgnoreCase("add")) {
             String ip = args[1];
-            String port = args[2];
-            String name = String.join(" ", Arrays.copyOfRange(args, 3, args.length));
+            Integer port;
+            String name;
 
-            this.mcServerPingerManager.add(event.getGuild(), new AMinecraftServer(textChannel.getIdLong(), name, ip, Integer.parseInt(port)));
+            if (args.length >= 4) {
+                port = Utils.asIntegerOrElse(args[2], 0); // default Minecraft port
+                name = String.join(" ", Arrays.copyOfRange(args, 3, args.length));
+            } else {
+                port = 25565; // default Minecraft port
+                name = String.join(" ", Arrays.copyOfRange(args, 2, args.length));
+            }
+
+            if (port == 0) {
+                textChannel.sendMessage("Invalid port!").queue();
+                return true;
+            }
+
+            this.mcServerPingerManager.add(event.getGuild(), new AMinecraftServer(textChannel.getIdLong(), name, ip, port));
             textChannel.sendMessage("Adding " + ip + ":" + port + " with the name " + name).queue();
             return true;
         } else if (args.length == 2 && args[0].equalsIgnoreCase("remove")) {
@@ -130,6 +146,33 @@ public class MSpCMD extends AbstractCommand {
                 });
             }
             return true;
+        } else if (args[0].equalsIgnoreCase("channel")) {
+            if (args.length == 1) { // Send usage
+                textChannel.sendMessage(prefix + "msp channel <ip>").queue();
+                return true;
+            } else if (args.length == 2) {
+                String ip = args[1];
+
+                cGuild.getaMinecraftServers().stream().filter(aMinecraftServer -> aMinecraftServer.getIp().equalsIgnoreCase(ip)).findFirst().ifPresent(aMinecraftServer -> {
+                    aMinecraftServer.setChannelId(textChannel.getIdLong());
+                    textChannel.sendMessage("Set " + aMinecraftServer.getIp() + " channel to -> " + aMinecraftServer.getChannelId()).queue();
+                });
+            }
+            return true;
+//        } else if (args[0].equalsIgnoreCase("beMoreDescriptive")) {
+//            if (args.length == 1) { // Send usage
+//                textChannel.sendMessage(prefix + "msp beMoreDescriptive <ip> <true/false>").queue();
+//                return true;
+//            } else if (args.length == 3) {
+//                String ip = args[1];
+//                boolean beMoreDescriptive = Utils.asBooleanOrElse(args[2], false);
+//
+//                cGuild.getaMinecraftServers().stream().filter(aMinecraftServer -> aMinecraftServer.getIp().equalsIgnoreCase(ip)).findFirst().ifPresent(aMinecraftServer -> {
+//                    aMinecraftServer.setBeMoreDescriptive(beMoreDescriptive);
+//                    textChannel.sendMessage("Set " + aMinecraftServer.getIp() + " beMoreDescriptive to -> " + aMinecraftServer.isBeMoreDescriptive()).queue();
+//                });
+//            }
+//            return true;
         } else if (args[0].equalsIgnoreCase("isThreadFrozen")) {
             AtomicLong seeIfFrozen = this.ccBotCore.getMcServerPingerManager().getLastRan();
 

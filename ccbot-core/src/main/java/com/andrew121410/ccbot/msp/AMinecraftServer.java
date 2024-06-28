@@ -33,6 +33,8 @@ public class AMinecraftServer {
     // User Settings
     @JsonProperty("max-attempts")
     private int maxAttempts = 3;
+//    @JsonProperty("beMoreDescriptive")
+//    private boolean beMoreDescriptive = false;
 
     public AMinecraftServer(long channelId, String name, String ip, int port) {
         this.channelId = channelId;
