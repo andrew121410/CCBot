@@ -2,7 +2,7 @@ plugins {
     `java-library`
     id("io.freefair.lombok") version "8.6" apply false // https://plugins.gradle.org/plugin/io.freefair.lombok
 //    id("com.github.johnrengelman.shadow") version "8.1.1"
-    id("io.github.goooler.shadow") version "8.1.7" // https://github.com/johnrengelman/shadow/pull/876 https://github.com/Goooler/shadow https://plugins.gradle.org/plugin/io.github.goooler.shadow
+    id("io.github.goooler.shadow") version "8.1.8" // https://github.com/johnrengelman/shadow/pull/876 https://github.com/Goooler/shadow https://plugins.gradle.org/plugin/io.github.goooler.shadow
 }
 
 allprojects {
