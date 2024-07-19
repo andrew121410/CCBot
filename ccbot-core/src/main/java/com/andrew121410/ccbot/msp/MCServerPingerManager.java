@@ -7,7 +7,6 @@ import com.andrew121410.ccbot.CCBotCore;
 import com.andrew121410.ccbot.guilds.CGuild;
 import com.andrew121410.ccutils.utils.TimeUtils;
 import lombok.Getter;
-import lombok.SneakyThrows;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
@@ -23,6 +22,7 @@ import java.time.Instant;
 import java.util.Base64;
 import java.util.List;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class MCServerPingerManager {
@@ -57,33 +57,38 @@ public class MCServerPingerManager {
         cGuild.getaMinecraftServers().clear();
     }
 
-    @SneakyThrows
     public void setupTimer() {
         Runnable runnable = () -> {
+            AtomicBoolean isRunning = new AtomicBoolean(false);
+
             for (CGuild cGuild : this.ccBotCore.getGuildMap().values()) {
                 Guild guild = this.ccBotCore.getJda().getGuildById(cGuild.getGuildId());
                 List<AMinecraftServer> aMinecraftServers = cGuild.getaMinecraftServers();
 
-                aMinecraftServers.parallelStream().forEach(aMinecraftServer -> {
-                    ExecutorService executor = Executors.newSingleThreadExecutor();
-                    Future<?> future = executor.submit(() -> {
-                        MinecraftServerStatus serverStatus = getServerStatus(aMinecraftServer);
-                        if (serverStatus == null) return;
-
-                        handleServerStatus(aMinecraftServer, serverStatus, guild);
-                    });
-
+                CompletableFuture<Void> completableFuture = CompletableFuture.runAsync(() -> {
                     try {
-                        future.get(30, TimeUnit.SECONDS); // Set your timeout duration
-                    } catch (TimeoutException e) {
-                        future.cancel(true); // Cancel the task if it times out
-                        System.out.println("Task timed out and was cancelled.");
-                    } catch (InterruptedException | ExecutionException e) {
-                        e.printStackTrace();
+                        if (isRunning.get()) return;
+                        isRunning.set(true);
+
+                        for (AMinecraftServer aMinecraftServer : aMinecraftServers) {
+                            MinecraftServerStatus serverStatus = getServerStatus(aMinecraftServer);
+                            if (serverStatus == null) return;
+
+                            handleServerStatus(aMinecraftServer, serverStatus, guild);
+                        }
                     } finally {
-                        executor.shutdown();
+                        isRunning.set(false);
                     }
                 });
+
+                completableFuture.orTimeout(1, TimeUnit.MINUTES)
+                        .exceptionally(e -> {
+                            if (e instanceof TimeoutException) {
+                                isRunning.set(false);
+                                System.out.println("The task did not complete within 1 minute.");
+                            }
+                            return null;
+                        });
             }
             lastRan.set(System.currentTimeMillis());
         };
