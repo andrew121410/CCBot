@@ -80,9 +80,14 @@ public class LoggingUtils {
 
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setAuthor("Member Left:", event.getUser().getAvatarUrl(), event.getUser().getAvatarUrl())
-                .setDescription(event.getUser().getAsMention() + " has left the server \uD83D\uDE22")
+                .setDescription(event.getUser().getName() + " has left the server \uD83D\uDE22")
                 .setColor(Color.YELLOW)
                 .setThumbnail(event.getUser().getAvatarUrl());
+
+        // If the user doesn't have the same name as their effective name, then add the effective name to the embed message
+        if (!event.getUser().getName().equals(event.getUser().getEffectiveName())) {
+            embedBuilder.addField("Effective Name", event.getUser().getEffectiveName(), false);
+        }
 
         textChannel.sendMessageEmbeds(embedBuilder.build()).queue();
     }
