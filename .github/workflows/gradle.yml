@@ -1,4 +1,4 @@
-name: Java CI with Gradle
+name: Build and Release
 
 on:
   push:
@@ -8,14 +8,19 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    env:
+      MY_JAR: "ccbot-launcher/build/libs/CCBot.jar"
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4 # https://github.com/actions/checkout
+
+      - name: Setup Gradle # https://github.com/gradle/actions
+        uses: gradle/actions/setup-gradle@v4
 
       - name: Chmod Gradlew
         run: chmod +x ./gradlew
 
-      - name: Set up JDK 21
+      - name: Set up JDK 21 # https://github.com/actions/setup-java
         uses: actions/setup-java@v4
         with:
           java-version: '21'
@@ -23,12 +28,10 @@ jobs:
           cache: gradle
 
       - name: Build with Gradle
-        uses: gradle/actions/setup-gradle@v3
-        with:
-          arguments: build
+        run: ./gradlew build
 
       - name: Generate sha256sum
-        run: sha256sum ccbot-launcher/build/libs/CCBot.jar >> hash.txt
+        run: sha256sum "$MY_JAR" >> hash.txt
 
       - name: Deploy Release With Artifact
         uses: "marvinpinto/action-automatic-releases@latest"
@@ -37,5 +40,5 @@ jobs:
           automatic_release_tag: "latest"
           prerelease: false
           files: |
-            ccbot-launcher/build/libs/CCBot.jar
+            ${{ env.MY_JAR }}
             hash.txt
