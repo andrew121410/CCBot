@@ -12,7 +12,7 @@ allprojects {
 subprojects {
     apply(plugin = "java-library")
     apply(plugin = "io.freefair.lombok")
-    apply(plugin = "io.github.goooler.shadow")
+    apply(plugin = "com.gradleup.shadow")
 
     repositories {
         mavenCentral()
