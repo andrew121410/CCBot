@@ -5,7 +5,7 @@ plugins {
 description = "CCBot-Core"
 
 dependencies {
-    api("net.dv8tion:JDA:5.2.3")   // https://mvnrepository.com/artifact/net.dv8tion/JDA
+    api("net.dv8tion:JDA:5.3.0")   // https://mvnrepository.com/artifact/net.dv8tion/JDA
     api("org.reflections:reflections:0.10.2") // https://mvnrepository.com/artifact/org.reflections/reflections
     api("com.github.andrew121410:CCUtilsJava:b3c9a23201")
     api("com.github.andrew121410:minecraft-server-ping:2e7159a5ff")
