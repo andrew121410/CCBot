@@ -7,8 +7,8 @@ description = "CCBot-Core"
 dependencies {
     api("net.dv8tion:JDA:5.3.0")   // https://mvnrepository.com/artifact/net.dv8tion/JDA
     api("org.reflections:reflections:0.10.2") // https://mvnrepository.com/artifact/org.reflections/reflections
-    api("com.github.andrew121410:CCUtilsJava:b3c9a23201")
-    api("com.github.andrew121410:minecraft-server-ping:2e7159a5ff")
+    api("com.github.andrew121410:CCUtilsJava:70604a9b7b")
+    api("com.github.andrew121410:minecraft-server-ping:6b0ea96f9f")
 
     // Jackson -> https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core
     val jacksonVersion = "2.18.2"
