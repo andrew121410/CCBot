@@ -183,6 +183,16 @@ public class MCServerPingerManager {
         try {
             MCPingResponse response = MCPing.getPing(options);
 
+            // Try to be smart sometimes the proxy might be online but the server is offline.
+            // Test to see if the description has the word "offline" or "maintenance" in it.
+            if (response.getDescription() != null) {
+                String description = response.getDescription().getStrippedText();
+                if (description.contains("offline") || description.contains("maintenance")) {
+                    System.out.println("MSP - Smart detection: " + aMinecraftServer.getIp() + ":" + aMinecraftServer.getPort() + " is offline.");
+                    return new MinecraftServerStatus(false, null);
+                }
+            }
+
             // Save the icon
             saveIcon(aMinecraftServer, response.getFavicon());
 
