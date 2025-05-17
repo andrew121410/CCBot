@@ -43,13 +43,20 @@ public class LoggingUtils {
         long time = Instant.now().getEpochSecond();
 
         if (cGuild.getSettings().getWelcomeMessages() && event.getGuild().getSystemChannel() != null) {
-            EmbedBuilder embedBuilder;
             TextChannel welcomeChannel = CUtils.findTextChannel(event.getGuild().getTextChannels(), "rules", "chat-rules", "rules-and-info");
-            if (welcomeChannel != null && cGuild.getSettings().getWelcomeMessages() && event.getGuild().getSystemChannel() != null) {
-                embedBuilder = new EmbedBuilder().setAuthor("Welcome!", event.getUser().getAvatarUrl(), event.getUser().getAvatarUrl()).setTitle("Welcome! to the " + event.getGuild().getName()).setDescription(event.getUser().getAsMention() + " Please check the " + welcomeChannel.getAsMention() + ", and have fun!").setColor(Color.GREEN);
-            } else {
-                embedBuilder = new EmbedBuilder().setAuthor("Welcome!", event.getUser().getAvatarUrl(), event.getUser().getAvatarUrl()).setTitle("Welcome! to the " + event.getGuild().getName()).setDescription(event.getUser().getAsMention() + " Please check the rules, and have fun!").setColor(Color.GREEN);
-            }
+
+            EmbedBuilder embedBuilder = new EmbedBuilder()
+                    .setAuthor("🎉 Welcome!", event.getUser().getAvatarUrl(), event.getUser().getAvatarUrl())
+                    .setTitle("Welcome to " + event.getGuild().getName() + "!")
+                    .setDescription(event.getUser().getAsMention() + " just joined the server. " +
+                            "Please check the " + (welcomeChannel != null ? welcomeChannel.getAsMention() : "rules") + " and have fun!")
+                    .addField("Account Created", "<t:" + event.getUser().getTimeCreated().toEpochSecond() + ":D>", true)
+                    .addField("Joined", "<t:" + time + ":R>", true)
+                    .setColor(new Color(0x57F287)) // Discord green
+                    .setThumbnail(event.getUser().getAvatarUrl())
+                    .setFooter("User ID: " + event.getUser().getId())
+                    .setTimestamp(Instant.now());
+
             event.getGuild().getSystemChannel().sendMessageEmbeds(embedBuilder.build()).queue();
         }
 
@@ -57,11 +64,14 @@ public class LoggingUtils {
             TextChannel logChannel = CUtils.findLogChannel(event.getGuild());
             if (logChannel == null) return;
             EmbedBuilder logEmbedBuilder = new EmbedBuilder()
-                    .setAuthor("Member Joined:", event.getUser().getAvatarUrl(), event.getUser().getAvatarUrl())
-                    .setDescription(event.getUser().getAsMention())
-                    .addField("More information:", "Account Created: " + event.getUser().getTimeCreated().toLocalDate().toString() + "\nTime since joined: <t:" + time + ":R>", false)
-                    .setColor(Color.GREEN)
-                    .setThumbnail(event.getUser().getAvatarUrl());
+                    .setAuthor("🎉 Member Joined!", event.getUser().getAvatarUrl(), event.getUser().getAvatarUrl())
+                    .setDescription(event.getUser().getAsMention() + " has joined the server.")
+                    .addField("Account Created", "<t:" + event.getUser().getTimeCreated().toEpochSecond() + ":D>", true)
+                    .addField("Joined", "<t:" + time + ":R>", true)
+                    .setColor(new Color(0x5865F2)) // Discord blurple
+                    .setThumbnail(event.getUser().getAvatarUrl())
+                    .setFooter("User ID: " + event.getUser().getId())
+                    .setTimestamp(Instant.now());
             logChannel.sendMessageEmbeds(logEmbedBuilder.build()).queue();
         }
     }
