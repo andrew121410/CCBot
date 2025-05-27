@@ -207,7 +207,7 @@ public class LoggingUtils {
 
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setAuthor("Member Banned:", event.getUser().getAvatarUrl(), event.getUser().getAvatarUrl())
-                .setDescription(event.getUser().getAsMention() + " Has been banned!")
+                .setDescription(event.getUser().getAsMention() + " has been banned!")
                 .setColor(Color.RED).setThumbnail(event.getUser().getAvatarUrl());
 
         logChannel.sendMessageEmbeds(embedBuilder.build()).queue();
