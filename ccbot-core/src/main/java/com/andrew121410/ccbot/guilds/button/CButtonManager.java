@@ -1,10 +1,10 @@
 package com.andrew121410.ccbot.guilds.button;
 
 import lombok.Getter;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.actionrow.ActionRowChildComponent;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.ItemComponent;
 
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -22,7 +22,7 @@ public class CButtonManager {
         this.onButtonClick = onButtonClick;
         this.deleteOnShutdown = deleteOnShutdown;
 
-        List<ItemComponent> components = this.cButtons.stream().map(CButton::getComponent).collect(Collectors.toList());
+        List<ActionRowChildComponent> components = this.cButtons.stream().map(CButton::getJdaButton).collect(Collectors.toList());
         ActionRow actionRow = ActionRow.of(components);
         message.editMessageComponents(actionRow).queue();
     }

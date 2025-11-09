@@ -126,7 +126,7 @@ public class CEvents {
     @SubscribeEvent
     public void onButtonClickEvent(ButtonInteractionEvent event) {
         if (event.getMember() == null) return;
-        if (event.getMember().getUser().isBot()) return; //No bots
+        if (event.getMember().getUser().isBot()) return; // No bots
 
         if (event.getGuild() == null) {
             throw new NullPointerException("Guild was null for some reason");
@@ -140,7 +140,8 @@ public class CEvents {
             return;
         }
 
-        Optional<CButton> cButton = cButtonManager.getCButtons().stream().filter(cButton1 -> Objects.equals(cButton1.getComponent().getId(), event.getComponentId())).findFirst();
+        // Find the CButton that was clicked
+        Optional<CButton> cButton = cButtonManager.getCButtons().stream().filter(cButton1 -> Objects.equals(cButton1.getJdaButton().getUniqueId(), event.getButton().getUniqueId())).findFirst();
 
         if (cButton.isPresent()) {
             //Check if the member has the right permissions to use this button
