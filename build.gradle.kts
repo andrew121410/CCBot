@@ -1,6 +1,6 @@
 plugins {
     `java-library`
-    id("io.freefair.lombok") version "8.14.2" apply false // https://plugins.gradle.org/plugin/io.freefair.lombok
+    id("io.freefair.lombok") version "8.14.3" apply false // https://plugins.gradle.org/plugin/io.freefair.lombok
     id("com.gradleup.shadow") version "9.2.2" // https://github.com/GradleUp/shadow
 }
 
