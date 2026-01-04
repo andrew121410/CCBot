@@ -97,9 +97,9 @@ public class VideoDownloader {
     }
 
     public static DPlatform identifyPlatform(String url) {
-        if (url.contains("tiktok.com/t/")) {
-            return DPlatform.TIKTOK;
-        }
+//        if (url.contains("tiktok.com/t/")) {
+//            return DPlatform.TIKTOK;
+//        }
         return null;
     }
 }
