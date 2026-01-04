@@ -17,3 +17,7 @@ dependencies {
     api("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
     api("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:$jacksonVersion")
 }
+
+//tasks.withType<JavaCompile>().configureEach {
+//    options.compilerArgs.add("-Xlint:deprecation")
+//}

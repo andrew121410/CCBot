@@ -78,7 +78,13 @@ public class VideoDownloader {
         if (!compressedVideos.exists()) compressedVideos.mkdir();
 
         try {
-            Process process = Runtime.getRuntime().exec("sudo ../../discordify-new.sh 25 ../" + video.getName() + " zero-h-medium", null, compressedVideos);
+            String sudo = "sudo";
+            String scriptPath = "../../discordify-new.sh";
+            String quality = "25";
+            String inputPath = "../" + video.getName();
+            String preset = "zero-h-medium";
+            String[] command = {sudo, scriptPath, quality, inputPath, preset};
+            Process process = Runtime.getRuntime().exec(command, null, compressedVideos);
             process.waitFor();
         } catch (Exception e) {
             e.printStackTrace();
