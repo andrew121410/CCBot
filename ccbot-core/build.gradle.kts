@@ -11,7 +11,7 @@ dependencies {
     api("com.github.andrew121410:minecraft-server-ping:6cc532c374")
 
     // Jackson -> https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core
-    val jacksonVersion = "2.20.1"
+    val jacksonVersion = "2.21.0"
     api("com.fasterxml.jackson.core:jackson-annotations:3.0-rc5")
     api("com.fasterxml.jackson.core:jackson-core:$jacksonVersion")
     api("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
