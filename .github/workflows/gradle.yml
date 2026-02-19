@@ -33,12 +33,18 @@ jobs:
       - name: Generate sha256sum
         run: sha256sum "$MY_JAR" >> hash.txt
 
-      - name: Deploy Release With Artifact
-        uses: "marvinpinto/action-automatic-releases@latest"
+      - name: Delete Old Release
+        run: gh release delete latest --yes --cleanup-tag || true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Deploy Release With Artifact # https://github.com/softprops/action-gh-release
+        uses: softprops/action-gh-release@v2
         with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "latest"
-          prerelease: false
+          tag_name: "latest"
+          body: |
+            Automated build from commit ${{ github.sha }}
+          make_latest: true
           files: |
             ${{ env.MY_JAR }}
             hash.txt
