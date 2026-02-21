@@ -10,14 +10,13 @@ dependencies {
     api("com.github.andrew121410.CCUtilsJava:ccutilsjava-relocation:726f19c60a")
     api("com.github.andrew121410:minecraft-server-ping:6cc532c374")
 
-    // Jackson -> https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core
-    val jacksonVersion = "2.21.0"
-    api("com.fasterxml.jackson.core:jackson-annotations:3.0-rc5")
-    api("com.fasterxml.jackson.core:jackson-core:$jacksonVersion")
-    api("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
-    api("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:$jacksonVersion")
+    // Jackson -> https://mvnrepository.com/artifact/tools.jackson.core/jackson-core
+    val jacksonVersion = "3.1.0-rc1"
+    api("tools.jackson.core:jackson-core:$jacksonVersion")
+    api("tools.jackson.core:jackson-databind:$jacksonVersion")
+    api("tools.jackson.dataformat:jackson-dataformat-yaml:$jacksonVersion")
 }
 
-//tasks.withType<JavaCompile>().configureEach {
-//    options.compilerArgs.add("-Xlint:deprecation")
-//}
+tasks.withType<JavaCompile>().configureEach {
+    options.compilerArgs.add("-Xlint:deprecation")
+}

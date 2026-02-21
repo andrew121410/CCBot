@@ -2,10 +2,9 @@ package com.andrew121410.ccbot.config;
 
 import com.andrew121410.ccbot.CCBotCore;
 import com.andrew121410.ccbot.guilds.CGuild;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import net.dv8tion.jda.api.entities.Guild;
+import tools.jackson.databind.ObjectMapper;
 
 import java.io.File;
 import java.time.Duration;
@@ -32,7 +31,6 @@ public class GuildConfigManager {
     @SneakyThrows
     public void loadAllGuilds() {
         ObjectMapper objectMapper = configManager.createDefaultMapper();
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
         File guildsFolder = getGuildFolder();
         List<File> ymlFiles = Arrays.stream(guildsFolder.listFiles()).filter(file -> file.getName().endsWith(".yml")).collect(Collectors.toList());
@@ -45,7 +43,6 @@ public class GuildConfigManager {
     @SneakyThrows
     public void saveAllGuilds(boolean silent) {
         ObjectMapper objectMapper = configManager.createDefaultMapper();
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
         File guildsFolder = getGuildFolder();
         Instant start = Instant.now();

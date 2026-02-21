@@ -1,10 +1,11 @@
 package com.andrew121410.ccbot.config;
 
 import com.andrew121410.ccbot.CCBotCore;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import lombok.SneakyThrows;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.dataformat.yaml.YAMLFactory;
+import tools.jackson.dataformat.yaml.YAMLFactoryBuilder;
+import tools.jackson.dataformat.yaml.YAMLWriteFeature;
 
 import java.io.File;
 
@@ -53,8 +54,11 @@ public class ConfigManager {
     }
 
     public ObjectMapper createDefaultMapper() {
-        YAMLFactory yamlFactory = new YAMLFactory();
-        yamlFactory.disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER);
+        YAMLFactoryBuilder builder = YAMLFactory.builder();
+        builder.disable(YAMLWriteFeature.WRITE_DOC_START_MARKER);
+        // So with Jackson 3.0 FAIL_ON_UNKNOWN_PROPERTIES is disabled by default.
+        // From the docs: "Feature is disabled by default as of Jackson 3.0 (in 2.x it was enabled)."
+        YAMLFactory yamlFactory = builder.build();
         return new ObjectMapper(yamlFactory);
     }
 

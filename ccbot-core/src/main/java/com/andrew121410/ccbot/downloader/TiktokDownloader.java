@@ -1,9 +1,9 @@
 package com.andrew121410.ccbot.downloader;
 
 import com.andrew121410.ccbot.CCBotCore;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.*;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import tools.jackson.databind.ObjectMapper;
 
 import java.io.BufferedReader;
 import java.io.File;
