@@ -11,7 +11,7 @@ dependencies {
     api("com.github.andrew121410:minecraft-server-ping:6cc532c374")
 
     // Jackson -> https://mvnrepository.com/artifact/tools.jackson.core/jackson-core
-    val jacksonVersion = "3.1.0-rc1"
+    val jacksonVersion = "3.1.0"
     api("tools.jackson.core:jackson-core:$jacksonVersion")
     api("tools.jackson.core:jackson-databind:$jacksonVersion")
     api("tools.jackson.dataformat:jackson-dataformat-yaml:$jacksonVersion")
