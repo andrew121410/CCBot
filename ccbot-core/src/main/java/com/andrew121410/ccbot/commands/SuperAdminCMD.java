@@ -44,7 +44,8 @@ public class SuperAdminCMD extends AbstractCommand {
                     .setAuthor("CCBot SuperAdmin Usage!")
                     .addField("1.", this.ccBotCore.getConfigManager().getMainConfig().getPrefix() + "superadmin guilds", false)
                     .addField("2.", this.ccBotCore.getConfigManager().getMainConfig().getPrefix() + "superadmin invite <guildId>", false)
-                    .addField("3.", this.ccBotCore.getConfigManager().getMainConfig().getPrefix() + "superadmin name-testing", false);
+                    .addField("3.", this.ccBotCore.getConfigManager().getMainConfig().getPrefix() + "superadmin name-testing", false)
+                    .addField("4.", this.ccBotCore.getConfigManager().getMainConfig().getPrefix() + "superadmin update-ytdlp", false);
             textChannel.sendMessageEmbeds(embedBuilder.build()).queue(a -> a.delete().queueAfter(10, TimeUnit.SECONDS));
         } else if (args[0].equalsIgnoreCase("guilds")) {
             if (args.length == 2 && args[1].equalsIgnoreCase("list")) {
@@ -110,6 +111,13 @@ public class SuperAdminCMD extends AbstractCommand {
                 embedBuilder.addField("Nickname:", nickname, false);
             }
             textChannel.sendMessageEmbeds(embedBuilder.build()).queue();
+        } else if (args.length == 1 && args[0].equalsIgnoreCase("update-ytdlp")) {
+            textChannel.sendMessage("*Updating yt-dlp...*").queue();
+            this.ccBotCore.getVideoDownloader().getYtDlpDownloader().update().thenAccept(result -> {
+                String message = result.length() > 1900 ? result.substring(result.length() - 1900) : result;
+                textChannel.sendMessage("```\n" + message + "\n```").queue();
+            });
+            return true;
         } else if (args.length == 1 && args[0].equalsIgnoreCase("update")) {
             String latestJar = "https://github.com/andrew121410/CCBot/releases/download/latest/CCBot.jar";
             String latestHash = "https://github.com/andrew121410/CCBot/releases/download/latest/hash.txt";

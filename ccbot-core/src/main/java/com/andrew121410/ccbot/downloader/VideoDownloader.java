@@ -19,7 +19,8 @@ public class VideoDownloader {
     @Getter
     private final File videosFolder;
 
-    private TiktokDownloader tiktokDownloader;
+    @Getter
+    private YtDlpDownloader ytDlpDownloader;
 
     public VideoDownloader(CCBotCore ccBotCore) {
         this.ccBotCore = ccBotCore;
@@ -29,7 +30,7 @@ public class VideoDownloader {
             videosFolder.mkdir();
         }
 
-        this.tiktokDownloader = new TiktokDownloader(this.ccBotCore, videosFolder);
+        this.ytDlpDownloader = new YtDlpDownloader(this.ccBotCore, videosFolder);
     }
 
     public void handle(TextChannel textChannel, String possibleUrl) {
@@ -64,7 +65,7 @@ public class VideoDownloader {
         }), (exe) -> {
             if (shouldTryToCompressIfTooLarge && exe.getMessage().contains("too large")) {
                 // Let's try to compress the video
-                textChannel.sendMessage("*The video is too large, trying to compress it...*").queue(message -> message.delete().queueAfter(10, TimeUnit.SECONDS));
+                textChannel.sendMessage("*The video is too large, trying to compress it...* *(This may take a while)*").queue(message -> message.delete().queueAfter(1, TimeUnit.MINUTES));
                 sendVideo(textChannel, compressVideo(videoFile), false);
             } else {
                 if (!videoFile.delete()) System.out.println("Failed to delete after failing " + videoFile.getName());
@@ -77,35 +78,57 @@ public class VideoDownloader {
         File compressedVideos = new File(this.videosFolder, "compressedVideos");
         if (!compressedVideos.exists()) compressedVideos.mkdir();
 
+        String useH264 = "zero-h-medium";
+        String useVP9 = "zero-v-4";
+        String useAV1 = "zero-a-3";
+
+        File workingDir = this.ccBotCore.getWorkingDirectory();
+        File scriptFile = new File(workingDir, "discordify-new.sh");
         try {
-            String sudo = "sudo";
-            String scriptPath = "../../discordify-new.sh";
-            String quality = "25";
-            String inputPath = "../" + video.getName();
-            String preset = "zero-h-medium";
-            String[] command = {sudo, scriptPath, quality, inputPath, preset};
-            Process process = Runtime.getRuntime().exec(command, null, compressedVideos);
-            process.waitFor();
+            String scriptPath = scriptFile.getAbsolutePath();
+            String quality = "10";
+            String inputPath = video.getAbsolutePath();
+            String preset = useH264;
+            String[] command = {scriptPath, quality, inputPath, preset};
+
+            ProcessBuilder pb = new ProcessBuilder(command);
+            pb.directory(compressedVideos);
+            pb.redirectErrorStream(true);
+            Process process = pb.start();
+
+            try (java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.InputStreamReader(process.getInputStream()))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    System.out.println("[discordify] " + line);
+                }
+            }
+
+            int exitCode = process.waitFor();
+            System.out.println("[discordify] Exit code: " + exitCode);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         String videoWithoutExtension = video.getName().replaceFirst("[.][^.]+$", "");
-        return new File(compressedVideos, videoWithoutExtension + "-25.mp4");
+        return new File(compressedVideos, videoWithoutExtension + "-10.mp4");
     }
 
     public IDownloader getDownloader(DPlatform dPlatform) {
         switch (dPlatform) {
             case TIKTOK:
-                return this.tiktokDownloader;
+            case INSTAGRAM:
+                return this.ytDlpDownloader;
         }
         return null;
     }
 
     public static DPlatform identifyPlatform(String url) {
-//        if (url.contains("tiktok.com/t/")) {
-//            return DPlatform.TIKTOK;
-//        }
+        if (url.contains("tiktok.com")) {
+            return DPlatform.TIKTOK;
+        }
+        if (url.contains("instagram.com/reel/") || url.contains("instagram.com/reels/")) {
+            return DPlatform.INSTAGRAM;
+        }
         return null;
     }
 }
