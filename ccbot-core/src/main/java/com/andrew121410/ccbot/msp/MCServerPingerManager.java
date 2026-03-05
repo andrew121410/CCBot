@@ -20,6 +20,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.concurrent.*;
@@ -31,7 +32,8 @@ public class MCServerPingerManager {
     @Getter
     private AtomicLong lastRan = new AtomicLong(0L);
 
-    public static final ScheduledExecutorService SCHEDULED_EXECUTOR_SERVICE = Executors.newScheduledThreadPool(4); // Use a thread pool
+    public static final ScheduledExecutorService SCHEDULED_EXECUTOR_SERVICE = Executors.newScheduledThreadPool(4); // Used for scheduling
+    private static final ExecutorService PING_EXECUTOR_SERVICE = Executors.newCachedThreadPool(); // Used for ping tasks
 
     public MCServerPingerManager(CCBotCore ccBotCore) {
         this.ccBotCore = ccBotCore;
@@ -64,26 +66,29 @@ public class MCServerPingerManager {
                 Guild guild = this.ccBotCore.getJda().getGuildById(cGuild.getGuildId());
                 List<AMinecraftServer> aMinecraftServers = cGuild.getaMinecraftServers();
 
-                aMinecraftServers.parallelStream().forEach(aMinecraftServer -> {
-                    ExecutorService executor = Executors.newSingleThreadExecutor();
-                    Future<?> future = executor.submit(() -> {
+                // Submit all pings concurrently and collect futures
+                List<Future<?>> futures = new ArrayList<>();
+                for (AMinecraftServer aMinecraftServer : aMinecraftServers) {
+                    Future<?> future = PING_EXECUTOR_SERVICE.submit(() -> {
                         MinecraftServerStatus serverStatus = getServerStatus(aMinecraftServer);
                         if (serverStatus == null) return;
 
                         handleServerStatus(aMinecraftServer, serverStatus, guild);
                     });
+                    futures.add(future);
+                }
 
+                // Wait for all pings to finish with a timeout
+                for (Future<?> future : futures) {
                     try {
-                        future.get(30, TimeUnit.SECONDS); // Set your timeout duration
+                        future.get(30, TimeUnit.SECONDS);
                     } catch (TimeoutException e) {
-                        future.cancel(true); // Cancel the task if it times out
-                        System.out.println("Task timed out and was cancelled.");
+                        future.cancel(true);
+                        System.out.println("MCServerPinger task timed out and was cancelled.");
                     } catch (InterruptedException | ExecutionException e) {
                         e.printStackTrace();
-                    } finally {
-                        executor.shutdown();
                     }
-                });
+                }
             }
             lastRan.set(System.currentTimeMillis());
         };
