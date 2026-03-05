@@ -4,9 +4,10 @@ import com.andrew121410.ccbot.CCBotCore;
 import com.andrew121410.ccutils.dependencies.google.common.collect.Multimap;
 import com.andrew121410.ccutils.storage.ISQL;
 import com.andrew121410.ccutils.storage.SQLite;
-import com.andrew121410.ccutils.storage.easy.EasySQL;
 import com.andrew121410.ccutils.storage.easy.MultiTableEasySQL;
 import com.andrew121410.ccutils.storage.easy.SQLDataStore;
+import com.andrew121410.ccutils.storage.easy.SynchronizedEasySQL;
+import com.andrew121410.ccutils.storage.easy.SynchronizedMultiTableEasySQL;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
@@ -26,7 +27,7 @@ public class MessageHistoryManager {
     private final String guildId;
 
     private final ISQL isql;
-    private final EasySQL easySQL;
+    private final SynchronizedEasySQL easySQL;
 
     private boolean interrupt = false;
     private boolean isRunning = false;
@@ -39,7 +40,7 @@ public class MessageHistoryManager {
         if (db.exists()) isFirstTime = false;
 
         this.isql = new SQLite(this.ccBotCore.getConfigManager().getGuildConfigManager().getGuildFolder(), "mh-" + guildId);
-        this.easySQL = new EasySQL("messageHistory", new MultiTableEasySQL(this.isql));
+        this.easySQL = new SynchronizedEasySQL("messageHistory", new SynchronizedMultiTableEasySQL(new MultiTableEasySQL(this.isql)));
 
         List<String> columns = new ArrayList<>();
         columns.add("channelId");
@@ -50,7 +51,7 @@ public class MessageHistoryManager {
         this.easySQL.create(columns, false);
     }
 
-    public void saveMessage(TextChannel textChannel, User user, Message message) {
+    public synchronized void saveMessage(TextChannel textChannel, User user, Message message) {
         if (interrupt) return;
 
         SQLDataStore map = new SQLDataStore();
@@ -70,7 +71,7 @@ public class MessageHistoryManager {
         saveMessage(message.getChannel().asTextChannel(), message.getAuthor(), message);
     }
 
-    public AMessage getMessage(TextChannel textChannel, String messageId) {
+    public synchronized AMessage getMessage(TextChannel textChannel, String messageId) {
         if (interrupt) return null;
 
         SQLDataStore map = new SQLDataStore();
@@ -92,7 +93,7 @@ public class MessageHistoryManager {
         return new AMessage(sqlDataStore.get("message"), sqlDataStore.get("senderId"));
     }
 
-    public void deleteMessage(String channelId, String messageId) {
+    public synchronized void deleteMessage(String channelId, String messageId) {
         if (interrupt) return;
 
         SQLDataStore map = new SQLDataStore();
@@ -144,29 +145,44 @@ public class MessageHistoryManager {
         Guild guild = this.ccBotCore.getJda().getGuildById(guildId);
         if (guild == null) return;
 
-        for (TextChannel textChannel : guild.getTextChannels()) {
-            if (!guild.getSelfMember().getPermissions(textChannel).contains(Permission.VIEW_CHANNEL)) continue;
+        Runnable runnable = () -> {
+            for (TextChannel textChannel : guild.getTextChannels()) {
+                if (!guild.getSelfMember().getPermissions(textChannel).contains(Permission.VIEW_CHANNEL)) continue;
 
-            textChannel.getIterableHistory().takeUntilAsync(message -> message.getTimeCreated().toInstant().toEpochMilli() <= lastOnlineLong).thenApply(messages -> {
-                int size = messages.size();
-                for (Message message : messages) {
-                    if (size <= 30) {
-                        System.out.println("Caching message: " + message.getId() + " Content: " + message.getContentRaw());
-                    }
-                    this.saveMessage(textChannel, message.getAuthor(), message);
+                try {
+                    textChannel.getIterableHistory().takeUntilAsync(message -> message.getTimeCreated().toInstant().toEpochMilli() <= lastOnlineLong).thenApply(messages -> {
+                        int size = messages.size();
+                        for (Message message : messages) {
+                            // Skip blank messages, we don't care about them, and they just take up space in the database
+                            if (message.getContentRaw().isBlank() || message.getContentRaw().isEmpty()) continue;
+
+                            // Only print messages that are 30 characters or fewer, we don't want to spam the console with long messages
+                            if (size <= 30) {
+                                System.out.println("Caching message: " + message.getId() + " Content: " + message.getContentRaw());
+                            }
+
+                            this.saveMessage(textChannel, message.getAuthor(), message);
+                        }
+                        return null;
+                    }).join(); // Wait for this channel to finish before moving to the next
+                } catch (Exception e) {
+                    System.out.println("Error caching messages for channel: " + textChannel.getName());
+                    e.printStackTrace();
                 }
-                return null;
-            }).thenApply(aVoid -> {
-                this.isRunning = false;
-                return null;
-            });
-        }
+            }
+            this.isRunning = false;
+            System.out.println("Done catching up messages for " + guildId);
+        };
+        new Thread(runnable).start();
     }
 
     private void cacheAllMessagesOfGuild(Guild guild) {
         for (TextChannel textChannel : guild.getTextChannels()) {
             if (!guild.getSelfMember().getPermissions(textChannel).contains(Permission.VIEW_CHANNEL)) continue;
             for (Message message : textChannel.getIterableHistory()) {
+                // Skip blank messages, we don't care about them, and they just take up space in the database
+                if (message.getContentRaw().isBlank() || message.getContentRaw().isEmpty()) continue;
+
                 saveMessage(textChannel, message.getAuthor(), message);
             }
         }
