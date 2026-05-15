@@ -93,7 +93,7 @@ public class MCServerPingerManager {
             lastRan.set(System.currentTimeMillis());
         };
 
-        SCHEDULED_EXECUTOR_SERVICE.scheduleAtFixedRate(runnable, 0, 1, TimeUnit.MINUTES);
+        SCHEDULED_EXECUTOR_SERVICE.scheduleWithFixedDelay(runnable, 0, 1, TimeUnit.MINUTES);
     }
 
     private void handleServerStatus(AMinecraftServer aMinecraftServer, MinecraftServerStatus serverStatus, Guild guild) {
@@ -212,11 +212,18 @@ public class MCServerPingerManager {
     }
 
     private void saveIcon(AMinecraftServer aMinecraftServer, String base64) {
-        // Don't save the icon if it's already saved
-        if (doesIconExist(aMinecraftServer)) return;
-
         // Don't save the icon if it's null lol
         if (base64 == null) return;
+
+        synchronized (aMinecraftServer) {
+            // Don't save the icon if it's already saved
+            if (doesIconExist(aMinecraftServer)) return;
+
+            saveIconInternal(aMinecraftServer, base64);
+        }
+    }
+
+    private void saveIconInternal(AMinecraftServer aMinecraftServer, String base64) {
 
         // Make directory if it doesn't exist
         File directory = new File(this.ccBotCore.getWorkingDirectory(), "mc-server-icons");

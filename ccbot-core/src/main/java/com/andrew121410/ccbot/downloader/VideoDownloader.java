@@ -117,6 +117,7 @@ public class VideoDownloader {
         switch (dPlatform) {
             case TIKTOK:
             case INSTAGRAM:
+            case YOUTUBE_SHORTS:
                 return this.ytDlpDownloader;
         }
         return null;
@@ -128,6 +129,9 @@ public class VideoDownloader {
         }
         if (url.contains("instagram.com/reel/") || url.contains("instagram.com/reels/")) {
             return DPlatform.INSTAGRAM;
+        }
+        if (url.contains("youtube.com/shorts/")) {
+            return DPlatform.YOUTUBE_SHORTS;
         }
         return null;
     }

@@ -4,4 +4,5 @@ public enum DPlatform {
 
     TIKTOK,
     INSTAGRAM,
+    YOUTUBE_SHORTS,
 }

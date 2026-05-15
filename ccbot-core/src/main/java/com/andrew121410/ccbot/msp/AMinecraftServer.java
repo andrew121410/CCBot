@@ -24,11 +24,11 @@ public class AMinecraftServer {
     @JsonProperty("Channel-ID")
     private long channelId;
     @JsonIgnore
-    private int attempts;
+    private volatile int attempts;
     @JsonProperty("Did-we-send-a-message")
-    private boolean sentMessage = false;
+    private volatile boolean sentMessage = false;
     @JsonProperty("Time-of-offline")
-    private long timeOfOffline = 0L;
+    private volatile long timeOfOffline = 0L;
 
     // User Settings
     @JsonProperty("max-attempts")

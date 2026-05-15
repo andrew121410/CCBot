@@ -13,6 +13,7 @@ import lombok.ToString;
 import net.dv8tion.jda.api.entities.Guild;
 
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @ToString
 @EqualsAndHashCode
@@ -37,7 +38,7 @@ public class CGuild {
     private Map<String, String> tags = new HashMap<>();
 
     @JsonProperty("Minecraft-Server-Pinger")
-    private List<AMinecraftServer> aMinecraftServers = Collections.synchronizedList(new ArrayList<>());
+    private List<AMinecraftServer> aMinecraftServers = new CopyOnWriteArrayList<>();
 
     @JsonProperty("Settings")
     private CGuildSettings settings = new CGuildSettings();
@@ -56,8 +57,9 @@ public class CGuild {
         this.messageHistoryManager = new MessageHistoryManager(this.ccBotCore, guild.getId());
         this.messageHistoryManager.cacheEverythingMissing();
 
-        // Make sure it's actually a sync list.
-        this.aMinecraftServers = Collections.synchronizedList(this.aMinecraftServers);
+        if (!(this.aMinecraftServers instanceof CopyOnWriteArrayList)) {
+            this.aMinecraftServers = new CopyOnWriteArrayList<>(this.aMinecraftServers);
+        }
     }
 
     @JsonIgnore

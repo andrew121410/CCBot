@@ -54,8 +54,9 @@ public class PurgeCMD extends AbstractCommand {
             }
             if (integer == 100) integer--;
 
-            purge(textChannel, integer);
-            textChannel.sendMessage("**Successfully purged " + integer + " messages!**").queue();
+            final int finalInteger = integer;
+            purge(textChannel, integer, () ->
+                    textChannel.sendMessage("**Successfully purged " + finalInteger + " messages!**").queue(msg -> msg.delete().queueAfter(10, TimeUnit.SECONDS)));
             return true;
         } else if (args.length >= 2 && args[0].contains("word")) {
             String[] wordArray = Arrays.copyOfRange(args, 1, args.length);
@@ -71,30 +72,35 @@ public class PurgeCMD extends AbstractCommand {
         return false;
     }
 
-    private void purge(TextChannel textChannel, int num) {
+    private void purge(TextChannel textChannel, int num, Runnable onComplete) {
         num++;
         MessageHistory history = new MessageHistory(textChannel);
         List<Message> messagesList = history.retrievePast(num).complete();
 
         try {
-            textChannel.deleteMessages(messagesList).queue();
+            textChannel.deleteMessages(messagesList).queue(success -> onComplete.run());
         } catch (IllegalArgumentException ex) {
             textChannel.sendMessage(ex.getMessage()).queue();
         }
     }
 
+    private static final int PURGE_WORDS_LIMIT = 500;
+
     private void purgeWords(TextChannel textChannel, List<String> strings) {
-        AtomicInteger atomicInteger = new AtomicInteger(0);
+        AtomicInteger scanned = new AtomicInteger(0);
+        AtomicInteger deleted = new AtomicInteger(0);
         textChannel.getIterableHistory().forEachAsync(message -> {
-            for (String string : strings)
+            if (scanned.incrementAndGet() > PURGE_WORDS_LIMIT) return false;
+            for (String string : strings) {
                 if (message.getContentRaw().contains(string)) {
-                    atomicInteger.getAndIncrement();
+                    deleted.getAndIncrement();
                     message.delete().queue();
+                    break;
                 }
+            }
             return true;
-        }).thenRunAsync(() -> {
-            textChannel.sendMessage("Completed purge! The message count was: " + atomicInteger.get()).queue();
-            textChannel.sendMessage("The words were: " + strings.toString()).queue();
-        });
+        }).thenRunAsync(() ->
+            textChannel.sendMessage("Completed purge! Deleted " + deleted.get() + " messages containing: " + strings).queue()
+        );
     }
 }

@@ -12,6 +12,9 @@ import net.dv8tion.jda.api.entities.Mentions;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import net.dv8tion.jda.api.exceptions.HierarchyException;
+import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
+
 import java.awt.*;
 import java.util.concurrent.TimeUnit;
 
@@ -50,13 +53,18 @@ public class BanCMD extends AbstractCommand {
             }
 
             Member member = mentions.getMembers().get(0);
-            try {
-                event.getGuild().ban(member, time, TimeUnit.DAYS).queue();
-            } catch (Exception e) {
-                textChannel.sendMessage("I can't ban that member!").queue(a -> a.delete().queueAfter(10, TimeUnit.SECONDS));
-                return true;
-            }
-            event.getChannel().sendMessage(member.getAsMention() + " **has been banned from the server!** \uD83D\uDD34").queue();
+            final int finalTime = time;
+            event.getGuild().ban(member, finalTime, TimeUnit.DAYS).queue(
+                    success -> event.getChannel().sendMessage(member.getAsMention() + " **has been banned from the server!** \uD83D\uDD34").queue(),
+                    failure -> {
+                        if (failure instanceof HierarchyException) {
+                            textChannel.sendMessage("I can't ban that member because they have a higher or equal role than me!").queue(a -> a.delete().queueAfter(10, TimeUnit.SECONDS));
+                        } else if (failure instanceof InsufficientPermissionException) {
+                            textChannel.sendMessage("I don't have permission to ban that member!").queue(a -> a.delete().queueAfter(10, TimeUnit.SECONDS));
+                        } else {
+                            textChannel.sendMessage("Failed to ban that member!").queue(a -> a.delete().queueAfter(10, TimeUnit.SECONDS));
+                        }
+                    });
             return true;
         } else {
             EmbedBuilder embedBuilder = new EmbedBuilder()
