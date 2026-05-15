@@ -2,7 +2,7 @@ description = "ccbot-bukkit"
 
 dependencies {
     api(project(":ccbot-core"))
-    compileOnly("org.spigotmc:spigot-api:1.21-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:26.1.2.build.63-stable")
 }
 
 tasks {
