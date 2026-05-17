@@ -2,7 +2,7 @@ description = "ccbot-bukkit"
 
 dependencies {
     api(project(":ccbot-core"))
-    compileOnly("io.papermc.paper:paper-api:26.1.2.build.63-stable")
+    compileOnly("io.papermc.paper:paper-api:26.1.2.build.64-stable")
 }
 
 tasks {
